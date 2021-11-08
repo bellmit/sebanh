@@ -1,0 +1,36 @@
+<div class="sb-content p-3 mt-3 mb-3 table-error-list">
+	<h3>Kết quả duyệt</h3>
+	<table class="table">
+		<thead>
+		<tr>
+			<th></th>
+			<th class="font-weight-bold">Mã khách hàng</th>
+			<th class="font-weight-bold">Tài khoản thanh toán</th>
+			<th class="font-weight-bold">Đăng ký SMS</th>
+			<th class="font-weight-bold">Đăng ký Ebank</th>
+			<th *ngIf="!isCombo1" class="font-weight-bold">Đăng ký Thẻ</th>
+			<th class="font-weight-bold">Combo</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td class="font-weight-bold">Trạng thái</td>
+			<td class="w18">{{getViewStatus(commonService.customerStatus$|async)}}</td>
+			<td class="w18">{{getViewStatus(commonService.accountStatus$|async)}}</td>
+			<td class="w18">{{getViewStatus(commonService.smsStatus$|async)}}</td>
+			<td class="w18">{{getViewStatus(commonService.ebankStatus$|async)}}</td>
+			<td *ngIf="!isCombo1" class="w18">{{getViewStatus(commonService.cardStatus$|async)}}</td>
+			<td class="w18">{{getViewStatusCombo(commonService.comboStatus$|async)}}</td>
+		</tr>
+		<tr>
+			<td class="font-weight-bold">Chi tiết</td>
+			<td class="w18">{{commonService.customerError$|async}}</td>
+			<td class="w18">{{commonService.accountError$|async}}</td>
+			<td class="w18">{{commonService.smsError$|async}}</td>
+			<td class="w18">{{commonService.ebankError$|async}}</td>
+			<td *ngIf="!isCombo1" class="w18" [innerHTML]="getViewResultCard(commonService.cardError$|async)"></td>
+			<td></td>
+		</tr>
+		</tbody>
+	</table>
+</div>

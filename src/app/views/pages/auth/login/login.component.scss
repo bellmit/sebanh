@@ -1,0 +1,247 @@
+.sb_login_bg {
+	position: relative;
+	background: #FEFFFE no-repeat center center fixed;
+	height: 100vh;
+}
+
+
+.title_login {
+	font-family: "Arial", sans-serif;
+	font-size: 1.6vh;
+	font-weight: bold;
+	color: black;
+}
+
+
+.sb-login-custom-form {
+	input:-webkit-autofill,
+	input:-webkit-autofill:hover,
+	input:-webkit-autofill:focus,
+	textarea:-webkit-autofill,
+	textarea:-webkit-autofill:hover,
+	textarea:-webkit-autofill:focus,
+	select:-webkit-autofill,
+	select:-webkit-autofill:hover,
+	select:-webkit-autofill:focus {
+		width: -90%;
+		border: 1px solid black;
+		-webkit-text-fill-color: black;
+		-webkit-box-shadow: black inset;
+		transition: background-color 5000s ease-in-out 0s;
+	}
+}
+
+
+.sb_login_form {
+	position: relative !important;
+	margin: 0 !important;
+}
+
+
+.sb_text_save_info_login {
+	color: black;
+	font-family: "Arial", sans-serif;
+	font-size: 1.5vh !important;
+
+}
+
+
+.seateller_title {
+	position: absolute;
+	width: 100%;
+	bottom: 20%;
+	font-family: "Arial", sans-serif;
+	color: white;
+	font-size: 30px;
+	font-weight: bold;
+}
+
+.seateller_introduce {
+	position: absolute;
+	width: 70%;
+	bottom: 14%;
+	font-family: "Arial", sans-serif;
+	color: white;
+	font-size: 13px;
+	font-weight: normal;
+}
+
+.sb-text-container {
+	margin-bottom: 1vh;
+}
+
+.sb-text__title {
+	font-family: "Arial", sans-serif;
+	font-size: 2.6vh !important;
+	font-weight: bold;
+	padding-top: 5vh;
+	color: black;
+	text-align: center;
+}
+
+.sb-text__title_login {
+	font-family: "Arial", sans-serif;
+	font-size: 1.5vh !important;
+	font-weight: normal;
+	color: black;
+	text-align: center;
+	margin-top: 1vh;
+}
+
+.sb-label__text {
+	color: black;
+	font-family: "Arial", sans-serif;
+	font-size: 1.6vh !important;
+	font-weight: bold !important;
+	margin-left: 12.5%;
+	margin-bottom: 1vh !important;
+	margin-top: 1vh !important;
+}
+
+.sb-login-custom-form {
+	input[type='text'] {
+		font-size: 1.5vh !important;
+	}
+}
+
+
+.input_login {
+	position: relative !important;
+	outline: none !important;
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: 3%;
+	left: 12.5%;
+	border: none !important;
+	border-radius: 1vh !important;
+	height: 5.5vh !important;
+	width: 100%;
+	background-color: #f1f4f9;
+	color: black;
+	padding: 0 3% !important;
+	font-size: inherit;
+}
+
+#username {
+	text-transform: uppercase;
+}
+
+.sb-checkbox__login {
+	position: relative !important;
+	left: 12.5%;
+	height: 2vh !important;
+	margin-bottom: 1vh !important;
+	margin-top: 1vh !important;
+	margin-left: 0 !important;
+}
+
+.check_box_login {
+	height: 2vh !important;
+	width: 1.5vw !important;
+	border-radius: 1vh !important;
+	margin-right: 0.5vw !important;
+	//margin-top: 0.5vh !important;
+}
+
+.img_icon_delete {
+	position: relative;
+	height: 2vh !important;
+	color: black;
+	left: 7%;
+	//top: -2%;
+	cursor: pointer
+}
+
+.img_icon_eye {
+	position: relative;
+	height: 2vh !important;
+	color: black;
+	left: 10%;
+	cursor: pointer
+}
+
+.container-sb_introduce {
+	position: relative;
+}
+
+.sb_btn_login {
+	background-color: #d61817;
+	color: white;
+	border-radius: 1vh !important;
+	width: 20vw !important;
+	font-size: 1.5vh !important;
+	position: relative;
+	padding: 2% 2%;
+	border: none;
+	font-weight: bold;
+	font-family: "Arial", sans-serif;
+	margin-top: 2vh !important;
+	margin-bottom: 3vh !important;
+}
+
+.image-ads {
+	margin: 0 !important;
+	height: 15vh !important;
+}
+
+.copyright {
+	margin-top: 3vh !important;
+}
+
+.copyrights {
+	position: absolute;
+	font-family: "Arial", sans-serif;
+	color: gray;
+	font-size: 1.5vh !important;
+	//bottom: 1vh !important;
+}
+
+//@media only screen and (min-width: 1200px) {
+//	.sb_btn_login {
+//		border-radius: 8px;
+//		width: 200px;
+//	}
+//}
+
+.sb-login-custom-form {
+	min-height: 45vw;
+	position: relative;
+	height: 100vh;
+
+	input:-webkit-autofill,
+	input:-webkit-autofill:hover,
+	input:-webkit-autofill:focus,
+	textarea:-webkit-autofill,
+	textarea:-webkit-autofill:hover,
+	textarea:-webkit-autofill:focus,
+	select:-webkit-autofill,
+	select:-webkit-autofill:hover,
+	select:-webkit-autofill:focus {
+		border: 1px solid white;
+		-webkit-text-fill-color: black;
+		-webkit-box-shadow: #b61817 inset;
+		transition: background-color 5000s ease-in-out 0s;
+	}
+
+	input::-webkit-input-placeholder {
+		font-family: "Arial", sans-serif;
+		color: black;
+		text-transform: initial;
+	}
+
+	input:-moz-placeholder {
+		font-family: "Arial", sans-serif;
+		color: black;
+		text-transform: initial;
+	}
+
+	input:-ms-input-placeholder {
+		font-family: "Arial", sans-serif;
+		color: black;
+		text-transform: initial;
+	}
+
+	& * {
+		font-size: 1.5vh;
+	}
+}

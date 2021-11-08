@@ -1,0 +1,66 @@
+#search-customer {
+	.modal-title {
+		text-align: left;
+		font: normal normal bold 20px/41px Manrope;
+		letter-spacing: 0px;
+		color: #000000;
+		opacity: 1;
+	};
+	th {
+		text-align: left;
+		font: normal normal bold 14px/21px Manrope;
+		letter-spacing: 0px;
+		color: #000000;
+		opacity: 1;
+		background: #C3CADB 0% 0% no-repeat padding-box;
+	}
+	.not-found {
+		text-align: center;
+		font: normal normal medium 16px/16px Manrope;
+		letter-spacing: 0px;
+		color: #000000;
+		opacity: 1;
+	};
+	.col-form-label {
+		text-align: left;
+		font: normal normal normal 14px/21px Manrope;
+		letter-spacing: 0px;
+		color: #000000;
+		opacity: 1;
+	};
+	table {
+		background: #C3CADB 0% 0% no-repeat padding-box;
+		border: 1px solid #f2f3f5 !important;
+		opacity: 1;
+	};
+
+	ngb-pagination li {
+		padding: 3px !important;
+
+	};
+
+	ngb-pagination .page-item.active .page-link {
+		background-color: #d61817 !important;
+		border-color: #d61817 !important;
+	};
+
+	.img_icon_delete {
+		position: relative;
+		height: 2vh !important;
+		color: black;
+		left: 7%;
+		//top: -2%;
+		cursor: pointer
+	};
+	.input-group-text {
+		i {
+			color: #000000 !important;
+		};
+		i:hover {
+			opacity: 50%;
+		}
+	}
+}
+ul li {
+	list-style-type: none;
+}

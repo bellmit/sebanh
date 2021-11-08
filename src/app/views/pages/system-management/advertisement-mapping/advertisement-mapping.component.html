@@ -1,0 +1,151 @@
+<div class="kt-content">
+	<p class="sb-title">Mapping quảng cáo</p>
+
+	<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2">
+		<!--		<form [formGroup]="paymentForm" (ngSubmit)="onImporterSubmit(paymentForm.value)">-->
+		<div class="form-group row">
+			<label class="col-12 sb-label">Tên sản phẩm</label>
+			<div class=" col-12 text-center">
+				<input type="text" class="form-control sb-input" placeholder="Nhập tên sản phẩm để tìm kiếm">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class=" col-12 text-right">
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4">Tìm kiếm</button>
+			</div>
+		</div>
+		<!--		</form>-->
+	</div>
+
+	<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2">
+		<p class="sb-title">Bảng danh Ghép sản phẩm - Tiêu chí</p>
+		<kt-dynamic-table class="text-left" [data]="data" (selectedObject)="chooseObject($event)"
+						  [configTable]="configTableAdsMapping"
+						  [loading]="isLoading">
+		</kt-dynamic-table>
+
+		<div class="form-group row">
+			<div class="col-12 text-right">
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4">
+					Thêm
+				</button>
+
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4 ml-2">
+					Copy
+				</button>
+
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4 ml-2">
+					Thêm sản phẩm
+				</button>
+
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4 ml-2">
+					Thêm tiêu chí
+				</button>
+
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4 ml-2">
+					Cập nhật
+				</button>
+
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4 ml-2">
+					Lưu
+				</button>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2" *ngIf="selectedObject">
+		<p class="sb-title">Thông tin chi tiết</p>
+
+		<form [formGroup]="editForm" (ngSubmit)="onSubmit(editForm.value)">
+			<div class="form-group row">
+				<label class="col-12 sb-label">Mã mapping</label>
+				<div class=" col-12 text-center">
+					<input type="text" readonly class="form-control sb-input" [value]="selectedObject.id">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-12 sb-label">Mô tả</label>
+				<div class=" col-12 text-center">
+					<input type="text" class="form-control sb-input" [value]="selectedObject.description">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-12 sb-label">Trạng thái</label>
+				<div class="col-12">
+					<div class="sb-select-group">
+						<ng-select formControlName="status" class="sb-input"
+								   [items]="dataStatus"
+								   bindLabel="status"
+								   bindValue="status"
+								   [searchable]="false"
+								   #name>
+						</ng-select>
+						<div class="sb-button-append" (click)="name.open()">
+												<span *ngIf="!(isLoading | async)"><i
+													class="kt-icon-xl fa fa-caret-down"></i></span>
+							<button class="btn" type="button"
+									[ngClass]="{'kt-spinner kt-spinner--sb': (isLoading | async)}">
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-12 sb-label">Tên sản phẩm</label>
+				<div class="col-12">
+					<div class="sb-select-group">
+						<ng-select formControlName="status" class="sb-input"
+								   [items]="dataProduct"
+								   bindLabel="name"
+								   bindValue="name"
+								   [searchable]="false"
+								   #name>
+						</ng-select>
+						<div class="sb-button-append" (click)="name.open()">
+												<span *ngIf="!(isLoading1 | async)"><i
+													class="kt-icon-xl fa fa-caret-down"></i></span>
+							<button class="btn" type="button"
+									[ngClass]="{'kt-spinner kt-spinner--sb': (isLoading1 | async)}">
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-12 sb-label">Tiêu chí</label>
+				<div class="col-12">
+					<div class="sb-select-group">
+						<ng-select formControlName="status" class="sb-input"
+								   [items]="dataCriteria"
+								   bindLabel="name"
+								   bindValue="name"
+								   [searchable]="false"
+								   #name>
+						</ng-select>
+						<div class="sb-button-append" (click)="name.open()">
+												<span *ngIf="!(isLoading2 | async)"><i
+													class="kt-icon-xl fa fa-caret-down"></i></span>
+							<button class="btn" type="button"
+									[ngClass]="{'kt-spinner kt-spinner--sb': (isLoading2 | async)}">
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-12 sb-label">Thứ tự chạy hình ảnh</label>
+				<div class=" col-12 text-center">
+					<input type="text" class="form-control sb-input">
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>

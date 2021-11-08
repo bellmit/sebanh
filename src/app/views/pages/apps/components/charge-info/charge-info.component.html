@@ -1,0 +1,229 @@
+<form [formGroup]="chargeInfoForm">
+	<div class="p-3 mt-3 mb-3" [ngClass]="{'sb-content': ((businessType != 'CLOSE_CARD') && (businessType != 'EXTEND_CARD') && (businessType != 'RELEASE_CARD'))}">
+
+		<div class="form-group row">
+
+			<label class="col-form-label col-md-2 required">Phương thức thu phí</label>
+			<div class="col-md-4">
+
+				<ng-select [items]="feePolicies" style="min-width: 100%"
+						   (change)="updateValidatorThuPhi($event?.id); this.resetFormChargeInfo();"
+						   [clearable]="false"
+						   [readonly]="isReadOnly"
+						   bindLabel="name"
+						   bindValue="id"
+						   formControlName="feePolicy">
+				</ng-select>
+
+				<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.feePolicy.touched || frm.feePolicy.dirty)
+									&& frm.feePolicy.hasError('required')">Trường bắt buộc nhập
+									</span>
+				</div>
+			</div>
+
+			<ng-container *ngIf="frm.feePolicy.value != 'TAI_KHOAN'">
+				<label class="col-form-label col-md-2" [ngClass]="{'required': isThuPhi}">Tài khoản thu phí</label>
+				<div class="col-md-4 mr-circle"
+					 [ngClass]="{'kt-spinner kt-spinner--right kt-spinner--sb': (isLoadingCheckTaiKhoanThuPhi$ | async)}">
+					<input type="text" class="form-control" formControlName="feeAccount"
+						   [readOnly]="this.frm.feePolicy.value == 'MIEN_PHI' || isReadOnly"
+						   (blur)="checkTaiKhoanThuPhi($event?.target?.value)"
+						   [ngClass]="{'sb-readonly': this.frm.feePolicy.value == 'MIEN_PHI' || isReadOnly}">
+					<div class="invalid-feedback" style="display: block">
+											<span
+												*ngIf="tenTaiKhoanThuPhi$|async">{{(tenTaiKhoanThuPhi$|async)}}</span>
+
+						<span
+							*ngIf="(frm.feeAccount.touched || frm.feeAccount.dirty || isClicked == true) && frm.feeAccount.hasError('required')">Trường bắt buộc nhập
+											</span>
+						<span
+							*ngIf="(frm.feeAccount.touched || frm.feeAccount.dirty) && frm.feeAccount.hasError('notExist')">Tài khoản không tồn tại
+											</span>
+
+					</div>
+
+					<div class="invalid-feedback" style="display: block">
+											<span
+												*ngIf="frm.feePolicy.value == null && (frm.feeAccount.touched || frm.feeAccount.dirty || isClicked == true)">Bạn cần chọn phương thức thu phí trước</span>
+					</div>
+				</div>
+			</ng-container>
+
+
+			<ng-container *ngIf="frm.feePolicy.value == 'TAI_KHOAN'">
+				<label class="col-form-label col-md-2" [ngClass]="{'required': isThuPhi}">Tài khoản thu phí </label>
+				<div class="col-md-4">
+					<ng-select
+					[readonly]="this.frm.feePolicy.value == 'MIEN_PHI' || isReadOnly"
+						[searchable]="true"
+						bindLabel="acct"
+						bindValue="acct"
+						(change)="checkSoDuKhaDungChoTKThuPhiCuaKH($event)"
+						[disabled]="this.frm.feePolicy.value == 'MIEN_PHI' || isReadOnly"
+						[items]="listAccountOfUser$ | async"
+						[loading]="isLoadingListAccountOfCustomer$ | async"
+						formControlName="feeAccount"
+						dropdownPosition="bottom">
+						<ng-template ng-label-tmp let-item="item" let-index="index">
+							<span>{{item.acct}}</span>
+						</ng-template>
+
+						<ng-template ng-option-tmp let-item="item" let-index="index"
+									 let-search="searchTerm">
+							<span>{{item.acct}}</span>
+						</ng-template>
+
+						<ng-template ng-notfound-tmp>Không tìm thấy</ng-template>
+					</ng-select>
+					<div class="invalid-feedback" style="display: block">
+														<span *ngIf="(frm.feeAccount.touched || frm.feeAccount.dirty || isClicked == true)
+															&& frm.feeAccount.hasError('required')">Trường bắt buộc nhập</span>
+					</div>
+
+					<div class="invalid-feedback" style="display: block">
+														<span
+															*ngIf="frm.feePolicy.value == null && (frm.feeAccount.touched || frm.feeAccount.dirty)">
+															Bạn cần chọn phương thức thu phí trước
+														</span>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+
+
+		<div formArrayName="feeInfos" *ngFor="let info of feeInfosFormArray.controls; let i=index">
+			<div [formGroupName]="i">
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-1 ">Mã phí</label>
+
+					<div class="text-right col-md-1 m-0 p-0 row">
+						<i class="icon text-center minus pr-2 sb-cursor-pointer" *ngIf="i > 0"
+						   (click)="removeFeeInfoFormAtIndex(i)">
+						</i>
+
+						<i class="icon text-center plus sb-cursor-pointer"
+						   *ngIf="i == feeInfosFormArray.controls.length -1"
+						   (click)="addMoreFeeInfoFormArray()">
+						</i>
+					</div>
+
+					<div class="col-md-4 ">
+						<!--							<div class="w-100 d-inline-flex">-->
+						<ng-select [items]="chargeCodes$|async" style="min-width:100%"
+								   (change)="calculateTotalAmount($event?.flatAmt, $event, i)"
+								   [readonly]="this.frm.feePolicy.value == 'MIEN_PHI' || isReadOnly"
+								   bindLabel="gbDescription"
+								   bindValue="id"
+								   formControlName="feeCode" [searchFn]="customSearchFee">
+							<ng-template ng-option-tmp let-item="item" ng-label-tmp let-search="searchTerm">
+								<div class="form-row">
+												<span class="col-sm-11" style="top: 1px;">{{item?.id}}
+													- {{item?.gbDescription}} - {{item?.currency}}</span>
+								</div>
+							</ng-template>
+						</ng-select>
+
+						<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(info.get('feeCode').touched || info.get('feeCode').dirty)
+									&& info.get('feeCode').hasError('required')">Trường bắt buộc nhập
+									</span>									
+						</div>
+						<!--							</div>-->
+					</div>
+
+					<label class="col-form-label col-md-2" [ngClass]="{'required': isThuPhi}">Số tiền phí</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="feeAmt"
+							   inputCurrency
+							   [readOnly]="this.frm?.feePolicy?.value == 'MIEN_PHI' || info.get('feeCode').value == null || isReadOnly"
+							   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}"
+							   (blur)="calculateTotalAmount($event?.target?.value, null, i)">
+						<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(info.get('feeAmt').touched || info.get('feeAmt').dirty || isClicked == true) && info.get('feeAmt').hasError('required')">Trường bắt buộc nhập
+											</span>
+											<span
+											*ngIf="zeroFee$|async">{{(zeroFee$|async)[i]}}
+												</span>		
+						</div>
+					</div>
+
+
+				</div>
+
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2">Thuế</label>
+					<div class="col-md-4">
+						<input type="text" [readOnly]="true" class="form-control sb-readonly"
+							   formControlName="tax"
+							   inputCurrency
+							   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+
+		<div class="form-group row">
+			<label class="col-form-label col-md-2">Ngày thu phí</label>
+			<div class="col-md-4">
+
+				<div class="input-group">
+					<input type="text"
+						   class="form-control py-2 border-right-0 border sb-readonly"
+						   style="border: none !important;"
+						   [readOnly]="true"
+						   formControlName="feeDate"
+						   [matDatepicker]="picker">
+					<span class="input-group-append">
+                    					<div class="input-group-text bg-transparent border-0 sb-readonly">
+											<img src="assets/media/icons/calendar.svg">
+											<mat-datepicker #picker color="warn"></mat-datepicker>
+										</div>
+									</span>
+				</div>
+			</div>
+
+			<label class="col-form-label col-md-2" [ngClass]="{'required': isThuPhi}">Diễn
+				giải</label>
+			<div class="col-md-4">
+				<input type="text" class="form-control" formControlName="explain"
+					   [readonly]="this.frm.feePolicy.value == 'MIEN_PHI' || isReadOnly">
+
+				<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.explain.touched || frm.explain.dirty || isClicked == true) && frm.explain.hasError('required')">Trường bắt buộc nhập
+											</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label class="col-form-label col-md-2">Tổng tiền thu</label>
+			<div class="col-md-4">
+				<input type="text" [readOnly]="true" class="form-control sb-readonly"
+					   formControlName="totalFeeAmt"
+					   inputCurrency
+					   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">
+
+				<div class="invalid-feedback" style="display: block">
+
+					<span style="font-size: 12px; margin-top: 10px;"
+						*ngIf="(frm.totalFeeAmt.touched || frm.totalFeeAmt.dirty) && frm.totalFeeAmt.hasError('inputAmountGreaterThanAvailableBalance')">Tài khoản thu phí không đủ số dư</span>
+
+				</div>
+			</div>
+
+			<label class="col-form-label col-md-2">Mã GD thu phí(CHG)</label>
+			<div class="col-md-4">
+				<input type="text" [readOnly]="true" class="form-control"
+					   formControlName="chgId">
+			</div>
+		</div>
+
+	</div>
+</form>

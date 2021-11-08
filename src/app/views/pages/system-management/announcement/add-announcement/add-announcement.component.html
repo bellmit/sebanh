@@ -1,0 +1,158 @@
+<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2">
+	<p class="sb-title">Thêm mới thông báo quản trị</p>
+
+	<form [formGroup]="inputForm">
+		<div class="form-group row">
+			<label class="col-12 sb-label">Mã thông báo</label>
+			<div class=" col-12 text-center">
+				<input type="text" readonly class="form-control sb-input">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label class="col-12 sb-label">Tiêu đề thông báo</label>
+			<div class=" col-12 text-center">
+				<input type="text" class="form-control sb-input" placeholder="Nhập tiêu đề thông báo">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label class="col-12 sb-label">Loại thông báo</label>
+			<div class="col-12">
+				<div class="sb-select-group">
+					<ng-select formControlName="status" class="sb-input"
+							   [items]="data"
+							   bindLabel="status"
+							   bindValue="status"
+							   [searchable]="false"
+							   #name>
+					</ng-select>
+					<div class="sb-button-append" (click)="name.open()">
+												<span *ngIf="!(isLoading | async)"><i
+													class="kt-icon-xl fa fa-caret-down"></i></span>
+						<button class="btn" type="button"
+								[ngClass]="{'kt-spinner kt-spinner--sb': (isLoading | async)}">
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-6 p-0 m-0">
+				<label class="col-12 sb-label">Ngày bắt đầu</label>
+				<div class="col-12 input-group">
+					<input class="form-control sb-input sb-no-radius-right" formControlName="fromDate"
+						   [matDatepicker]="picker"
+						   (click)="picker.open()">
+					<div class="input-group-prepend" (click)="picker.open()">
+				<span class="input-group-text">
+					<i class="flaticon2-calendar-1" style="color: red"></i>
+				</span>
+						<mat-datepicker #picker color="warn"></mat-datepicker>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-6 p-0 m-0">
+				<label class="col-12 sb-label">Ngày kết thúc</label>
+				<div class="col-12 input-group">
+					<input class="form-control sb-input sb-no-radius-right" formControlName="toDate"
+						   [matDatepicker]="picker2"
+						   (click)="picker2.open()">
+					<div class="input-group-prepend" (click)="picker2.open()">
+				<span class="input-group-text">
+					<i class="flaticon2-calendar-1" style="color: red"></i>
+				</span>
+						<mat-datepicker #picker2 color="warn"></mat-datepicker>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label class="col-12 sb-label">Nội dung thông báo</label>
+			<div class=" col-12 text-left">
+				<textarea class="sb-text-area"></textarea>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="row pl-2">
+				<div>
+					<label class="col-12 sb-label">Nhóm User nhận thông báo</label>
+				</div>
+				<div>
+					<i class="fa fa-plus-circle" style="color: red" aria-hidden="true"></i>
+				</div>
+			</div>
+
+			<div class=" col-12 text-center">
+				<input type="text" class="form-control sb-input">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="row pl-2">
+				<div>
+					<label class="col-12 sb-label">User nhận thông báo</label>
+				</div>
+				<div>
+					<i class="fa fa-plus-circle" style="color: red" aria-hidden="true"></i>
+				</div>
+			</div>
+			<div class=" col-12 text-center">
+				<input type="text" class="form-control sb-input">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div>
+				<label class="col-12 sb-label">User loại trừ nhận thông báo</label>
+			</div>
+			<div>
+				<i class="fa fa-plus-circle" style="color: red" aria-hidden="true"></i>
+			</div>
+			<div class=" col-12 text-center">
+				<input type="text" class="form-control sb-input">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-6 p-0 m-0">
+				<label class="col-12 sb-label">Ngày cập nhật</label>
+				<div class="col-12 input-group">
+					<input class="form-control sb-input sb-no-radius-right" formControlName="fromDate"
+						   [matDatepicker]="picker3"
+						   (click)="picker3.open()">
+					<div class="input-group-prepend" (click)="picker3.open()">
+				<span class="input-group-text">
+					<i class="flaticon2-calendar-1" style="color: red"></i>
+				</span>
+						<mat-datepicker #picker3 color="warn"></mat-datepicker>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-6 p-0 m-0">
+				<label class="col-12 sb-label">User cập nhật</label>
+				<div class="col-12 input-group">
+					<input type="text" readonly class="form-control sb-input">
+				</div>
+			</div>
+		</div>
+
+		<span class="material-icons">arrow_circle_down</span>
+
+		<div class="form-group row">
+			<!-- <div class="col-12 text-right">
+				<button type="submit" class="btn btn-sm sb-button-danger mt-2 mb-4">
+					Lưu
+				</button>
+			</div> -->
+		</div>
+	</form>
+</div>
+
+
+

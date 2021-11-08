@@ -1,0 +1,86 @@
+<form>
+	<div class="sb-content w-100 d-inline-flex mt-3 mb-3 p-2">
+		<div class="w-50">
+			<div class="row mt-3">
+
+				<div class="col-md-4">
+					<label class="col-form-label">Quốc tịch</label>
+				</div>
+
+				<div class="col-md-8">
+					<div class="w-100 d-inline-flex">
+						<ng-select [items]="nationalities" style="min-width: 85%"
+								   bindLabel="nameVi"
+								   bindValue="value"
+								   [multiple]="false"
+								   formControlName="national">
+							<ng-template ng-header-tmp>
+								Chọn quốc tịch
+							</ng-template>
+						</ng-select>
+						<div class="text-right" style="margin-left: 4px">
+							<div class="icon text-right plus"></div>
+						</div>
+					</div>
+					<div class="under-input-value mt-2">
+						{{customerForm.controls.national.value}}
+					</div>
+				</div>
+			</div>
+
+			<div class="row mt-3" *ngIf="isShow">
+				<div class="col-md-4">
+					<label class="col-form-label">Giới tính</label>
+				</div>
+
+				<div class="col-md-8">
+					<input trimFirstLast type="text" class="form-control sb-readonly">
+				</div>
+			</div>
+
+			<div class="row mt-3">
+				<div class="col-4">
+					<label class="col-form-label">Ngày sinh</label>
+				</div>
+
+				<div class="col-md-8">
+					<input trimFirstLast type="text" class="form-control sb-readonly">
+				</div>
+			</div>
+
+			<div class="row mt-3">
+				<div class="col-md-4">
+					<label class="col-form-label">Tình trạng hôn nhân</label>
+				</div>
+
+				<div class="col-md-8">
+					<input trimFirstLast type="text" class="form-control sb-readonly">
+				</div>
+			</div>
+		</div>
+
+
+		<div class="w-50 ml-3">
+			<div class="row mt-3">
+				<div class="col-md-4">
+					<label>Ngày hiệu lực Visa/ Thị thực</label>
+				</div>
+
+				<div class="col-md-8">
+					<input trimFirstLast type="text" class="form-control sb-readonly">
+				</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-md-4">
+					<label class="col-form-label">Mã khách hàng</label>
+				</div>
+
+				<div class="col-md-8">
+					<input trimFirstLast type="text" class="form-control sb-readonly">
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+

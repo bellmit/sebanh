@@ -1,0 +1,155 @@
+<div class="kt-content">
+	<p class="sb-title">Thêm nhóm chi tiêu</p>
+
+	<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2">
+		<form [formGroup]="paymentForm" (ngSubmit)="onSubmit(paymentForm.value)">
+			<div class="form-group row">
+				<label class="col-12 sb-label">Tên tiêu chí</label>
+				<div class=" col-12 text-center">
+					<input type="text" class="form-control sb-input" placeholder="Nhập tên sản phẩm để tìm kiếm">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-12 sb-label">Trạng thái</label>
+				<div class="col-12">
+					<div class="sb-select-group">
+						<ng-select formControlName="status" class="sb-input"
+								   [items]="dataStatus"
+								   bindLabel="status"
+								   bindValue="status"
+								   [searchable]="false"
+								   #name>
+						</ng-select>
+						<div class="sb-button-append" (click)="name.open()">
+												<span *ngIf="!(isLoading | async)"><i
+													class="kt-icon-xl fa fa-caret-down"></i></span>
+							<button class="btn" type="button"
+									[ngClass]="{'kt-spinner kt-spinner--sb': (isLoading | async)}">
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-12 text-right">
+					<button type="submit" class="btn btn-sm sb-button-danger mt-2 mb-4">
+						Tìm kiếm
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
+
+	<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2">
+		<p class="sb-title">Bảng danh sách sản phẩm</p>
+		<kt-dynamic-table class="text-left" [data]="data" (selectedObject)="chooseObject($event)"
+						  [configTable]="configTableAnnouncement"
+						  [loading]="isLoading">
+		</kt-dynamic-table>
+
+		<div class="form-group row">
+			<div class="col-12 text-right">
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4" style="width: 80px">
+					Thêm
+				</button>
+
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4 ml-2" style="width: 80px">
+					Cập nhật
+				</button>
+
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4 ml-2" style="width: 80px">
+					Xóa
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2" *ngIf="selectedObject">
+		<p class="sb-title">Thông tin chi tiết</p>
+
+		<form [formGroup]="editForm" (ngSubmit)="onSubmit(editForm.value)">
+			<div class="form-group row">
+				<label class="col-12 sb-label">Mã sản phẩm</label>
+				<div class=" col-12 text-center">
+					<input type="text" readonly class="form-control sb-input" [value]="selectedObject.id">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-12 sb-label">Tên sản phẩm</label>
+				<div class=" col-12 text-center">
+					<input type="text" class="form-control sb-input" [value]="selectedObject.name" placeholder="Nhập tên sản phẩm">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-12 sb-label">Trạng thái</label>
+				<div class="col-12">
+					<div class="sb-select-group">
+						<ng-select formControlName="status" class="sb-input"
+								   [items]="dataStatus"
+								   bindLabel="status"
+								   bindValue="status"
+								   [searchable]="false"
+								   #name>
+						</ng-select>
+						<div class="sb-button-append" (click)="name.open()">
+												<span *ngIf="!(isLoading | async)"><i
+													class="kt-icon-xl fa fa-caret-down"></i></span>
+							<button class="btn" type="button"
+									[ngClass]="{'kt-spinner kt-spinner--sb': (isLoading | async)}">
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-6 p-0 m-0">
+					<label class="col-12 sb-label">Ngày bắt đầu</label>
+					<div class="col-12 input-group">
+						<input class="form-control sb-input sb-no-radius-right" [value]="selectedObject.startTime"
+							   [matDatepicker]="picker"
+							   (click)="picker.open()">
+						<div class="input-group-prepend" (click)="picker.open()">
+							<span class="input-group-text">
+								<i class="flaticon2-calendar-1" style="color: red"></i>
+							</span>
+							<mat-datepicker #picker color="warn"></mat-datepicker>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-6 p-0 m-0">
+					<label class="col-12 sb-label">Ngày kết thúc</label>
+					<div class="col-12 input-group">
+						<input class="form-control sb-input sb-no-radius-right" [value]="selectedObject.endTime"
+							   [matDatepicker]="picker2"
+							   (click)="picker2.open()">
+						<div class="input-group-prepend" (click)="picker2.open()">
+				<span class="input-group-text">
+					<i class="flaticon2-calendar-1" style="color: red"></i>
+				</span>
+							<mat-datepicker #picker2 color="warn"></mat-datepicker>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-3 mt-2">Hình ảnh quảng cáo</div>
+				<div class="col-9 mt-2">
+					<input type="file" (change)="selectFile($event)">
+				</div>
+
+				<div class="col-12 text-center mt-3">
+					<div [innerHtml]='msg' *ngIf="msg" style="color: red;"></div>
+					<div><img [src]="url" *ngIf="!(imgLoading | async)" style="max-width: 100%"></div>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

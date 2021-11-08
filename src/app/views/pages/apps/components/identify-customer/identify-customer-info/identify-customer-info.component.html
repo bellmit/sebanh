@@ -1,0 +1,496 @@
+<div>
+	<kt-title-top [parentTitle]="parentName" [childOne]="childOne" [childTwo]="childTwo"></kt-title-top>
+
+	<ng-container *ngIf="!(isLoadingCustomerInfo$ | async)">
+		<div class="row mb-3 p-3"
+			 *ngFor="let obj of listIDCustomer | slice: (page-1) * pageSize : (page-1) * pageSize + pageSize; index as i">
+			<div class="sb-content col-md-5">
+				<div class="mt-3 mb-2">
+					<div class="form-group row">
+						<span class="col-8 font-weight-bold" style="font-size: 20px">Thông tin khách hàng</span>
+						<span class="col-4 text-right sb-btn-update"
+							  (click)="updateCustomerInfo(obj, 'updateCustomer')">
+						Cập nhật
+					</span>
+					</div>
+					<hr/>
+					<div id="face-image-container">
+						<div class="form-group row mt-2">
+							<div class="col-4">
+								<img [src]="customersInfo ? (customerInfoFromSearch ? getFaceLink(customerInfoFromSearch) : 'assets/media/logos/nodata.png')
+								: (obj | coreAIPipe : 'generalImage')" alt="Face response" id="face-image">
+							</div>
+							<div class="col-8">
+								<div class="row form-group">
+									<span class="col-12 font-weight-bold" *ngIf="checkProspect(obj)">
+										{{customersInfo ? customersInfo?.shortName :
+										(obj | coreAIPipe : 'customerName')}}
+									</span>
+
+									<span class="col-12 font-weight-bold" *ngIf="!checkProspect(obj)">
+										{{customersInfo ? customersInfo?.shortName : (selectedCustomerInformation$ | async).shortName}}
+									</span>
+								</div>
+								<div class="row form-group">
+									<span class="col-5 sb-label-brown">{{obj | coreAITitlePipe : 'id'}}</span>
+									<span class="col-7 text-right">
+									{{customersInfo ? customersInfo?.customerID : (obj | coreAIPipe :'userId')}}
+									</span>
+								</div>
+								<div class="row form-group" *ngIf="!checkProspect(obj)">
+									<span class="col-5 sb-label-brown">Kênh đăng ký</span>
+									<span class="col-7 text-right">
+										{{(customerT24Info$|async)?.channel}}
+									</span>
+								</div>
+								<div class="row form-group">
+									<span class="col-5 sb-label-brown">Loại GTTT</span>
+									<span class="col-7 text-right" *ngIf="checkProspect(obj)">
+<!--										{{customersInfo ? customersInfo?.legalDocName : (obj | coreAIPipe : 'legalDocName')}}-->
+										<ul *ngFor="let legal of splitBy((customerT24Info$|async)?.legalDocName, '#')">
+											<li>{{legal}}</li>
+										</ul>
+									</span>
+
+									<span class="col-7 text-right" *ngIf="!checkProspect(obj)">
+<!--										{{customersInfo ? customersInfo?.legalDocName : (selectedCustomerInformation$ | async).legalDocName}}-->
+										<ul *ngFor="let legal of splitBy((customerT24Info$|async)?.legalDocName, '#')">
+											<li>{{legal}}</li>
+										</ul>
+									</span>
+								</div>
+								<div class="row form-group">
+									<span class="col-5 sb-label-brown">Số GTTT</span>
+									<span class="col-7 text-right" *ngIf="checkProspect(obj)">
+										{{customersInfo ? customersInfo?.legalID : (obj | coreAIPipe : 'legalId')}}
+									</span>
+
+									<span class="col-7 text-right" *ngIf="!checkProspect(obj)">
+<!--										{{customersInfo ? customersInfo?.legalID : (selectedCustomerInformation$ | async).legalID}}-->
+										<ul *ngFor="let legal of splitBy((customerT24Info$|async)?.legalID, '#')">
+											<li>{{legal}}</li>
+										</ul>
+									</span>
+								</div>
+								<div class="row form-group">
+									<span class="col-5 sb-label-brown">Độ tin cậy</span>
+									<span class="col-7 font-weight-bold text-right sb-confidence">
+										{{customersInfo ? null : ((obj | coreAIPipe : 'confidence') | percent)}}
+									</span>
+								</div>
+								<div class="row form-group" *ngIf="!checkProspect(obj)">
+									<span class="col-5 sb-label-brown">Hạng KH</span>
+									<span class="col-7 text-right">
+										{{splitBy((customerT24Info$|async)?.customerStatus, '#')[0]}}
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<div class="col-12">
+								<div class="row form-group" *ngIf="!checkProspect(obj)">
+									<span class="col-5 sb-label-brown">Email</span>
+									<span class="col-7 sb-email text-right" *ngIf="checkProspect(obj)">
+										{{customersInfo ? customersInfo?.email : (obj | coreAIPipe : 'email')}}
+									</span>
+
+									<span class="col-7 text-right" *ngIf="!checkProspect(obj)">
+										<ul *ngFor="let e of splitBy((customerT24Info$|async)?.email, '#')">
+											<li>{{e}}</li>
+										</ul>
+									</span>
+								</div>
+								<div class="row form-group" *ngIf="!checkProspect(obj)">
+									<span class="col-5 sb-label-brown">Số điện thoại</span>
+									<span class="col-7  text-right" *ngIf="checkProspect(obj)">
+										{{customersInfo ? customersInfo?.sms : (obj | coreAIPipe : 'phone')}}
+									</span>
+
+									<span class="col-7 text-right" *ngIf="!checkProspect(obj)">
+										<ul *ngFor="let e of splitBy((customerT24Info$|async)?.sms, '#')">
+											<li>{{e}}</li>
+										</ul>
+									</span>
+								</div>
+								<div class="row form-group">
+									<span class="col-5 sb-label-brown">Địa chỉ</span>
+									<span class="col-7 text-right" *ngIf="checkProspect(obj)">
+										{{customersInfo ? customersInfo?.currentAddress : (obj | coreAIPipe : 'address')}}
+									</span>
+
+									<span class="col-7 text-right" *ngIf="!checkProspect(obj)">
+										{{(customerT24Info$|async)?.address | replaceThang: '#' : ' '}}
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="sb-content col-md-7" id="gttt-info">
+				<div class="mt-3 mb-3">
+					<div class="form-group row">
+						<span class="col-8 font-weight-bold" style="font-size: 20px">Giấy tờ tùy thân</span>
+					</div>
+					<hr/>
+					<div class="form-group row">
+						<div class="col-6 text-center">
+							<div class="card-frame">
+								<img [src]="customersInfo ? (customerInfoFromSearch ? getLinkImage(customerInfoFromSearch?.idcard?.cropped_card_front_url) : 'assets/media/logos/nodata.png')
+								: (obj | coreAIPipe : 'cardFrontImg')" alt="Card front" id="card-front">
+							</div>
+							<p>GTTT mặt trước scan</p>
+						</div>
+						<div class="col-6 text-center">
+							<div class="card-frame">
+								<img [src]="customersInfo ? (customerInfoFromSearch ? getLinkImage(customerInfoFromSearch?.idcard?.cropped_card_back_url) : 'assets/media/logos/nodata.png') :
+								 (obj | coreAIPipe : 'cardBackImg')" alt="Card back" id="card-back">
+							</div>
+							<p>GTTT mặt sau scan</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="sb-content col-md-5 mt-3" *ngIf="!checkProspect(obj)">
+				<div class="mt-3 mb-3">
+					<div class="form-group row">
+						<span class="col-8 font-weight-bold" style="font-size: 20px">Mẫu vân tay</span>
+					</div>
+					<hr/>
+					<div class="form-group row">
+						<div class="col-6 text-center">
+							<img
+								[src]="customersInfo ? (customerInfoFromSearch ? getFingerLink(customerInfoFromSearch, 1) : 'assets/media/logos/nodata.png') : (obj | coreAIPipe : 'leftFinger')"
+								class="finger-print-image mb-2">
+							<br>
+							<span>Mẫu vân tay 1</span>
+						</div>
+
+						<div class="col-6 text-center">
+							<img
+								[src]="customersInfo ? (customerInfoFromSearch ? getFingerLink(customerInfoFromSearch, 2) : 'assets/media/logos/nodata.png') : (obj | coreAIPipe : 'rightFinger')"
+								class="finger-print-image mb-2">
+							<br>
+							<span>Mẫu vân tay 2</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="sb-content col-md-7 mt-3" *ngIf="!checkProspect(obj)">
+				<div class="mt-3 mb-3">
+					<div class="form-group row">
+						<span class="col-8 font-weight-bold" style="font-size: 20px">Mẫu chữ ký</span>
+						<span class="col-4 text-right sb-btn-update" (click)="updateCustomerInfo(obj, 'signature')">
+						Cập nhật
+					</span>
+					</div>
+					<hr/>
+					<div class="form-group row">
+						<ng-container *ngFor="let s of (signatureService.gtttUrlModel$|async)?.signatures">
+							<div class="col-6 text-center" *ngIf="!s.co_holder">
+								<img
+									[src]="s.link" [alt]="s.title"
+									class="signature-img mb-2">
+								<br>
+								<span>{{s.title}}</span>
+							</div>
+						</ng-container>
+						<ng-container *ngIf="(signatureService.gtttUrlModel$|async)?.signatures.length < 1">
+							<div class="col-6 text-center">
+								<img
+									src="assets/media/logos/nodata.png"
+									class="signature-img mb-2">
+								<span class="offset-2">Mẫu chữ ký 1</span>
+							</div>
+
+							<div class="col-6 text-center">
+								<img
+									src="assets/media/logos/nodata.png"
+									class="signature-img mb-2">
+								<span class="offset-2">Mẫu chữ ký 2</span>
+							</div>
+						</ng-container>
+					</div>
+				</div>
+			</div>
+
+
+			<div *ngIf="!(isLoading$ | async)" class="sb-content col-md-12 mt-3" id="cust-360">
+				<div class="mt-3 mb-3 p-3">
+					<ng-container *ngIf="!checkProspect(obj)">
+						<div class="form-group row" style="border-radius: 3px; background-color: #F2F3F5; height: 50px">
+							<div class="col text-center font-weight-bold"
+								 style="transform: translateY(30%);">
+								<span [ngClass]="{'has-data': (listAcc$ |async).length>0}">Tài khoản</span>
+								<span class="vl"></span>
+							</div>
+							<div class="col text-center font-weight-bold" style="transform: translateY(30%);">
+								<span>TKKG</span>
+								<span class="vl"></span>
+							</div>
+							<div class="col text-center font-weight-bold" style="transform: translateY(30%);">
+								<span>Vay</span>
+								<span class="vl"></span>
+							</div>
+							<div class="col text-center font-weight-bold"
+								 style="transform: translateY(30%);">
+								<span [ngClass]="{'has-data': (listCard$ |async).length>0}">Thẻ</span>
+								<span class="vl"></span>
+							</div>
+							<div class="col text-center font-weight-bold"
+								 style="transform: translateY(30%);">
+								<span [ngClass]="{'has-data': (listEbank$|async).length>0}">Ebank</span>
+								<span class="vl"></span>
+							</div>
+							<div class="col text-center font-weight-bold"
+								 style="transform: translateY(30%);">
+								<span [ngClass]="{'has-data': (listSms$|async).length>0}">SMS</span>
+								<span class="vl"></span>
+							</div>
+							<div class="col text-center font-weight-bold" style="transform: translateY(30%);">
+								<span>Bảo hiểm</span>
+							</div>
+						</div>
+					</ng-container>
+
+					<div class="row mt-3 col-12" *ngIf="listIDCustomer.length > 1">
+						<div class="text-center col-6">
+							<ngb-pagination [rotate]="true" [maxSize]="maxSize"
+											[collectionSize]="listIDCustomer.length"
+											[pageSize]="pageSize"
+											[(page)]="page"
+											(pageChange)="onPageChange(obj)"></ngb-pagination>
+						</div>
+
+						<div class="text-right col-6">
+							Hiển thị kết quả: {{calculateTotalPage()}}/{{listIDCustomer.length}} kết quả
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<button (click)="displayCustomer360()" class="btn sb-btn-360">Khách hàng 360 độ</button>
+					</div>
+					<div class="form-group row" *ngIf="isShow360Customer|async">
+						<h3 *ngIf="(listAcc$ |async).length > 0">Tài khoản</h3>
+						<table *ngIf="(listAcc$ |async).length > 0" class="sb-custom-table table table-striped mt-0"
+							   style="overflow-x:auto;">
+							<thead style="background-color: #c3cadb">
+							<tr>
+								<th class="font-weight-bold">Sản phẩm dịch vụ</th>
+								<th class="font-weight-bold">Số tài khoản</th>
+								<th class="font-weight-bold">Chi tiết</th>
+								<th class="font-weight-bold">Category</th>
+								<th class="font-weight-bold">Loại tiền</th>
+								<th class="font-weight-bold">Số ref</th>
+								<th class="font-weight-bold">Limit.ref</th>
+								<th class="font-weight-bold">Hạn mức</th>
+								<th class="font-weight-bold">Số dư hiện tại</th>
+								<th class="font-weight-bold">Số tiền phong tỏa</th>
+								<th class="font-weight-bold">Số dư khả dụng/HM</th>
+							</tr>
+							</thead>
+							<tbody>
+							<tr *ngFor="let acc of (listAcc$ |async); let i = index">
+								<td>Tài khoản</td>
+								<td><a class="link-router"
+									   (click)="chooseTransaction(listAcc$.getValue()[i], 'account')">{{acc.contractId}}</a>
+								</td>
+								<td>{{acc.description}}</td>
+								<td>{{acc.category}}</td>
+								<td>{{acc.currency}}</td>
+								<td></td>
+								<td>{{acc.limitRef}}</td>
+								<td>{{acc.limitAmt|number}}</td>
+								<td>{{acc.workingBal|number}}</td>
+								<td>{{acc.lockAmt|number}}</td>
+								<td>{{acc.availAmt|number}}</td>
+							</tr>
+							</tbody>
+						</table>
+						<h3 *ngIf="(listCardDebit$ |async).length > 0">Thẻ Debit</h3>
+						<table *ngIf="(listCardDebit$ |async).length > 0"
+							   class="sb-custom-table table table-striped mt-0" style="overflow-x:auto;">
+							<thead style="background-color: #c3cadb">
+							<tr>
+								<th class="font-weight-bold">Sản phẩm dịch vụ</th>
+								<th class="font-weight-bold">Mã bản ghi</th>
+								<th class="font-weight-bold">Loại thẻ</th>
+								<th class="font-weight-bold">Tài khoản</th>
+								<th class="font-weight-bold">Trạng thái</th>
+								<th class="font-weight-bold">Ngày hiệu lực</th>
+								<th class="font-weight-bold">Ngày hết hạn</th>
+								<th class="font-weight-bold">Chi nhánh</th>
+							</tr>
+							</thead>
+							<tbody>
+							<tr *ngFor="let debit of (listCardDebit$ |async); let i = index">
+								<td>Thẻ visa debit</td>
+								<td><a class="link-router"
+									   (click)="chooseTransaction(listCardDebit$.getValue()[i], 'card')">{{debit.mainId}}</a>
+								</td>
+								<td>{{debit.cardType}}</td>
+								<td>{{debit.mainAccount}}</td>
+								<td>{{debit.cardStatus}}</td>
+								<td>{{debit.issueDate}}</td>
+								<td>{{debit.expDate}}</td>
+								<td>{{debit.companyCode}}</td>
+
+							</tr>
+							</tbody>
+						</table>
+						<h3 *ngIf="(listCardCredit$ |async).length > 0">Thẻ Credit</h3>
+						<table *ngIf="(listCardCredit$ |async).length > 0"
+							   class="sb-custom-table table table-striped mt-0" style="overflow-x:auto;">
+							<thead style="background-color: #c3cadb">
+							<tr>
+								<th class="font-weight-bold">Sản phẩm dịch vụ</th>
+								<th class="font-weight-bold">Mã bản ghi</th>
+								<th class="font-weight-bold">Category</th>
+								<th class="font-weight-bold">Loại thẻ</th>
+								<th class="font-weight-bold">Tài khoản</th>
+								<th class="font-weight-bold">Trạng thái</th>
+								<th class="font-weight-bold">Ngày hiệu lực</th>
+								<th class="font-weight-bold">Ngày hết hạn</th>
+								<th class="font-weight-bold">Chi nhánh</th>
+							</tr>
+							</thead>
+							<tbody>
+							<tr *ngFor="let credit of (listCardCredit$ |async); let i = index">
+								<td>Thẻ visa debit</td>
+								<td><a class="link-router"
+									   (click)="chooseTransaction(listCardCredit$.getValue()[i], 'card')">{{credit.cardId}}</a>
+								</td>
+								<td>{{credit.cardType}}</td>
+								<td>{{credit.mainAccount}}</td>
+								<td>{{credit.cardStatus}}</td>
+								<td>{{credit.effDate}}</td>
+								<td>{{credit.expDate}}</td>
+								<td></td>
+
+							</tr>
+							</tbody>
+						</table>
+
+						<h3 *ngIf="(listSms$ |async).length > 0">Ebank, Sms</h3>
+						<table *ngIf="(listSms$ |async).length > 0" class="sb-custom-table table table-striped mt-0"
+							   style="overflow-x:auto;">
+							<thead style="background-color: #c3cadb">
+							<tr>
+								<th class="font-weight-bold">Sản phẩm dịch vụ</th>
+								<th class="font-weight-bold">Mã bản ghi</th>
+								<th class="font-weight-bold">Main_account</th>
+								<th class="font-weight-bold">Trạng thái</th>
+								<th class="font-weight-bold">Ngày hiệu lực</th>
+								<th class="font-weight-bold">Ngày hết hạn</th>
+								<th class="font-weight-bold">Chi nhánh</th>
+							</tr>
+							</thead>
+							<tbody>
+							<tr *ngFor="let sms of (listSms$|async); let i = index">
+								<td>Sms</td>
+								<td><a class="link-router"
+									   (click)="chooseTransaction(listSms$.getValue()[i], 'sms')">{{sms.recid}}</a>
+								</td>
+								<td>{{sms.accountId}}</td>
+								<td>{{sms.contractStatus}}</td>
+								<td>{{sms.startDate}}</td>
+								<td>{{sms.endDate}}</td>
+								<td>{{sms.coCode}}</td>
+							</tr>
+							<tr *ngFor="let ebank of (listEbank$|async); let i = index">
+								<td>Ebank</td>
+								<td><a class="link-router"
+									   (click)="chooseTransaction(listEbank$.getValue()[i], 'ebank')">{{ebank.recid}}</a>
+								</td>
+								<td>{{ebank.mainCurrAcc}}</td>
+								<td>{{ebank.serviceStatus}}</td>
+								<td>{{ebank.startDate}}</td>
+								<td>{{ebank.endDate}}</td>
+								<td>{{ebank.coCode}}</td>
+							</tr>
+							</tbody>
+						</table>
+
+
+					</div>
+				</div>
+			</div>
+
+			<div class="sb-content col-md-12 mt-3 p-3" *ngIf="checkProspect(obj)">
+				<span class="font-weight-bold" style="font-size: 20px">Lịch sử giao dịch khách hàng vãng lai</span>
+				<hr/>
+				<div class="form-group row">
+					<table class="sb-custom-table table table-striped mt-0" style="overflow-x:auto;">
+						<thead style="background-color: #c3cadb">
+						<tr>
+							<th class="font-weight-bold">STT</th>
+							<th class="font-weight-bold">Mã giao dịch</th>
+							<th class="font-weight-bold">Loại giao dịch</th>
+							<th class="font-weight-bold">Số tiền</th>
+							<th class="font-weight-bold">Loại tiền</th>
+							<th class="font-weight-bold">Chi nhánh</th>
+							<th class="font-weight-bold">Thời gian</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td>1</td>
+							<td>FT12345</td>
+							<td>Rút tiền thẻ phụ</td>
+							<td>{{100000 | number}}</td>
+							<td>VND</td>
+							<td>Chi nhánh Quận Hoàn Kiếm</td>
+							<td>25/02/2020</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>FT23456</td>
+							<td>Mua ngoại tệ</td>
+							<td>{{200000 | number}}</td>
+							<td>VND</td>
+							<td>Hà Nội</td>
+							<td>25/02/2020</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="sb-content col-md-12 mt-3 p-3" *ngIf="!(isLoading$ | async)
+				&& (suggestProductSelling && suggestProductSelling!= null
+	 			&& suggestProductSelling.length != 0)" [hidden]="rightIds.includes('A')">
+				<div class="sb-title col-12 mb-2">
+					<span>Vùng gợi ý bán</span>
+				</div>
+				<hr class="mt-4">
+				<div class="col-12">
+					<ul class="list-group list-group-horizontal">
+						<li class="list-group-item btn-sm sb-button-selected btn-trans mr-2"
+							*ngFor="let suggestProduct of suggestProductSelling">
+							<a class="pointer"
+							   (click)="onNavigateUrl(suggestProduct.url)">{{suggestProduct.productName}}</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</ng-container>
+
+
+	<div *ngIf="(isLoading$ | async) || (isLoadingCustomerInfo$ | async)"
+		 style="text-align: -webkit-center; text-align: -moz-center">
+		<table>
+			<tr>
+				<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input':  (isLoading$ | async) || (isLoadingCustomerInfo$ | async)}"></td>
+				<td>Đang tải...</td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+
+

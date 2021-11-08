@@ -1,0 +1,30 @@
+<kt-title-top [parentTitle]="'Trang chủ'" [childOne]="'Báo cáo SLA'"></kt-title-top>
+<div class="body-component">
+	<div class="p-3 col-12">
+		<div class="custom-nav">
+			<ul>
+				<li><a (click)="switchReport( enumType.RealTime)"
+					   [ngClass]="{'active' : (typeReport$|async) == enumType.RealTime}">Quản lý SLA Real Time</a></li>
+				<li *ngIf="isVhdk$|async"><a (click)="switchReport( enumType.Error)"
+											 [ngClass]="{'active' : (typeReport$|async) == enumType.Error}">Giám sát GD
+					lỗi Real Time</a></li>
+				<li><a (click)="switchReport( enumType.HistoryTrans)"
+					   [ngClass]="{'active' : (typeReport$|async) == enumType.HistoryTrans}">Quản lý SLA theo thời điểm</a></li>
+			</ul>
+		</div>
+		<hr>
+		<section *ngIf="(typeReport$|async) == enumType.RealTime then slaRealTime"></section>
+		<section *ngIf="(typeReport$|async) == enumType.HistoryTrans then slaHistory"></section>
+		<section *ngIf="(typeReport$|async) == enumType.Error then error"></section>
+	</div>
+</div>
+
+<ng-template #slaRealTime>
+	<kt-sla-realtime></kt-sla-realtime>
+</ng-template>
+<ng-template #slaHistory>
+	<kt-sla-history></kt-sla-history>
+</ng-template>
+<ng-template #error>
+	<kt-error-trans></kt-error-trans>
+</ng-template>

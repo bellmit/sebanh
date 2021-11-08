@@ -1,0 +1,46 @@
+<div class="kt-content">
+	<div class="form-group">
+		<div class="form-group text-left">
+			<span class="font-weight-bold sb-title mb-4" style="font-size: 20px">Nhận diện Khách hàng</span>
+			<button type="button" class="btn sb-btn-blue-submit ml-3"
+					(click)="toggleWebcam()">{{showWebcam ? 'Upload ảnh' : 'Capture khuôn mặt'}}</button>
+		</div>
+		<!--webcam-->
+		<div class="form-group text-center">
+			<webcam [height]="500" [width]="500" [trigger]="triggerObservable" (imageCapture)="handleImage($event)"
+					*ngIf="showWebcam"
+					[allowCameraSwitch]="allowCameraSwitch" [switchCamera]="nextWebcamObservable"
+					[videoOptions]="videoOptions"
+					[imageQuality]="1"
+					(cameraSwitched)="cameraWasSwitched($event)"
+					(initError)="handleInitError($event)"
+			></webcam>
+		</div>
+		<div class="form-group text-center" *ngIf="!showWebcam">
+			<label class="sb-label required col-12">Chọn file upload</label>
+			<label class="sb-label col-12" [innerHtml]='msg' *ngIf="msg" style="color: red;"></label>
+			<div class="col-12">
+				<div class="form-group">
+					<input type="file" name="image" (change)="fileProgress($event)"/>
+				</div>
+				<div class="mb-3" *ngIf="uploadedFilePath">
+					{{uploadedFilePath}}
+				</div>
+			</div>
+		</div>
+		<!--button-->
+		<div class="form-group text-center">
+			<button type="button" class="btn sb-btn-submit mt-3" (click)="triggerSnapshot()" *ngIf="showWebcam">Chụp
+				ảnh
+			</button>
+			<button type="button" class="btn sb-btn-submit mt-3" (click)="captureFaceId()"
+					[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+				Tiếp tục
+			</button>
+		</div>
+		<!--image data-->
+		<div class="form-group text-center" *ngIf="webcamImage$|async">
+			<img [src]="(webcamImage$|async)?.imageAsDataUrl" height="300" style="border-radius: 20px"/>
+		</div>
+	</div>
+</div>

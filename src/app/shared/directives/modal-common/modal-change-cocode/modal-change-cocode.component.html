@@ -1,0 +1,65 @@
+<div class="card modal-content modalClass" id="modal-change-code">
+	<div class="modal-header">
+		<div class="modal-title">Chuyển chi nhánh</div>
+		<button type="button" class="close" (click)="close()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<div class="modal-body">
+		<!--		<form class="kt-form" [formGroup]="accessForm" (ngSubmit)="onImporterSubmit()">-->
+		<span>
+			<input
+				class="search-bar"
+				placeholder="Tìm kiếm chi nhánh"
+				name="valueCode"
+				[(ngModel)]="valueCode"
+				(ngModelChange)="onChangeCode($event)"
+			/>
+			<img class="image-style" src="assets/media/icons/svg/Header/search1.svg">
+		</span>
+
+		<table style="border-bottom: 1px solid #F2F3F5 !important;"  class="sb-custom-table table" style="overflow-x: auto">
+			<thead style="background-color: #ffffff">
+				<tr class="text-center">
+					<th class="text-left bold" style="width: 68%;">Tên chi nhánh</th>
+					<th class="text-left bold">Co.Code</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				<tr *ngFor="let group of show" class="text-center">
+					<td style="width: 68%" class="text-left">
+						<mat-radio-button [checked]="group.group_id == commonService.groupOwner$.getValue()" (change)="radioSelected($event, group)"></mat-radio-button>{{ group.desc }}
+					</td>
+					<td class="text-left">
+						{{ group.group_id }}
+					</td>
+					<!-- <td style="width: 68%" *ngIf="group.group_id != commonService.groupOwner$.getValue()" class="text-left">
+						<mat-radio-button (change)="radioSelected($event, group)"></mat-radio-button>{{ group.desc }}
+					</td>
+					<td *ngIf="group.group_id != commonService.groupOwner$.getValue()" class="text-left">
+						{{ group.group_id }}
+					</td> -->
+				</tr>
+			</tbody>
+		</table>
+
+		<div
+			class="row form-group justify-content-center"
+			style="margin-top: 2rem !important">
+			<button
+				type="button"
+				(click)="close()"
+				class="btn  btn-cancel">
+				Hủy
+			</button>
+
+			<button
+				type="button"
+				(click)="onSubmit()"
+				class="btn  ml-4 btn-trans">
+				Chuyển
+			</button>
+		</div>
+	</div>
+</div>

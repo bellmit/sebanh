@@ -1,0 +1,44 @@
+<!-- begin: Header -->
+<div ktHeader #ktHeader class="kt-header kt-grid__item" [ngClass]="htmlClassService.getClasses('header', true)"
+	 id="kt_header">
+	<!-- <button mat-button [matMenuTriggerFor]="menu" #clickMe (mouseenter)="clickOnHover()"  class="t24-button">Chức năng</button> -->
+	<!-- <mat-menu #menu="matMenu" [overlapTrigger]="false">
+		<button (click)="registerT24()" class="sub-button-t24 text-bold" mat-menu-item>Đăng ký T24</button>
+	</mat-menu> -->
+
+	<div class="dropdown row col-md-4">
+		<span>
+			<button  class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+			data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			Chức năng
+			<span><img src="assets/media/icons/svg/Header/layers.svg"></span>
+			</button>
+		</span>
+
+		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+		  <a *ngIf="(isLoadingAccess$ | async)" sub-button-t24 text-bold class="dropdown-item" href="javascript:void(0);" (click)="registerT24()">Đăng ký T24</a>
+		  <a *ngIf="(changePassBtn$ | async) && (isLoadingAccess$ | async)" sub-button-t24 text-bold class="dropdown-item" href="javascript:void(0);" (click)="changePass()">Đổi mật khẩu T24</a>
+		  <a *ngIf="(isLoadingAccess$ | async)" sub-button-t24 text-bold class="dropdown-item" href="javascript:void(0);" (click)="changeCode()">Chuyển chi nhánh</a>
+		</div>
+	  </div>
+	  <div *ngIf="commonService.groupOwner$ | async" class="change-code col-md-2"
+	  [ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+		  <button  class="btn btn-primary dropdown-toggle btn-change-code" (click)="changeCode()"
+		  >{{group_id$ | async}} {{user_id$ | async}}</button>
+
+
+	  </div>
+	<ngb-progressbar class="kt-loading-bar" *ngIf="(loader.progress$|async) > 0" [value]="loader.progress$|async"
+					 height="3px"></ngb-progressbar>
+
+	<!-- begin: Header Menu -->
+	<kt-menu-horizontal *ngIf="menuHeaderDisplay"></kt-menu-horizontal>
+	<!-- end: Header Menu -->
+
+	<!-- begin:: Header Topbar -->
+	<!-- empty div to fix topbar to stay on the right when menu-horizontal is hidden -->
+	<div *ngIf="!menuHeaderDisplay"></div>
+	<kt-topbar></kt-topbar>
+	<!-- end:: Header Topbar -->
+</div>
+<!-- end: Header -->

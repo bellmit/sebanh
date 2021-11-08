@@ -1,0 +1,166 @@
+<div class="kt-content">
+
+	<kt-title-top [parentTitle]="parentName" [childOne]="childOne" [childTwo]="childTwo"
+				  *ngIf="!viewData"></kt-title-top>
+	<!--	THÔNG TIN COMBO < ĐỘ ƯU TIÊN & TRANSID-->
+	<kt-combo-info [ngClass]="{'sb-container-readonly': APPROVED || viewData}"
+				   [parentForm]="parentForm"
+				   [dataFrmDash]="dataCacheRouter"
+	></kt-combo-info>
+
+	<!--	THÔNG TIN KHÁCH HÀNG-->
+	<kt-customer-info [parentForm]="parentForm"
+					  [cusDataFrmDash]="dataCacheRouter"
+					  [listQuestionAnswer]="dataQA"
+					  [isExCombo]="isExCombo"
+					  (disabledForm)="disabledForm($event)"
+					  [ngClass]="{'sb-container-readonly': (dataCacheRouter && (authorisable$ | async) || APPROVED || viewData)}"
+	></kt-customer-info>
+
+	<!--	THÔNG TIN ĐĂNG KÍ TÀI KHOẢN-->
+	<kt-open-account-info [parentForm]="parentForm" [isExCombo]="true"
+						  [accountInfo]="accountInfo$"
+						  [accFrmDash]="dataCacheRouter"
+						  [inputterble]="inputtable$ | async"
+						  [authoraiserble]="authorisable$ | async"
+						  [ngClass]="{'sb-container-readonly': viewData}"
+	></kt-open-account-info>
+
+	<!--	THÔNG TIN ĐĂNG KÍ SMS-->
+	<kt-sms-service-register-ex-cus [parentForm]="parentForm"
+									[smsList]="smsList"
+									[dataFrmDash]="dataCacheRouter"
+									[inputtable]="inputtable$ | async"
+									[authoriserble]="authorisable$ | async"
+									[ngClass]="{'sb-container-readonly': viewData}"
+	></kt-sms-service-register-ex-cus>
+	<!--	THÔNG TIN ĐĂNG KÍ E-BANK-->
+	<kt-ebank-register [parentForm]="parentForm"
+					   [ebank]="eBankInfo$"
+					   [isExCombo]="true"
+					   [accountInfo]="accountInfo$"
+					   [isLoadingAccount$]="isLoadingAccountInfo$"
+					   [ebankDataFrmDash]="dataCacheRouter"
+					   [inputtable]="inputtable$ | async"
+					   [authoriserble]="authorisable$ | async"
+					   [ngClass]="{'sb-container-readonly': viewData}"
+	></kt-ebank-register>
+
+
+	<!--	THÔNG TIN ĐĂNG KÍ THẺ GHI NỢ QUỐC TẾ-->
+
+	<kt-open-card-combo [parentForm]="parentForm"
+						[carListInfo]="listCardInfoByToken$"
+						[isExCombo]="true"
+						[cardDataFrmDash]="dataCacheRouter"
+						[accountInfo$]="accountInfo$"
+						[isLoadingAccountInfo$]="isLoadingAccountInfo$"
+						[inputtable]="inputtable$ | async"
+						[authoriserble]="authorisable$ | async"
+						[cardTypeCreated] = "'INTERANTIONAL_CREDIT_CARD'"
+						[ngClass]="{'sb-container-readonly': viewData}">
+
+	</kt-open-card-combo>
+
+
+	<!--	THÔNG TIN CHUNG-->
+	<kt-general-info [parentForm]="parentForm"
+					 [dataFromDash]="dataCacheRouter"
+					 [inputtable]="inputtable$ | async"
+					 [authoraiserble]="authorisable$ | async"
+					 [ngClass]="{'sb-container-readonly': viewData}"
+					 [viewData]="viewData"
+	></kt-general-info>
+
+	<kt-audit-info [parentForm]="parentForm"
+				   [dataFrmDash]="dataCacheRouter"
+				   [inputter]="inputtable$ | async"
+				   [authoriser]="authorisable$ | async"
+				   [ngClass]="{'sb-container-readonly': (APPROVED || viewData)}"
+	>
+	</kt-audit-info>
+
+	<kt-approved-error
+		*ngIf="(APPROVED || (removeButton$|async)) && !(commonService.isLoadingRefresh$| async)"></kt-approved-error>
+
+	<div class="sb-content p-2 mt-3 mb-3" *ngIf="APPROVED || (removeButton$|async)">
+		<div class="form-group row">
+			<div class="col-12 text-right">
+				<button type="button" (click)="getReportId()"
+						*ngIf="(inputtable$|async) && ((commonService.comboStatus$|async) == 'ERROR')"
+						class="btn  btn-sm sb-btn-display mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingReport$ | async)}">
+					Hiển thị biểu mẫu
+				</button>
+				<button type="button" (click)="refreshError()"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (commonService.isLoadingRefresh$ | async)}"
+						class="btn  btn-sm sb-btn-display mt-2 mr-2">
+					Refresh
+				</button>
+
+				<button *ngIf="(inputtable$|async) && ((commonService.comboStatus$|async) == 'ERROR')"
+						type="button" (click)="resend()"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$|async)}"
+						class="btn  btn-sm sb-btn-submit mt-2 mr-2">
+					Gửi duyệt lại
+				</button>
+			</div>
+		</div>
+	</div>
+	<div class="sb-content p-2 mt-3 mb-3" [hidden]="APPROVED || viewData">
+		<div class="form-group row" [hidden]="APPROVED">
+			<div class="col-12 text-right" *ngIf="inputtable$ | async">
+				<button type="button" (click)="getReportId()"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingReport$ | async)}"
+						class="btn btn-sm  sb-btn-display mt-2 mr-2">
+					Hiển thị biểu mẫu
+				</button>
+				<!--Nếu là tạo mới-->
+				<!-- <button type="button" *ngIf="!dataCacheRouter"
+						class="btn btn-sm sb-btn-remove mt-2 mr-2" (click)="removeForm()">
+					Xóa
+				</button> -->
+
+				<!--Nếu là importer chỉnh sửa dữ liệu sau khi tạo-->
+				<!-- <button type="button" (click)="removeRecord()" *ngIf="dataCacheRouter"
+						class="btn btn-sm  sb-btn-remove mt-2 mr-2">
+					Xóa
+				</button> -->
+				<button type="button" (click)="removeRecord()" *ngIf="dataCacheRouter && dataCacheRouter.combo.status != 'SAVED'"
+							class="btn btn-sm  sb-btn-remove mt-2 mr-2">
+						Xóa
+					</button>
+
+					<button type="button" (click)="removeSavedRecord()" *ngIf="dataCacheRouter && dataCacheRouter.combo.status == 'SAVED'"
+							class="btn btn-sm  sb-btn-remove mt-2 mr-2"
+							[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingDelete$ | async)}"
+							>
+						Xóa
+					</button>
+				<button *ngIf="dataCacheRouter?.combo?.status != 'PENDING'" type="button" (click)="saveTemplate()"
+				[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingSave$ | async)}"
+							class="btn btn-sm  sb-btn-save mt-2 mr-2">
+						Lưu
+					</button>
+				<button type="submit"
+						class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+						[disabled]="(isLoading$ | async)"
+						(click)="onInputterSubmit()"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+					Cập nhật
+				</button>
+			</div>
+
+			<div class="col-12 text-right" *ngIf="(authorisable$ | async) && !(removeButton$|async)">
+				<button type="button" (click)="rejectRecord()"
+						class="btn btn-sm sb-btn-remove mt-2 mr-2">
+					Từ chối
+				</button>
+				<button type="button" class="btn  btn-sm sb-btn-submit mt-2 mr-2" (click)="onAuthoriserAprrove()"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+					Duyệt
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,160 @@
+<form [formGroup]="feeForm">
+	<div class="sb-content p-3 mt-3 mb-3"> 
+		<span class="font-weight-bold mt-2 mb-4">Thông tin thu phí</span>
+		<hr>
+		<!-- left column -->
+			<div class="form-group row mt-3">
+				<label class="col-form-label col-md-2 required">Loại hình thu phí</label>
+				<div class="col-md-4">
+					<ng-select (change)="changeFeeType($event)" [ngClass]="{'sb-readonly': (isReadonly|async)}" [clearable]="false"
+					[readonly]="isReadonly|async" [items]="feeCollectionPlans" style="min-width: 100%"
+											   bindLabel="nameVi"
+											   bindValue="value"
+											   [multiple]="false"
+											   formControlName="feeType">
+									</ng-select>
+					<div class="invalid-feedback" style="display: block"
+						 *ngIf="feeForm.controls.feeType.invalid && (feeForm.controls.feeType.touched || feeForm.controls.feeType.dirty)">
+						<span *ngIf="feeForm.controls.feeType.hasError('required')">Trường bắt buộc nhập</span>
+					</div>
+				</div>
+			</div>
+
+			<div [hidden]="isFree$|async" class="form-group row mt-3">
+				<label class="col-form-label col-md-2 required">Tài khoản thu phí</label>
+				<div class="col-md-4">
+					<ng-select *ngIf="feeForm.controls.feeType.value == 'TAI_KHOAN' " [ngClass]="{'sb-readonly': (isReadonly|async)}"
+					[readonly]="isReadonly|async" formControlName="account">
+						<ng-option *ngFor="let account of listTK" [value]="account.altAcct">{{account.altAcct}}</ng-option>
+					</ng-select>
+					<input *ngIf="feeForm.controls.feeType.value =='TIEN_MAT'"
+					 [ngClass]="{'sb-readonly': (isReadonly|async),'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (isLoadingCheckAcc$ | async)}"
+					[readOnly]="isReadonly|async"  (blur)="checkValidFeeAcc($event.target.value)"
+					type="text" class="form-control" formControlName="account">
+
+					<div class="invalid-feedback" style="display: block"
+						 *ngIf="feeForm.controls.account.invalid && (feeForm.controls.account.touched || feeForm.controls.account.dirty)">
+						 <div *ngIf="feeForm.controls.account.hasError('required')">Trường bắt buộc nhập</div>
+						 <div *ngIf="!parentForm.value.custId">Vui lòng nhập mã KH</div>
+						 <div *ngIf="accountNameReceiveBalance$|async">{{accountNameReceiveBalance$|async}}</div>
+					</div>
+
+					<div class="invalid-feedback" style="display: block" *ngIf="accountNameReceiveBalance$|async">
+						 <div>{{accountNameReceiveBalance$|async}}</div>
+					</div>
+
+				</div>
+				<label class="col-form-label col-md-2 required">Ngày thu phí</label>
+				<div class="col-md-4">
+					<div class="input-group">
+						<input [ngClass]="{'sb-readonly': (isReadonly|async)}"
+						[readOnly]="isReadonly|async" type="text" class="form-control py-2 border-right-0 border"
+							   style="border: none !important;"
+							   formControlName="transDate"
+							   [matDatepicker]="picker"
+							   [max]="today"
+							   ktDateEnter>
+							   
+						<span class="input-group-append">
+							<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+								<i class="flaticon2-calendar-1" style="color: red" (click)="picker.open()"></i>
+								<mat-datepicker #picker color="warn"></mat-datepicker>
+							</div>
+						</span>
+					</div>
+					<div class="invalid-feedback" style="display: block"
+						 *ngIf="feeForm.controls.transDate.invalid && (feeForm.controls.transDate.touched || feeForm.controls.transDate.dirty)">
+						<span *ngIf="feeForm.controls.transDate.hasError('required')">Trường bắt buộc nhập</span>
+					</div>
+				</div>
+			</div>
+				
+			<div [hidden]="isFree$|async" class="form-group row mt-3">
+				<label class="col-form-label col-md-2 required">Mã phí</label>
+				<div class="col-md-4">
+					<ng-select [ngClass]="{'sb-readonly': (isReadonly|async)}"
+					[readonly]="isReadonly|async" (change)="fillDataTax($event)" formControlName="feeCode">
+						<ng-option *ngFor="let fee of (chargeCodes$| async)" [value]="fee.id"><span class="col-sm-11" style="top: 1px;">{{fee?.id}}
+							- {{fee?.gbDescription}} - {{fee?.currency}}</span></ng-option>
+					</ng-select>
+					<div class="invalid-feedback" style="display: block"
+						 *ngIf="feeForm.controls.feeCode.invalid && (feeForm.controls.feeCode.touched || feeForm.controls.feeCode.dirty)">
+						<span *ngIf="feeForm.controls.feeCode.hasError('required')">Trường bắt buộc nhập</span>
+					</div>
+
+				</div>
+				<label class="col-form-label col-md-2 required">Số tiền</label>
+				<div class="col-md-4">
+					<input [ngClass]="{'sb-readonly': (isReadonly|async)}"
+					[readOnly]="isReadonly|async"
+					type="text" class="form-control" formControlName="amount" inputCurrency (ngModelChange)="setAmt($event)"
+						   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">
+						   <div class="invalid-feedback" style="display: block"
+						 *ngIf="feeForm.controls.amount.invalid && (feeForm.controls.amount.touched || feeForm.controls.amount.dirty)">
+						<span *ngIf="feeForm.controls.amount.hasError('required')">Trường bắt buộc nhập</span>
+					</div>
+				</div>
+			</div>
+
+			<div [hidden]="isFree$|async" class="form-group row mt-3">
+				<label class="col-form-label col-md-2">Thuế</label>
+				<div class="col-md-4">
+					<input readonly type="text" class="form-control sb-readonly" formControlName="tax" inputCurrency
+						   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">				
+				</div>
+				<label class="col-form-label col-md-2 required">Tổng số tiền thu</label>
+				<div class="col-md-4">
+					<input [ngClass]="{'sb-readonly': (isReadonly|async)}"
+					[readOnly]="isReadonly|async" type="text" class="form-control" formControlName="totalAmount" inputCurrency
+						   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">
+						   <div class="invalid-feedback" style="display: block"
+						 *ngIf="feeForm.controls.totalAmount.invalid && (feeForm.controls.totalAmount.touched || feeForm.controls.totalAmount.dirty)">
+						<span *ngIf="feeForm.controls.totalAmount.hasError('required')">Trường bắt buộc nhập</span>
+					</div>
+				</div>
+			</div>
+			<div [hidden]="isFree$|async" class="form-group row mt-3">
+				
+				<label class="col-form-label col-md-2 required">Diễn giải</label>
+				<div class="col-md-10">
+					<input maxlength="35" [ngClass]="{'sb-readonly': (isReadonly|async)}"
+					[readOnly]="isReadonly|async" formControlName="description" class="col-md-12 form-control" removeVietNameses />
+					<div class="invalid-feedback" style="display: block"
+						 *ngIf="feeForm.controls.description.invalid && (feeForm.controls.description.touched || feeForm.controls.description.dirty)">
+						<span *ngIf="feeForm.controls.description.hasError('required')">Trường bắt buộc nhập</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group row mt-3" *ngIf="authorisable || (dataCacheRouter && dataCacheRouter.reason) || (dataCacheRouter && dataCacheRouter.reasonReject)">
+				
+				<label class="col-form-label col-md-2 required">Lý do từ chối</label>
+				<div class="col-md-10">
+					<textarea maxlength="200" type="text" class="textarea" formControlName="reason" (blur)="trimReason()"
+					id="textarea"
+					(ngModelChange)="autoGrowTextarea($event)"
+					style="overflow: hidden;"
+							  [ngClass]="{'sb-readonly': (rejected$|async)}"
+							  [readOnly]="(!authorisable || (rejected$|async))"
+					></textarea>
+					<div class="invalid-feedback" style="display: block">
+							<span
+								*ngIf="(feeForm.controls.reason.touched || feeForm.controls.reason.dirty)
+								 && feeForm.controls.reason.hasError('required')">Trường bắt buộc nhập
+							</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group row mt-3">
+				
+				<label class="col-form-label col-md-2">Mã giao dịch thu phí</label>
+				<div class="col-md-4">
+					<input formControlName="feeTransId" readonly type="text" class="form-control sb-readonly" />					
+				</div>
+			</div>
+			
+		</div>
+				
+					
+</form>

@@ -1,0 +1,204 @@
+{
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"version": 1,
+	"newProjectRoot": "projects",
+	"projects": {
+		"seateller-frontend": {
+			"root": "",
+			"sourceRoot": "src",
+			"projectType": "application",
+			"prefix": "kt",
+			"schematics": {
+				"@schematics/angular:component": {
+					"style": "scss"
+				}
+			},
+			"architect": {
+				"build": {
+					"builder": "@angular-devkit/build-angular:browser",
+					"options": {
+						"outputPath": "dist/angular-seateller",
+						"index": "src/index.html",
+						"main": "src/main.ts",
+						"polyfills": "src/polyfills.ts",
+						"tsConfig": "src/tsconfig.app.json",
+						"assets": [
+							"src/favicon.ico",
+							"src/assets",
+							"src/.htaccess",
+							"src/config",
+							"src/manifest.webmanifest"
+						],
+						"styles": [
+							"src/styles.scss",
+							"node_modules/bootstrap/dist/css/bootstrap.css",
+							"node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
+							"node_modules/socicon/css/socicon.css",
+							"node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+							"node_modules/ngx-toastr/toastr.css",
+							"node_modules/@ng-select/ng-select/themes/default.theme.css",
+							"src/assets/plugins/line-awesome/css/line-awesome.css",
+							"src/assets/plugins/flaticon/flaticon.css",
+							"src/assets/plugins/flaticon2/flaticon.css",
+							"src/assets/sass/style.angular.scss"
+						],
+						"scripts": [
+							"node_modules/popper.js/dist/umd/popper.js",
+							"node_modules/tooltip.js/dist/umd/tooltip.min.js",
+							"node_modules/perfect-scrollbar/dist/perfect-scrollbar.js",
+							"src/assets/js/global/fingerprint/es6-shim.js",
+							"src/assets/js/global/fingerprint/websdk.client.bundle.min.js",
+							"src/assets/js/global/fingerprint/fingerprint.sdk.min.js",
+							"src/assets/js/global/identifyScan/gpyhs.js"
+						],
+						"stylePreprocessorOptions": {
+							"includePaths": [
+								"src/assets"
+							]
+						},
+						"es5BrowserSupport": true
+					},
+					"configurations": {
+						"production": {
+							"fileReplacements": [
+								{
+									"replace": "src/environments/environment.ts",
+									"with": "src/environments/environment.prod.ts"
+								},
+								{
+									"replace": "src/config/seateller-config.json",
+									"with": "src/config/seateller-config-test.json"
+								}
+							],
+							"scripts": [],
+							"optimization": true,
+							"outputHashing": "all",
+							"sourceMap": false,
+							"extractCss": true,
+							"namedChunks": false,
+							"aot": true,
+							"extractLicenses": true,
+							"vendorChunk": false,
+							"buildOptimizer": true,
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "15mb",
+									"maximumError": "15mb"
+								}
+							],
+							"serviceWorker": true,
+							"ngswConfigPath": "ngsw-config.json"
+						},
+						"live": {
+							"fileReplacements": [
+								{
+									"replace": "src/environments/environment.ts",
+									"with": "src/environments/environment.prod.ts"
+								},
+								{
+									"replace": "src/config/seateller-config.json",
+									"with": "src/config/seateller-config-live.json"
+								}
+							],
+							"scripts": [],
+							"optimization": true,
+							"outputHashing": "all",
+							"sourceMap": false,
+							"extractCss": true,
+							"namedChunks": false,
+							"aot": true,
+							"extractLicenses": true,
+							"vendorChunk": false,
+							"buildOptimizer": true,
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "5mb",
+									"maximumError": "10mb"
+								}
+							],
+							"serviceWorker": true,
+							"ngswConfigPath": "ngsw-config.json"
+						}
+					}
+				},
+				"serve": {
+					"builder": "@angular-devkit/build-angular:dev-server",
+					"options": {
+						"browserTarget": "seateller-frontend:build"
+					},
+					"configurations": {
+						"production": {
+							"browserTarget": "seateller-frontend:build:production"
+						}
+					}
+				},
+				"extract-i18n": {
+					"builder": "@angular-devkit/build-angular:extract-i18n",
+					"options": {
+						"browserTarget": "seateller-frontend:build"
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"main": "src/test.ts",
+						"polyfills": "src/polyfills.ts",
+						"tsConfig": "src/tsconfig.spec.json",
+						"karmaConfig": "src/karma.conf.js",
+						"styles": [
+							"src/styles.scss"
+						],
+						"scripts": [],
+						"assets": [
+							"src/assets",
+							"src/manifest.webmanifest"
+						]
+					}
+				},
+				"lint": {
+					"builder": "@angular-devkit/build-angular:tslint",
+					"options": {
+						"tsConfig": [
+							"src/tsconfig.app.json",
+							"src/tsconfig.spec.json"
+						],
+						"exclude": [
+							"**/node_modules/**"
+						]
+					}
+				}
+			}
+		},
+		"seateller-frontend-e2e": {
+			"root": "e2e/",
+			"projectType": "application",
+			"prefix": "",
+			"architect": {
+				"e2e": {
+					"builder": "@angular-devkit/build-angular:protractor",
+					"options": {
+						"protractorConfig": "e2e/protractor.conf.js",
+						"devServerTarget": "seateller-frontend:serve"
+					},
+					"configurations": {
+						"production": {
+							"devServerTarget": "seateller-frontend:serve:production"
+						}
+					}
+				},
+				"lint": {
+					"builder": "@angular-devkit/build-angular:tslint",
+					"options": {
+						"tsConfig": "e2e/tsconfig.e2e.json",
+						"exclude": [
+							"**/node_modules/**"
+						]
+					}
+				}
+			}
+		}
+	},
+	"defaultProject": "seateller-frontend"
+}

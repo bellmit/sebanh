@@ -1,0 +1,66 @@
+<div class="col-12 sb-content">
+	<label class=" font-weight-bolder">
+		<!--		<input type="checkbox" [(ngModel)]="isSelected" class="regular-checkbox" style="border-radius: 3px;"/>-->
+		Thông tin khác
+	</label>
+	<span *ngIf="!isShowOtherInfo" (click)="toggleOtherInfo()"><i class="fa fa-plus-square ml-2"
+																  aria-hidden="true"></i></span>
+	<span *ngIf="isShowOtherInfo" (click)="toggleOtherInfo()"><i class="fa fa-minus-square ml-2"
+																 aria-hidden="true"></i></span>
+
+	<div *ngIf="isShowOtherInfo">
+		<form [formGroup]="otherInfoForm">
+			<div class=" p-2 mt-3 mb-3">
+				<div class="form-group row">
+					<label class="col-form-label col-md-2 pl-md-5">Số người phụ thuộc</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="numberDependent">
+					</div>
+
+					<label class="col-form-label col-md-2  pl-md-5">Loại tiền thu nhập</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="ccyType">
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-form-label col-md-2  pl-md-5">Fax</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="fax">
+					</div>
+
+					<label class="col-form-label col-md-2  pl-md-5">Thu nhập</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="income">
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-form-label col-md-2  pl-md-5">Mã số thuế</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="taxNumber">
+					</div>
+
+					<label class="col-form-label col-md-2  pl-md-5">Loyalty</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="loyalty">
+					</div>
+				</div>
+
+
+				<div class="form-group row">
+					<label class="col-form-label col-md-2  pl-md-5">Mối quan hệ</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="relate">
+					</div>
+
+					<label class="col-form-label col-md-2  pl-md-5">Mã khách hàng quan hệ</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="idRelate">
+					</div>
+				</div>
+
+			</div>
+		</form>
+	</div>
+</div>

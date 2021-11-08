@@ -1,0 +1,26 @@
+<div class="modal-header">
+	<h4 class="modal-title w-100 text-center">Thông báo</h4>
+	<button class="fix-close"
+			(click)="activeModal.close(false)">
+		<span class="material-icons">close</span>
+	</button>
+</div>
+<div class="modal-body">
+	<div class="text-center content" style="color: black !important;">
+		{{content}}
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" style="border-radius: 5px; color: black; width: 100px"
+			class="btn  font-weight-bold btn-secondary btn-sm mt-2 mr-2" (click)="activeModal.close(true)">
+		{{'buttons.cancel' | translate}}
+	</button>
+
+	<button type="button" style="border-radius: 5px;  width: 100px"
+			class="btn  btn-danger btn-sm mt-2 mr-2" (click)="action()"
+			[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+		{{'buttons.ok' | translate}}
+	</button>
+
+</div>
+

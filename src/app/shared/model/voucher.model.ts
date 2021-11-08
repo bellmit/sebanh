@@ -1,0 +1,31 @@
+export class VoucherModel {
+	userName?: string;
+	createDate?: string;
+	action?: string;
+	issuanceCode?: string;
+	voucherName?: string;
+	applyTransaction?: string;
+	discountCode?: string;
+	campainCode?: string;
+	amountDiscountMax?: string;
+	startDate?: string;
+	endDate?: string;
+	amountTransactionMin?: string;
+	debitAccount?: string;
+	debitCompany?: string;
+	dataSouce?: string;
+	paymentChanel?: string;
+	issueNumber?: string;
+	budgetTotal?: string;
+	linkText?: string;
+	give_Type?: string;
+	description?: string;
+	inputer?: string;
+	inputDate?: string;
+	approver?: string;
+	approveDate?: string;
+	batchStatus?: string;
+	recordStatus?: string;
+	activateStatus?: string;
+	record_status?: string;
+}

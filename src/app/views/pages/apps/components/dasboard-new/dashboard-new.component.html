@@ -1,0 +1,409 @@
+<div class="m-0 p-0">
+	<div class="p-3 col-12" style="background-color: white; border-radius: 10px">
+		<h5 class="pt-2 pb-1">Danh sách xử lý của ĐVKD</h5>
+		<div class="table-content-class">
+			<div class="col-12">
+				<form [formGroup]="searchForm" (ngSubmit)="searchData2(); getDataSave()">
+					<div class="form-group row mt-3">
+						<label class="col-form-label col-md-2 required pl-md-5">Ngày bắt đầu</label>
+						<div class="col-md-3">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   style="border: none !important;"
+									   formControlName="fromDate"
+									   [matDatepicker]="picker"
+									   [max]="today"
+									   ktDateEnter>
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+<!--										<i class="flaticon2-calendar-1" style="color: red" (click)="picker.open()"></i>-->
+										<img src="assets/media/icons/calendar.svg" (click)="picker.open()">
+										<mat-datepicker #picker color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 required pl-md-5">Ngày kết thúc</label>
+						<div class="col-md-3">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   style="border: none !important;"
+									   formControlName="toDate"
+									   [matDatepicker]="picker2"
+									   [max]="today"
+									   ktDateEnter>
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+<!--										<i class="flaticon2-calendar-1" style="color: red" (click)="picker2.open()"></i>-->
+										<img src="assets/media/icons/calendar.svg" (click)="picker2.open()">
+										<mat-datepicker #picker2 color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+						</div>
+
+						<div class="col-md-2 pl-md-5">
+							<button type="submit" id="dbSearch" class="py-2 btn sb-btn-submit">Tìm kiếm</button>
+						</div>
+					</div>
+				</form>
+			</div>
+
+			<!--			<div class="form-group row m-0" [hidden]="inputtable$ | async">-->
+			<!--				<label class="col-md-12 text-right">-->
+			<!--					<span style="color: #0080FF">-->
+			<!--						{{selectedData.length}} bản ghi được chọn-->
+			<!--					</span>-->
+			<!--					<button class="btn btn-sm sb-btn-submit">Resend</button>-->
+			<!--				</label>-->
+			<!--			</div>-->
+
+			<table class="sb-custom-table table table-striped mt-0" style="overflow-x:auto;">
+				<thead style="background-color: #c3cadb">
+				<tr class="text-left">
+					<th [hidden]="inputtable$ | async" class="font-weight-bold">
+						<div class="form-group w-75 translate-dashboard">
+							<input [(ngModel)]="masterSelected"
+								   class="table-checkbox mr-2 mt-1 ml-3"
+								   type="checkbox" id="customCheck1"
+								   name="list_name" value="m1" (change)="checkUncheckAll()">
+							<label for="customCheck1"></label>
+						</div>
+
+						<!--						<div class="custom-control form-control-lg custom-checkbox">-->
+						<!--							<input type="checkbox" class="custom-control-input" id="customCheck1"-->
+						<!--								   [(ngModel)]="masterSelected"-->
+						<!--								   name="list_name" value="m1" (change)="checkUncheckAll()">-->
+						<!--							<label class="custom-control-label" for="customCheck1"></label>-->
+						<!--						</div>-->
+					</th>
+
+					<th class="font-weight-bold">STT</th>
+					<th (click)="sortColumn('id')" class="font-weight-bold">
+						<i [class]="isIncreaseID ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						Mã giao dịch
+					</th>
+					<th (click)="sortColumn('customerId')" class="font-weight-bold">
+						<i [class]="isIncreaseCusId ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						ID KH
+					</th>
+					<!--
+					<th (click)="sortColumn('getIdsFromIdentification')" class="font-weight-bold">
+						<i [class]="isIncreaseGttt ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						Số GTTT
+					</th>
+					<th (click)="sortColumn('idenType')" class="font-weight-bold">
+						<i [class]="isIncreaseIdenType ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						Loại GTTT
+					</th>
+					<th (click)="sortColumn('status')" class="font-weight-bold">
+						<i [class]="isIncreaseStatus ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						Hạng KH
+					</th>
+					-->
+					<th (click)="sortColumn('transOpera')" class="font-weight-bold">
+						<i [class]="isIncreaseTransOpera ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						Loại NV
+					</th>
+					<th (click)="sortColumn('priority')" class="font-weight-bold">
+						<i [class]="isIncreasePriority ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						Độ ưu tiên
+						<span [ngbPopover]="popPriority" [autoClose]="'outside'" container="body"
+							  placement="bottom-right" class="pop-dropdown" (shown)="onShowPopPriority()"><i
+							class="fas fa-sort-down"></i></span>
+					</th>
+					<th (click)="sortColumn('status')" class="font-weight-bold">
+						<i [class]="isIncreaseStatus ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						Trạng thái
+						<span [ngbPopover]="popStatus" [autoClose]="'outside'" container="body"
+							  placement="bottom-right" class="pop-dropdown" (shown)="onShowPopStatus()"><i
+							class="fas fa-sort-down"></i></span>
+					</th>
+					<th (click)="sortColumn('inputter')" class="font-weight-bold">
+						<i [class]="isIncreaseInputter ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						User nhập
+					</th>
+					<th (click)="sortColumn('authoriser')" class="font-weight-bold">
+						<i [class]="isIncreaseAuthoriser ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						User duyệt
+					</th>
+					<th (click)="sortColumn('timeUpdate')" class="font-weight-bold">
+						<i [class]="isIncreaseTimeUpdate ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+						Thời gian hạch toán
+					</th>
+				</tr>
+				</thead>
+
+				<tbody *ngIf="!(isLoadingData$ | async)">
+				<tr *ngFor="let obj of arr | slice: (page-1) * pageSize : (page-1) * pageSize + pageSize; index as i"
+					[ngClass]="{'text-red-highlight': selectIndex == i}" class="text-left">
+					<td [hidden]="inputtable$ | async">
+						<!--						<div class="custom-control form-control-lg custom-checkbox">-->
+						<!--							<input type="checkbox" class="custom-control-input" id="{{i}}"-->
+						<!--								   name="list_name" value="{{obj}}" [checked]="obj.isSelected"-->
+						<!--								   (change)="isAllSelected(obj, $event)">-->
+						<!--							<label class="custom-control-label" for="{{i}}"></label>-->
+						<!--						</div>-->
+
+						<div class="form-group w-75 translate-dashboard">
+							<input class="table-checkbox mr-2 mt-1 ml-3"
+								   type="checkbox" id="{{i}}"
+								   name="list_name" value="{{obj}}" [checked]="obj.isSelected"
+								   (change)="isAllSelected(obj, $event)">
+							<label for="{{i}}"></label>
+						</div>
+					</td>
+					<td>{{i + 1 + (page - 1) * pageSize}}</td>
+					<!-- <td></td> -->
+					<td (click)="chooseTransaction(obj)"
+						class="transId">{{obj.combo ? obj.combo.id.replace(obj.combo.id.split("_", 1) + "_", "") : (obj.accBalId ? obj.accBalId.replace(obj.accBalId.split("_", 1) + "_", "") : obj.id.replace(obj.id.split("_", 1) + "_", "")) }}</td>
+					<!-- <td>{{obj.combo ? (obj?.combo?.customerId || obj?.combo?.username?.slice(0, -2)) : obj?.customerId || obj?.username?.slice(0, -2)}}</td> -->
+					<td>{{obj?.combo?.customerId || obj?.customer?.customerId || obj?.card?.customerId || obj?.customerId || obj?.username?.substr(0, obj?.username?.length - 2)}}</td>
+					<!--
+					<td>{{obj.combo ? obj?.customer?.gttt : (obj?.gttt ? obj?.gttt : null)}}</td>
+					<td>{{obj.combo ? obj?.customer?.idenType : (obj?.idenType ? obj?.idenType : null)}}</td>
+					<td></td>
+					-->
+					<td>{{obj.combo ? (obj.combo.comboType | comboType)
+						: (obj.type | productType)}}</td>
+					<td class="text-left">
+						<span class="pl-0"
+							  [ngClass]="{'icon-dot-custom-normal': (obj.combo ? obj.combo.priority : obj.priority) == 'PRIMARY',
+							   			'icon-dot-custom-high': (obj.combo ? obj.combo.priority : obj.priority) == 'HIGH'}">&#9679;
+						</span>
+						<span [ngClass]="{'text-normal': (obj.combo ? obj.combo.priority : obj.priority) == 'PRIMARY',
+							   			'text-high': (obj.combo ? obj.combo.priority : obj.priority) == 'HIGH'}">
+							{{obj.combo ? (obj.combo.priority | priorityPipe) : (obj.priority | priorityPipe)}}
+						</span>
+					</td>
+					<td>
+						<div [ngClass]="{'gray-lable': (obj.combo ? obj.combo.status : obj.status) == 'PENDING',
+						 'green-lable':((obj.combo ? obj.combo.status : obj.status) == 'APPROVED' ||  (obj.combo ? obj.combo.status : obj.status) == 'APPROVED_SUCCESS' ||  (obj.combo ? obj.combo.status : obj.status) == 'SAVED'),
+						 'red-lable': ((obj.combo ? obj.combo.status : obj.status) == 'CANCEL' || (obj.combo ? obj.combo.status : obj.status) == 'APPROVED_ERROR'),
+						 'red-lable': (obj.combo ? obj.combo.status : obj.status) == 'DELETED',
+						 'red2-lable': (obj.combo ? obj.combo.status : obj.status) == 'REJECTED'}">
+							{{obj.combo ? (obj.combo.status | statusDashboard : "COMBO") : (obj.type == 'customer' ? (obj.status | statusDashboard: "COMBO") : obj.status | statusDashboard)}}
+						</div>
+					</td>
+					<td>{{obj.combo ? obj.combo.inputter : obj.inputter}}</td>
+					<td>{{obj.combo ? obj.combo.authoriser : obj.authoriser}}</td>
+					<td>{{obj.combo ? obj.combo.timeUpdate : (obj.accBalId ? obj.created : obj.timeUpdate)}}</td>
+				</tr>
+				</tbody>
+			</table>
+			<div class="row col-12" *ngIf="!(isLoadingData$ | async)">
+				<div class="text-center col-6">
+					<ngb-pagination [rotate]="true" [maxSize]="5" [collectionSize]="arr.length" [pageSize]="pageSize"
+									[(page)]="page"></ngb-pagination>
+				</div>
+
+				<div class="text-right col-6">
+					Hiển thị kết quả: {{calculateTotalPage()}}/{{arr.length}} kết quả
+				</div>
+			</div>
+
+			<div *ngIf="isLoadingData$ | async" style="text-align: -webkit-center; text-align: -moz-center">
+				<table>
+					<tr>
+						<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': isLoadingData$ | async}"></td>
+						<td>Đang tải...</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+
+		<!-- For table sla report authorizer-->
+		<div class="col-md-12 p-0 pb-2 m-0" *ngIf="authorisable$|async">
+			<h5 class="pt-2 pb-1">Danh sách giao dịch sắp vượt SLA</h5>
+			<div class="table-content-class">
+				<table class="sb-custom-table table table-striped mt-0" style="overflow-x:auto;">
+					<thead style="background-color: #c3cadb">
+					<tr class="text-left">
+						<th class="font-weight-bold">STT</th>
+						<th class="font-weight-bold">Mã giao dịch</th>
+						<th class="font-weight-bold">User nhập</th>
+						<th class="font-weight-bold">Chi nhánh</th>
+						<th class="font-weight-bold">Thời gian bắt đầu thực hiện</th>
+						<th class="font-weight-bold">Tỷ lệ SLA nhập</th>
+						<th class="font-weight-bold">SLA nhập còn lại (Phút)</th>
+						<th class="font-weight-bold">Tỷ lệ SLA duyệt</th>
+						<th class="font-weight-bold">SLA duyệt còn lại (Phút)</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr *ngIf="(listWarningSla$|async)?.length == 0"></tr>
+					<tr *ngFor="let trans of (listWarningSla$|async) | slice: (pagingSlaTable.page-1) * pagingSlaTable.pageSize : (pagingSlaTable.page-1) * pagingSlaTable.pageSize + pagingSlaTable.pageSize; index as i">
+						<td>{{i + 1 + (pagingSlaTable.page - 1) * pagingSlaTable.pageSize}}</td>
+						<td>{{trans.transactionId}}</td>
+						<td>{{trans.inputter}}</td>
+						<td>{{trans.coCode}}</td>
+						<td>{{trans.createdDate}}</td>
+						<td>{{trans.percentSlaInput}} %</td>
+						<td>{{trans.restSlaInput}}</td>
+						<td>{{trans.percentSlaAuth}} %</td>
+						<td>{{trans.restSlaAuth}}</td>
+					</tr>
+					</tbody>
+				</table>
+				<div class="row col-12" *ngIf="!(isLoadingData$ | async)">
+					<div class="text-center col-6">
+						<ngb-pagination [rotate]="true" [maxSize]="5" [collectionSize]="(listWarningSla$|async)?.length"
+										[pageSize]="pagingSlaTable.pageSize"
+										[(page)]="pagingSlaTable.page"></ngb-pagination>
+					</div>
+
+					<div class="text-right col-6">
+						Hiển thị kết quả: {{calculateTotalPageSla()}}/{{(listWarningSla$|async)?.length}} kết quả
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!--FOR TRANSACTION BY SERVICE CHART-->
+		<div class="row col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12 p-0 pb-2 m-0">
+			<div class="col-md-12 col-sm-12 col-lg-6 col-xs-12 p-0">
+				<div class="text-left  col-12 " style="border-radius: 10px; background-color: white; min-height: 400px">
+					<!--			Header-->
+					<div class="row col-12 p-0">
+						<div class="col-9 text-left">
+							<h6 class="p-2 font-weight-bold">Biểu đồ số lượng giao dịch theo dịch vụ</h6>
+						</div>
+						<div class="col-3 text-right p-0">
+							<i class="fas fa-ellipsis-h"></i>
+						</div>
+					</div>
+					<hr>
+					<!--			Developing index of chart-->
+					<div class="row offset-sm-3 indexDeveloping">
+						<div class="text-center">
+							<table class="p-4">
+								<tr class="p-4 pr-5">
+									<td class="text-left" style="color: blue" *ngIf="totalTrans >= 0">
+										{{totalTrans}} GD
+									</td>
+									<td style="width: 25px"></td>
+								</tr>
+								<!--						<tr class="p-1">-->
+								<!--							<td class="text-left" style="font-size: 11px">-->
+								<!--								Tăng-->
+								<!--							</td>-->
+								<!--							<td style="width: 25px"></td>-->
+								<!--							<td class="text-left" style="font-size: 11px">-->
+								<!--								Tăng-->
+								<!--							</td>-->
+								<!--						</tr>-->
+							</table>
+						</div>
+					</div>
+					<!--			Chart-->
+					<div id="transactionByServiceChart" style="height: 250px"></div>
+				</div>
+			</div>
+			<br/>
+
+			<!--	FOR CIRCLE CHART SLA-->
+			<div class="col-md-12 col-sm-12 col-lg-3 col-xs-12 circle-chart">
+				<div class="text-center" style="background-color: white; min-height: 400px; border-radius: 10px">
+					<!--			Header-->
+					<div class="row col-12 p-0">
+						<div class="col-11 text-left">
+							<h6 class="p-2 text-left font-weight-bold">Biểu đồ tỉ lệ hoàn thành SLA</h6>
+						</div>
+						<div class="col-1 text-right p-0">
+							<i class="fas fa-ellipsis-h"></i>
+						</div>
+					</div>
+					<hr>
+					<!--			Chart-->
+					<div id="rateCompletionSLAChart" style="height: 300px"></div>
+					<div class="text-center row pb-0 pie-legend" style="display: inline-block"
+						 *ngIf="getNumberOfExecutedTransactionOfUser() > 0">
+						<table>
+							<tr>
+								<td *ngFor="let c of circlePro ; let i = index" (click)="chartHover(i)" id="table-chart"
+									(mouseover)="onMouseOver(i)" (mouseout)="onMouseOut()">
+									<button id="btn-{{i}}" class="border-0"
+											[ngStyle]="{'background-color': c.color, 'border-radius': '10px', 'color': c.textColor}">{{c.name}}</button>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!--FOR NEWS FEED-->
+			<div class="col-md-12 col-sm-12 col-lg-3 col-xs-12 p-0 m-0">
+				<kt-admin-notification></kt-admin-notification>
+			</div>
+		</div>
+	</div>
+</div>
+
+<ng-template #popStatus>
+	<form [formGroup]="statusForm" novalidate>
+		<div class="filter-input">
+			<label>
+				<input type="checkbox" id="PENDING" value="PENDING" (change)="onCheckboxStatusChange($event)"
+					   class="input-checkbox">
+				Chờ duyệt
+			</label>
+		</div>
+		<div class="filter-input">
+			<label>
+				<input type="checkbox" id="REJECTED" value="REJECTED" (change)="onCheckboxStatusChange($event)"
+					   class="input-checkbox">
+				Chờ bổ sung
+			</label>
+		</div>
+		<div class="filter-input">
+			<label>
+				<input type="checkbox" id="APPROVED" value="APPROVED" (change)="onCheckboxStatusChange($event)"
+					   class="input-checkbox">
+				Duyệt - Đang xử lý
+			</label>
+		</div>
+		<div class="filter-input">
+			<label>
+				<input type="checkbox" id="APPROVED_SUCCESS" value="APPROVED_SUCCESS"
+					   (change)="onCheckboxStatusChange($event)"
+					   class="input-checkbox">
+				Duyệt thành công
+			</label>
+		</div>
+		<div class="filter-input">
+			<label>
+				<input type="checkbox" id="APPROVED_ERROR" value="APPROVED_ERROR"
+					   (change)="onCheckboxStatusChange($event)"
+					   class="input-checkbox">
+				Duyệt không thành công
+			</label>
+		</div>
+		<!--		<div class="filter-input">-->
+		<!--			<label>-->
+		<!--				<input type="checkbox" id="CANCEL" value="CANCEL" (change)="onCheckboxStatusChange($event)"-->
+		<!--					   class="input-checkbox">-->
+		<!--				Huỷ-->
+		<!--			</label>-->
+		<!--		</div>-->
+	</form>
+</ng-template>
+
+<ng-template #popPriority>
+	<form [formGroup]="priorityForm" novalidate>
+		<div class="filter-input">
+			<label>
+				<input type="checkbox" id="PRIMARY" value="PRIMARY" (change)="onCheckboxPriorityChange($event)"
+					   class="input-checkbox">
+				Thường
+			</label>
+		</div>
+		<div class="filter-input">
+			<label>
+				<input type="checkbox" id="HIGH" value="HIGH" (change)="onCheckboxPriorityChange($event)"
+					   class="input-checkbox">
+				Cao
+			</label>
+		</div>
+	</form>
+</ng-template>

@@ -1,0 +1,44 @@
+<div class="card modal-content modalClass" id="modal-change-code">
+	<div class="modal-header text-center">
+		<h4 class="font-weight-bold pl-5">Chọn khách hàng</h4>
+		<button type="button" class="close" (click)="close()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<div class="modal-body">
+
+		<table style="border-bottom: 1px solid #F2F3F5 !important;" class="sb-custom-table table overflow-x: auto">
+
+			<tbody>
+			<tr *ngFor="let customer of listCustomerInfo" class="text-center">
+				<td style="width: 68%" class="text-left font-weight-bold">
+					<mat-radio-button (change)="radioSelected($event, customer)"></mat-radio-button>
+					{{ customer?.custId }}
+				</td>
+				<td class="text-right font-weight-bold">
+					{{ customer?.custName }}
+				</td>
+			</tr>
+			</tbody>
+		</table>
+
+		<div
+			class="row form-group justify-content-center"
+			style="margin-top: 2rem !important">
+			<button
+				type="button"
+				(click)="close()"
+				class="btn  btn-cancel">
+				Hủy
+			</button>
+
+			<button
+				type="button"
+				(click)="onSubmit()"
+				[disabled]="!isCheckbox"
+				class="btn  ml-4 btn-trans">
+				Chuyển
+			</button>
+		</div>
+	</div>
+</div>

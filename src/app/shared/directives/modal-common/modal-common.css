@@ -1,0 +1,51 @@
+.modal-header .modal-title {
+	font-family: "Arial", sans-serif !important;
+	color: black !important;
+	font-weight: bold !important;
+}
+
+.modal-content .content {
+	font-family: "Arial", sans-serif !important;
+	font-size: 14px !important;
+	color: #888888 !important;
+}
+
+.modal-footer .btn-danger {
+	background-color: #d61817 !important;
+}
+
+.button-modal-agree {
+	height: 30px !important;
+	width: 100px !important;
+	text-align: center !important;
+}
+
+div.modal-footer {
+	text-align: center;
+}
+
+.fix-close {
+	position: absolute;
+	color: #0e0b0b !important;
+	padding: 0;
+	background-color: transparent;
+	border: 0;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	right: 10px;
+}
+
+.fix-close span {
+	font-weight: bolder;
+}
+
+.fix-close:hover {
+	text-shadow: 0 0 5px #fff;
+}
+
+.fix-close:disabled {
+	color: #bfb6b6 !important;
+	cursor: auto;
+	text-shadow: 0 0 0 #fff;
+}

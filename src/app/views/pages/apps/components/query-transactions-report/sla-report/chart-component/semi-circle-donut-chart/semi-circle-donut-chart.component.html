@@ -1,0 +1,31 @@
+<div class="search-form">
+	<div class="form-group row">
+		<div class="col-12 col-lg-4 text-center highcharts-figure">
+			<div class="semi-circle-donut" id="total-trans"></div>
+			<div class="proportion text-center highcharts-background">
+				<div class="proportion-child">
+					<p class="proportion-title">Tổng giao dịch</p>
+					<p class="proportion-number">{{totalTrans | number}}</p>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-lg-4 text-center highcharts-figure">
+			<div class="semi-circle-donut" id="over-sla"></div>
+			<div class="proportion text-center highcharts-background">
+				<div class="proportion-child">
+					<p class="proportion-title">Vượt SLA</p>
+					<p class="proportion-number">{{overSla | number}}</p>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-lg-4 text-center highcharts-figure">
+			<div class="semi-circle-donut" id="under-sla"></div>
+			<div class="proportion text-center highcharts-background">
+				<div class="proportion-child">
+					<p class="proportion-title">Sắp vượt SLA</p>
+					<p class="proportion-number">{{halfOver | number}}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

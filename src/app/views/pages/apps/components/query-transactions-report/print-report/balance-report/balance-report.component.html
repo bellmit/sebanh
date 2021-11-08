@@ -1,0 +1,228 @@
+<kt-title-top [parentTitle]="'Trang chủ'" [childOne]="'In báo cáo'" [childTwo]="'In xác nhận số dư'"></kt-title-top>
+<div class="sb-content p-3 mt-3 mb-3">
+	<form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+		<div class="form-group row mt-3">
+			<label class="col-form-label col-md-2">Mã giao dịch SeATeller</label>
+			<div class="col-md-4">
+				<input [ngClass]="{'sb-readonly': (isReadonly|async)}"
+					   [readOnly]="isReadonly|async" type="text" class="form-control sb-readonly"
+					   formControlName="transId">
+			</div>
+
+			<label class="col-form-label col-md-2 required">Độ ưu tiên</label>
+			<div class="col-md-4">
+				<ng-select [ngClass]="{'sb-readonly': (isReadonly|async)}"
+						   [readonly]="isReadonly|async" formControlName="priority" [clearable]="false">
+					<ng-option value="PRIMARY">Thường</ng-option>
+					<ng-option value="HIGH">Cao</ng-option>
+				</ng-select>
+				<div class="invalid-feedback" style="display: block">
+					<span *ngIf="(searchForm.controls.priority.dirty || searchForm.controls.priority.touched)
+					&& searchForm.controls.priority.hasError('required')">Trường bắt buộc nhập</span>
+				</div>
+			</div>
+		</div>
+		<div class="form-group row">
+			<label class="col-form-label col-md-2 required">Loại hình</label>
+			<div class="col-md-4">
+				<ng-select (change)="changeDataListAcc($event)" [ngClass]="{'sb-readonly': (isReadonly|async)}" [clearable]="false"
+						   [readonly]="isReadonly|async" formControlName="type">
+					<ng-option value="INSODU_TK">Xác nhận số dư tài khoản</ng-option>
+					<ng-option value="INSODU_STK">Xác nhận số dư tiết kiệm</ng-option>
+				</ng-select>
+			</div>
+
+			<label class="col-form-label col-md-2 required ">Mã KH</label>
+			<div class="col-md-4">
+				<input (ngModelChange)="resetForm($event)" [ngClass]="{'sb-readonly': (isReadonly|async)}"
+					   [readOnly]="isReadonly|async" (blur)="getAccountByCustIdBlur($event?.target?.value); getCustomerInfo($event);" type="text"
+					   class="form-control" formControlName="custId">
+				<div class="invalid-feedback" style="display: block">
+					<span *ngIf="ownerCustomerId$|async">{{ownerCustomerId$|async}}</span>
+				</div>
+				<div class="invalid-feedback" style="display: block">
+					<span *ngIf="(searchForm.controls.custId.dirty || searchForm.controls.custId.touched)
+					&& searchForm.controls.custId.hasError('required')">Trường bắt buộc nhập</span>
+				</div>
+			</div>
+		</div>
+
+		<div formArrayName="accountArray">
+			<div *ngFor="let account of accountArray.controls; let i = index;">
+				<div [formGroupName]="i">
+					<div class="form-group row">
+						<label style="display: flex; position: relative;" class="col-form-label col-md-2 required">Tài khoản
+							<span [ngStyle]="{'pointer-events': (disablePlus$|async) ? 'none': 'auto'}" *ngIf="i==0"
+								  class="text-right ml-2" style="margin-left: 4px; position: absolute; right: 5px;"
+								  (click)="addAccount()">
+								<div class="icon text-right plus"></div>
+							</span>
+
+							<span *ngIf="i>0" class="text-right ml-2"
+								  style="margin-left: 4px; position: absolute; right: 5px;" (click)="removeAcc(i)">
+								<div class="icon text-right minus"></div>
+							</span>
+
+
+						</label>
+						<div class="col-md-4">
+							<div class="d-inline-flex w-100">
+								<ng-select [ngClass]="{'sb-readonly': (isReadonly|async)}"
+										   [readonly]="isReadonly|async" (change)="patchValueCcy($event, i)"
+										   formControlName="accountNumber" [loading]="isLoading$|async"
+										   style="min-width: 100%"
+										   [multiple]="false">
+									<ng-option *ngIf="searchForm.controls.custId.value && (listAcc$|async) && (listAcc$.getValue()[0]?.errCode != 'ERR001')" value="ALL">ALL</ng-option>
+									<ng-option *ngFor="let accountNumber of (listAcc$|async)"
+											   [value]="accountNumber.altAcct">{{accountNumber.altAcct || accountNumber.acct}}</ng-option>
+								</ng-select>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<div
+								*ngIf="(account.get('accountNumber').touched || account.get('accountNumber').dirty)
+								&& account.get('accountNumber').hasError('required')">Trường bắt buộc nhập</div>
+							<div
+								*ngIf="(account.get('accountNumber').touched || account.get('accountNumber').dirty)
+								&& !searchForm.controls.custId.value">Vui lòng nhập mã KH</div>
+							</div>
+						</div>
+						<label [hidden]="disablePlus$|async" class="col-form-label col-md-2">Loại tiền tệ</label>
+						<div [hidden]="disablePlus$|async" class="col-md-4">
+							<div class="d-inline-flex w-100">
+								<ng-select [readonly]="true" formControlName="currency"
+										   [loading]="isLoadingCcyList$|async"
+										   style="min-width: 100%"
+										   [multiple]="false">
+									<ng-option *ngFor="let ccy of ccyList" [value]="ccy.acctCCy">{{ccy.acctCCy}}</ng-option>
+								</ng-select>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+
+		<div formArrayName="languageArray">
+			<div *ngFor="let language of languageArray.controls; let i = index;">
+				<div [formGroupName]="i">
+
+					<div class="form-group row">
+						<label style="display: flex; position: relative;" class="col-form-label col-md-2 required">Ngôn ngữ
+							<span
+								*ngIf="i==0 && languageArray.value.length < 3" class="text-right ml-2"
+								style="margin-left: 4px; position: absolute; right: 5px;" (click)="addLang()">
+								<div class="icon text-right plus"></div>
+							</span>
+
+							<span *ngIf="i>0" class="text-right ml-2"
+								  style="margin-left: 4px; position: absolute; right: 5px;" (click)="removeLang(i)">
+								<div class="icon text-right minus"></div>
+							</span>
+						</label>
+						<div class="col-md-4">
+							<div class="d-inline-flex w-100">
+								<ng-select [ngClass]="{'sb-readonly': (isReadonly|async)}"
+										   [readonly]="isReadonly|async" formControlName="language"
+										   style="min-width: 100%"
+										   [multiple]="false">
+									<ng-option value="VN">Tiếng Việt</ng-option>
+									<ng-option value="EN">Tiếng Anh</ng-option>
+									<ng-option value="BOTH">Song ngữ</ng-option>
+
+								</ng-select>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+							<span
+								*ngIf="(language.get('language').touched || language.get('language').dirty)
+								&& language.get('language').hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+						</div>
+						<label class="col-form-label col-md-2 required">Số bản in</label>
+						<div class="col-md-4">
+							<div class="d-inline-flex w-100">
+								<input [ngClass]="{'sb-readonly': (isReadonly|async)}"
+									   [readOnly]="isReadonly|async" type="text" class="form-control"
+									   formControlName="number" inputCurrency
+									   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}"
+									   >
+
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(language.get('number').touched || language.get('number').dirty)
+									&& language.get('number').hasError('required')">Trường bắt buộc nhập</span>
+								</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<kt-charge-info [chargeInfoData]="dataCacheRouter?.chargeInfo"
+						[feePolicies]="feePolicies"
+						[parentForm]="searchForm"
+						[businessType]="chargeBusinessType.ACCOUNT_BALANCE"
+						[idParent]="frm.transId.value"
+						[isReadOnly]="(APPROVED | async) || (authorisable$ | async)">
+		</kt-charge-info>
+
+		<div class="sb-content p-3 mt-3 mb-3 auditForm-css" *ngIf="(authorisable$ |async) || (dataCacheRouter && dataCacheRouter.reason)">
+			<div class="form-group row">
+				<label class="col-form-label col-md-2"
+					[ngClass]="{'required' : searchForm.controls.reason.hasError('required')}"
+				>Lý do từ chối</label>
+				<div class="col-md-10">
+					<textarea maxlength="200" type="text" class="textarea" formControlName="reason" 
+					id="textarea"
+				
+					style="overflow: hidden;"
+							[ngClass]="{'sb-readonly': (rejected$|async)}"
+							[readOnly]="(!authorisable$ || (rejected$|async))"
+					></textarea>
+					<div class="invalid-feedback" style="display: block">
+							<span
+								*ngIf="(searchForm.controls.reason.touched || searchForm.controls.reason.dirty)
+								&& searchForm.controls.reason.hasError('required')">Trường bắt buộc nhập
+							</span>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</form>
+</div>
+
+<kt-audit-info [parentForm]="searchForm"></kt-audit-info>
+<div [hidden]="APPROVED|async" class="form-group row sb-content p-3 m-0">
+	<div class=" col-12 text-right">
+		<button [hidden]='authorisable$ | async' type="button" class="btn  btn-sm sb-btn-display mt-2 mr-2" (click)="printSuggest()">
+			In đề nghị
+		</button>
+
+		<button [hidden]='authorisable$ | async' type="button" (click)="showTemplate()"
+				class="btn  btn-sm sb-btn-display mt-2 mr-2">
+			Hiển thị biểu mẫu
+		</button>
+		<button [hidden]='authorisable$ | async' type="button" class="btn btn-sm  sb-btn-remove mt-2 mr-2" (click)="onDelete()">
+			Xóa
+		</button>
+
+		<button [hidden]='authorisable$ | async' type="button" (click)="onSubmit()"
+		[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (submitLoading$ | async)}"
+				class="btn  btn-sm sb-btn-submit mt-2 mr-2">
+			Gửi duyệt
+		</button>
+		<button [hidden]='inputtable$ | async' type="button" (click)="onReject()"
+		class="btn btn-sm  sb-btn-save mt-2 mr-2">Từ chối</button>
+		<button [hidden]='inputtable$ | async' type="button" (click)="onApprove()"
+		[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (approveLoading$ | async)}"
+				class="btn  btn-sm sb-btn-submit mt-2 mr-2">
+			Duyệt
+		</button>
+	</div>
+</div>

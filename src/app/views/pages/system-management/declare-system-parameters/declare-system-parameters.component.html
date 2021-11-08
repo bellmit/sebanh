@@ -1,0 +1,19 @@
+<!--DECLARE SIMILAR CORE AI-->
+
+<ng-container *ngIf="action === 'AI'; else systemTimeout">
+	<kt-declare-similar-ai></kt-declare-similar-ai>
+</ng-container>
+
+<!--SETTING TIME-OUT SYSTEM-->
+<ng-template #systemTimeout>
+	<kt-system-timeout></kt-system-timeout>
+</ng-template>
+
+<!--	table-->
+<div  class="col-sm-12 offset-sm-0 col-md-8 offset-md-2">
+	<h6 class="pt-2 pb-1">Lịch sử cập nhật độ tin cậy</h6>
+	<kt-dynamic-table class="text-left" [data]="fakeData"
+					  [configTable]="configTableAnnouncement"
+					  [loading]="isLoading$ | async">
+	</kt-dynamic-table>
+</div>

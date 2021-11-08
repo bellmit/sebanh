@@ -1,0 +1,213 @@
+<div class="kt-content" id="search-customer">
+	<kt-title-top [parentTitle]="parentName" [childOne]="childOne" [childTwo]="childTwo"></kt-title-top>
+	<form [formGroup]="searchForm">
+		<div class="container-fluid" style="height: 100%">
+			<div class="row">
+				<div class="col-sm-3 sb-content">
+					<div class="modal-body">
+						<div class="modal-title">Tìm kiếm khách hàng</div>
+						<div class="form-group row mt-3">
+							<label class="col-form-label">ID Khách hàng</label>
+							<div class="input-group">
+								<input type="text" class="form-control" formControlName="customerId"
+									   (keydown.enter)="search()"
+									   placeholder="Nhập ID Khách hàng" style="border: none !important;"/>
+								<span class="input-group-append" (click)="clearData('customerId')">
+									<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="fa fa-times-circle" aria-hidden="true"></i>
+									</div>
+								</span>
+							</div>
+						</div>
+						<div class="form-group row mt-3">
+							<label class="col-form-label">Tên Khách hàng</label>
+							<div class="input-group">
+								<input type="text" class="form-control" formControlName="customerName"
+									   (keydown.enter)="search()"
+									   placeholder="Nhập tên Khách hàng" style="border: none !important;"/>
+								<span class="input-group-append" (click)="clearData('customerName')">
+										<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+											<i class="fa fa-times-circle" aria-hidden="true"></i>
+										</div>
+								</span>
+							</div>
+						</div>
+						<div class="form-group row mt-3">
+							<label class="col-form-label">Ngày sinh</label>
+							<div class="input-group">
+								<input type="text" class="form-control border-right-0 border"
+									   formControlName="customerDob"
+									   style="border: none !important;"
+									   [matDatepicker]="picker2"
+									   [max]="today"
+									   (click)="picker2.open()"
+									   placeholder="Nhập ngày sinh của Khách hàng">
+								<span class="input-group-append">
+										<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+											<img src="assets/media/icons/calendar.svg" (click)="picker2.open()">
+											<mat-datepicker #picker2 color="warn"></mat-datepicker>
+										</div>
+									</span>
+							</div>
+						</div>
+						<div class="form-group row mt-3">
+							<label class="col-form-label">Số GTTT</label>
+							<div class="input-group">
+								<input type="text" class="form-control" formControlName="legalId"
+									   (keydown.enter)="search()"
+									   (keypress)="checkSpecialChar($event)"
+									   placeholder="Nhập số GTTT" style="border: none !important;"/>
+								<span class="input-group-append" (click)="clearData('legalId')">
+										<div class="input-group-text bg-transparent border-0" style="cursor: pointer;">
+											<i class="fa fa-times-circle" aria-hidden="true"></i>
+										</div>
+									</span>
+							</div>
+						</div>
+						<div class="form-group row mt-3">
+							<label class="col-form-label">Số điện thoại</label>
+							<div class="input-group">
+								<input type="text" class="form-control" formControlName="phoneNumber"
+									   placeholder="Nhập số điện thoại của Khách hàng"
+									   style="border: none !important;"/>
+								<span class="input-group-append" (click)="clearData('phoneNumber')">
+										<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+											<i class="fa fa-times-circle" aria-hidden="true"></i>
+										</div>
+									</span>
+							</div>
+						</div>
+						<div class="form-group row mt-3  justify-content-center">
+							<div class="col-md-5">
+								<a (click)="search()"
+								   (keyup.enter)="search()"
+								   [ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}"
+								   class="btn btn-sm sb-button-selected
+									 btn-trans">
+									Tìm kiếm
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="right col-sm-9 sb-content">
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-12">
+								<div class="modal-title">Kết quả tìm kiếm</div>
+							</div>
+						</div>
+						<p class="text-center not-found"
+						   *ngIf="(dataCustomer == null || dataCustomer.length == 0) && !(isLoading$ | async)">
+							Chưa có kết quả tìm kiếm phù hợp
+						</p>
+						<div class="row">
+							<div class="col-12">
+								<div *ngIf="(isLoading$ | async)"
+									 style="text-align: -webkit-center; text-align: -moz-center">
+									<table>
+										<tr>
+											<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (	isLoading$ | async)}"></td>
+											<td>{{'DASHBOARD.loading' | translate}}</td>
+										</tr>
+									</table>
+								</div>
+								<table class="table table-striped"
+									   style="overflow-x: auto"
+									   *ngIf="dataCustomer != null && dataCustomer.length != 0 && !(isLoading$ | async)">
+									<thead style="background-color: #b31217; color: #FFFFFF">
+									<tr class="text-center">
+										<th style="width: 12.5%;">
+											STT
+										</th>
+										<th (click)="sortColumn('custId')" style="width: 12.5%;">
+											<i [class]="isIncreaseCustomerId ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+											ID KH
+										</th>
+										<th (click)="sortColumn('custName')" style="width: 12.5%;">
+											<i [class]="isIncreaseCustomerName ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+											Họ và tên
+										</th>
+										<th (click)="sortColumn('birthDate')" style="width: 12.5%;">
+											<i [class]="isIncreaseCusDob ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+											Ngày sinh
+										</th>
+										<th (click)="sortColumn('legal')" style="width: 12.5%;">
+											<i [class]="isIncreaseCusIdentify ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+											Số GTTT
+										</th>
+										<th (click)="sortColumn('phone')" style="width: 12.5%;">
+											<i [class]="isIncreasePhoneNumber ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+											Số điện thoại
+										</th>
+										<th style="width: 18%;">
+											Địa chỉ
+										</th>
+										<th style="width: 7%;">
+											Loại KH
+										</th>
+										<th style="width: 12.5%;">
+											Chi nhánh mở
+										</th>
+									</tr>
+									</thead>
+
+									<tbody>
+									<tr *ngFor="let customer of dataCustomer | slice: (page-1) * pageSize : (page-1) * pageSize + pageSize; index as i"
+										class="text-center">
+										<td>{{i + 1 + (page - 1) * pageSize}}</td>
+										<td class="text-left" style="width: 12.5%;">
+											<div style="cursor: pointer; color: #0080ff; "
+												 (click)="onNavigateIdentify(customer)">{{ customer.custId }}</div>
+										</td>
+										<td class="text-left" style="width: 12.5%;">
+											{{ customer.custName }}
+										</td>
+										<td class="text-left" style="width: 12.5%;">
+											{{ customer.birthDate }}
+										</td>
+										<td class="text-left" style="width: 12.5%;">
+											<ul *ngFor="let l of splitBy(customer.legal, '#')">
+												<li>{{l}}</li>
+											</ul>
+										</td>
+										<td class="text-left" style="width: 12.5%;">
+											<ul *ngFor="let l of splitBy(customer.phone, '#')">
+												<li>{{l}}</li>
+											</ul>
+										</td>
+										<td class="text-left" style="width: 18%;">
+											{{ customer.address | replaceThang: '#' : ' '}}
+										</td>
+										<td class="text-center" style="width: 7%;">
+											{{ customer.custClass}}
+										</td>
+										<td class="text-center" style="width: 12.5%;">
+											{{ customer.coCode }}
+										</td>
+									</tr>
+									</tbody>
+								</table>
+
+							</div>
+							<div class="col-12"
+								 *ngIf="dataCustomer != null && dataCustomer.length != 0 && !(isLoading$ | async)">
+								<div class="row col-12" *ngIf="!(isLoading$ | async)">
+									<div class="text-center col-6">
+										<ngb-pagination [rotate]="true" [maxSize]="5"
+														[collectionSize]="dataCustomer.length" [pageSize]="pageSize"
+														[(page)]="page"></ngb-pagination>
+									</div>
+
+									<div class="text-right col-6">
+										Hiển thị kết quả: {{calculateTotalPage()}}/{{dataCustomer.length}} kết quả
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>

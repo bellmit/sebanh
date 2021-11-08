@@ -1,0 +1,120 @@
+.transId {
+	cursor: pointer;
+	color: #0080ff;
+	font-weight: normal;
+}
+
+.translate-dashboard {
+	transform: translateY(15px);
+}
+
+.page-link {
+	border-radius: 50% !important;
+	//padding: 7px;
+	height: 30px;
+	width: 30px;
+	padding-top: 4.8px !important;
+	font-size: 14px !important;
+}
+
+li .page-item .disabled {
+	border-radius: 50%;
+	//padding: 20px;
+
+	//background-color: red;
+	//padding-top: 6px !important;
+}
+
+ngb-pagination li {
+	padding: 3px;
+
+}
+
+ngb-pagination .page-item.active .page-link {
+	background-color: #d61817;
+	border-color: #d61817;
+}
+
+.gray-lable {
+	margin: 2px !important;
+	padding: 3px !important;
+	max-height: 25px !important;
+	width: 85px !important;
+	max-width: 85px !important;
+	border-radius: 20px !important;
+	background-color: #CDC9C9 !important;
+	text-align: center !important;
+}
+
+
+.green-lable {
+	color: green !important;
+	margin: 2px !important;
+	padding: 3px !important;
+	max-height: 25px !important;
+	width: 85px !important;
+	max-width: 85px !important;
+	border-radius: 20px !important;
+	background-color: #C1FFC1 !important;
+	text-align: center !important;
+}
+
+.red-lable {
+	color: red !important;
+	margin: 2px !important;
+	padding: 3px !important;
+	max-height: 25px !important;
+	width: 85px !important;
+	max-width: 85px !important;
+	border-radius: 20px !important;
+	background-color: #FFC1C1 !important;
+	text-align: center !important;
+}
+
+
+.red2-lable {
+	color: red !important;
+	margin: 2px !important;
+	padding: 3px !important;
+	max-height: 25px !important;
+	width: 85px !important;
+	max-width: 85px !important;
+	border-radius: 20px !important;
+	background-color: #FFC1C1 !important;
+	text-align: center !important;
+}
+
+.icon-dot-custom-normal {
+	color: #0080ff;
+	font-size: 15px;
+}
+
+.icon-dot-custom-high {
+	color: #d71424;
+	font-size: 15px;
+}
+
+.text-normal {
+	color: #0080ff;
+}
+
+.text-high {
+	color: #d71424;
+}
+
+.pop-dropdown {
+	//background-color: whitesmoke;
+	//border: 1px solid black;
+	//margin-left: 1rem;
+	//margin-right: -1rem;
+}
+
+.filter-input {
+	margin-right: 1rem;
+	margin-left: 1rem;
+	margin-top: 0.25rem;
+
+	.input-checkbox {
+		margin-right: 1rem;
+	}
+}

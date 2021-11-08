@@ -1,0 +1,25 @@
+<div class="card card-custom">
+	<div class="card-header">
+		<div class="kt-login__title row">
+			<div class="col-8">
+				<h5 style="text-transform: uppercase">SAMPLE PAGE</h5>
+			</div>
+			<div class="col-4">
+				<div *ngIf="isLoading.getValue()"
+					 style="text-align: -webkit-center; text-align: -moz-center; float: right;">
+					<table>
+						<tr>
+							<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': isLoading|async}"></td>
+							<td>Loading . . .</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="card-body table-responsive">
+		<div class="form-group">
+			<h5>content</h5>
+		</div>
+	</div>
+</div>

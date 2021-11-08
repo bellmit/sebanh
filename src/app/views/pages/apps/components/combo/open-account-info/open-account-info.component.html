@@ -1,0 +1,331 @@
+<div class="sb-content mt-3 mb-3 p-3">
+	<form [formGroup]="accountInfoForm">
+		<label class="sb-title">
+			<input type="checkbox" formControlName="accountCheckbox" class="regular-checkbox"
+				   (change)="onChangeValidate()"
+				   [checked]="(hasCreateAcc$| async)"
+				   [attr.disabled]="(isReadonly|async) || null"
+				   style="border-radius: 3px; top: -3px"/>
+			Mở tài khoản thanh toán
+		</label>
+
+		<!-- <span *ngIf="!isShowAccount" class="col-md-1" (click)="toggleAccount()" [ngClass]="{'pointer-disabled': !(commonService.isExCombo$ | async)}">
+				<i class="fa fa-plus-square fa-2x ml-2" aria-hidden="true"></i>
+		</span>
+
+		<span *ngIf="isShowAccount" class="col-md-1" (click)="toggleAccount()" [ngClass]="{'pointer-disabled': !(commonService.isExCombo$ | async)}">
+				<i class="fa fa-minus-square fa-2x ml-2" aria-hidden="true"></i>
+		</span> -->
+		<span *ngIf="(commonService.accountStatus$ | async) == 'ERROR'" class="col-md-7 text-center"
+			  style="color: red;"> Duyệt lỗi: {{commonService.accountError$ | async}}</span>
+
+		<ng-container *ngIf="isShowAccount && isCheckedCheckbox">
+			<hr>
+			<div class="p-0">
+				<div *ngIf="isExCombo">
+					<table class="table table-striped table-custom" width="100%" *ngIf="accountInfo | async">
+						<thead>
+						<tr>
+							<td class="text-center font-weight-bold">STT</td>
+							<td class="font-weight-bold">
+								<i [class]="'fas fa-arrow-down'"></i> Số tài khoản
+							</td>
+							<td class="font-weight-bold">
+								<i [class]="'fas fa-arrow-down'"></i> Tên tài khoản
+							</td>
+							<td class="font-weight-bold">
+								<i [class]="'fas fa-arrow-down'"></i> Số dư khả dụng
+							</td>
+							<td class="font-weight-bold">
+								<i [class]="'fas fa-arrow-down'"></i> Loại tiền
+							</td>
+							<td class="font-weight-bold">
+								<i [class]="'fas fa-arrow-down'"></i> Chi nhánh
+							</td>
+						</tr>
+						</thead>
+						<tbody>
+						<tr *ngFor="let account of accountList; let i = index">
+							<td class="text-center">{{i + 1}}</td>
+							<td>{{account.accountID}}</td>
+							<td>{{account.shortTitle}}</td>
+							<td class="font-weight-bold"
+								style="color: #d61817">{{account.availBal | number:'1.0-0'}}</td>
+							<td>{{account.currency}}</td>
+							<td>{{account.company}}</td>
+						</tr>
+						</tbody>
+					</table>
+
+				</div>
+
+				<ng-container>
+					<div class="p-2 mt-3 mb-3">
+						<div class="form-group row">
+							<label class="col-form-label col-md-2">Tên tài khoản</label>
+							<div class="col-md-4">
+								<input type="text" class="form-control text-uppercase" formControlName="accountName"
+									   maxlength="35" trimFirstLast
+									   [readOnly]="isReadonly|async"
+									   [ngClass]="{'sb-readonly': (isReadonly|async)}">
+							</div>
+
+							<label class="col-form-label col-md-2 ">Tên rút gọn</label>
+							<div class="col-md-4">
+								<input type="text" class="form-control text-uppercase" formControlName="shortName"
+									   [readOnly]="isReadonly|async"
+									   maxlength="35" trimFirstLast
+									   [ngClass]="{'sb-readonly': (isReadonly|async)}">
+							</div>
+						</div>
+
+						<div formArrayName="relates">
+							<div *ngFor="let relate of relates.controls; let i = index;">
+								<div [formGroupName]="i">
+									<div class="form-group row">
+										<label class="col-form-label col-md-2 ">
+											<span>Mối quan hệ</span>
+
+											<span class="d-inline-flex mb-3" *ngIf="i == 0">
+												<span class="text-right ml-2" style="margin-left: 4px"
+													  (click)="addRelate()">
+													<i class="icon text-right plus"></i>
+												</span>
+											</span>
+
+											<span class="d-inline-flex mb-3" *ngIf="i > 0">
+												<span class="text-right ml-2" style="margin-left: 4px"
+													  (click)="removeRelate(i)">
+													<i class="icon text-right minus"></i>
+												</span>
+											</span>
+										</label>
+
+
+										<div class="col-md-4">
+											<div class="d-inline-flex w-100">
+												<ng-select [items]="relateList$|async" style="min-width: 100%"
+														   (change)="setRequireIdRelate($event,i)"
+														   [readonly]="isReadonly|async"
+														   bindLabel="description"
+														   bindValue="relationId"
+														   [multiple]="false"
+														   formControlName="relationCustomer">
+													<ng-template ng-header-tmp>
+														Mối quan hệ
+													</ng-template>
+													<ng-template ng-option-tmp let-item="item">{{item.relationId}}
+														- {{item.description}}</ng-template>
+												</ng-select>
+											</div>
+											<div class="invalid-feedback" style="display: block">
+												<span
+													*ngIf="(relate.get('relationCustomer').touched || relate.get('relationCustomer').dirty) && relate.get('relationCustomer').hasError('required')">Trường bắt buộc nhập</span>
+											</div>
+										</div>
+
+										<label class="col-form-label col-md-2 ">ID KH quan hệ</label>
+										<div class="col-md-4">
+											<input trimFirstLast type="text" class="form-control"
+												   [readOnly]="isReadonly|async"
+												   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+												   (blur)="getCustomerInfo(i)"
+												   (ngModelChange)="resetFormRelate($event, i)"
+												   formControlName="idRelate">
+											<div class="invalid-feedback" style="display: block">
+													<span>
+														{{(listName$|async) && (listName$|async)[i]}}
+													</span>
+											</div>
+											<div class="invalid-feedback" style="display: block">
+												<span
+													*ngIf="(relate.get('idRelate').touched || relate.get('idRelate').dirty) && relate.get('idRelate').hasError('required')">Trường bắt buộc nhập</span>
+												<span
+													*ngIf="(relate.get('idRelate').touched || relate.get('idRelate').dirty) && relate.get('idRelate').hasError('notExist')">Mã KH không tồn tại</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-form-label col-md-2 required ">Loại tiền</label>
+							<div class="col-md-4">
+								<ng-select [items]="ccyList"
+										   [loading]="isLoadingCcyList$ | async"
+										   bindLabel="nameEN"
+										   bindValue="ccy"
+										   [multiple]="false"
+										   formControlName="currency"
+										   [readonly]="isReadonly|async"
+										   (change)="onChangeCurr($event)">
+									<ng-template ng-header-tmp>
+										Loại tiền
+									</ng-template>
+								</ng-select>
+								<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.currency.touched || frm.currency.dirty || isClicked == true)
+									&& frm.currency.hasError('required')">Trường bắt buộc nhập
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group row" *ngIf="showNiceAcc$|async">
+
+							<label class="col-form-label col-md-2">Kiểu số đẹp</label>
+							<div class="col-md-4">
+
+								<ng-select formControlName="classifyNiceAccount" (change)="changeClassifyNiceAccount()"
+										   [readonly]="isReadonly|async">
+									<ng-option [value]="'ACCOUNT_NICE_10'">10 số</ng-option>
+									<ng-option [value]="'ACCOUNT_NICE_12'">12 số</ng-option>
+									<ng-option [value]="'ACCOUNT_NICE_9'">9 số</ng-option>
+									<ng-option [value]="'ACCOUNT_NICE_8'">8 số</ng-option>
+									<ng-option [value]="'ACCOUNT_NICE_7'">7 số</ng-option>
+									<ng-option [value]="'ACCOUNT_NICE_6'">6 số</ng-option>
+									<!--									<ng-option [value]="'ACCOUNT_VIP'">Số đẹp ban lãnh đạo</ng-option>-->
+								</ng-select>
+
+								<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.classifyNiceAccount.touched || frm.classifyNiceAccount.dirty || isClicked == true)
+									&& frm.classifyNiceAccount.hasError('required')">Trường bắt buộc nhập
+									</span>
+								</div>
+							</div>
+
+							<label class="col-form-label col-md-2">Số tài khoản</label>
+							<div class="col-md-4 mr-circle"
+								 [ngClass]="{'kt-spinner kt-spinner--right kt-spinner--sb': (isLoadingNiceAccounts$ | async)
+								 											|| (isLoadingNiceAccountsOfLeadership$ | async)}">
+								<input type="text" class="form-control" formControlName="accountNumber"
+									   placeholder="{{(niceAcc10$|async)? 'Nhập tối đa 10 số khách hàng chọn': ((niceAcc12$|async) ? 'Nhập tối đa 7 số khách hàng chọn' : '')}}"
+									   trimSpace blockNonNumber maxlength="12"
+									   [readOnly]="!(isDisableAccountNumberInput$ | async) || (isReadonly|async)"
+									   [ngClass]="{'sb-readonly': ((isDisableAccountNumberInput$ | async) == false) || (isReadonly|async)}"
+									   (change)="checkNiceAccountNumber()"
+									   (keydown)="niceAccountSearch()"
+									   [matAutocomplete]="auto"
+									   id="accountNumber"
+									   #accountNumber>
+								<mat-autocomplete #auto="matAutocomplete" [panelWidth]="accountNumber.offsetWidth + 9">
+									<mat-option *ngFor="let c of listNiceAccount" [value]="c.accountID"
+												(click)="selectNiceAccount(c)">
+										{{c.accountID}}
+									</mat-option>
+
+									<mat-option *ngIf="notFoundNiceAccount$ | async">
+										Không tìm thấy
+									</mat-option>
+								</mat-autocomplete>
+								<div class="invalid-feedback" style="display: block" *ngIf="niceAccError$|async">
+									<span *ngIf="niceAcc10$|async">Nhập tối thiểu 3 và tối đa 10 ký tự số</span>
+									<span *ngIf="niceAcc12$|async">Nhập tối thiểu 3 ký tự số</span>
+								</div>
+							</div>
+						</div>
+
+
+						<ng-container *ngIf="(commonService.isNiceAccountNumber$ | async)">
+							<div class="form-group row">
+
+								<label class="col-form-label col-md-2  ">Loại tài khoản số đẹp</label>
+								<div class="col-md-4">
+
+									<ng-select [readonly]="true" formControlName="goldenAccountType">
+										<ng-option *ngFor="let type of vipTypeAccounts"
+												   [value]="type.id">{{type.value}}</ng-option>
+									</ng-select>
+
+								</div>
+
+								<label class="col-form-label col-md-2">Số đẹp SĐT</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" disabled
+										   formControlName="phoneNumberAccount">
+								</div>
+
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2">Hạng tài khoản số đẹp</label>
+								<div class="col-md-4">
+
+									<ng-select [readonly]="true" formControlName="classNiceAccount">
+										<ng-option *ngFor="let c of vipClassAccounts"
+												   [value]="c.id">{{c.value}}</ng-option>
+									</ng-select>
+
+								</div>
+
+							</div>
+
+							<kt-charge-info
+								[chargeInfoData]="accFrmDash?.account?.chargeInfo"
+								[feePolicies]="feePolicies"
+								[parentForm]="accountInfoForm"
+								[businessType]="chargeBusinessType.ACCOUNT_COMBO"
+								[idParent]="frm.id.value"
+								[isReadOnly]="(APPROVED | async) || (authoraiserble | async)">
+							</kt-charge-info>
+						</ng-container>
+					</div>
+				</ng-container>
+			</div>
+
+			<div class="fatca sb-content mt-3 mb-3 p-3">
+
+				<label class=" sb-title">
+					Thông tin FATCA
+				</label>
+
+
+				<table class="table table-striped">
+					<thead style="background-color: #c3cadb; text-align: center;">
+					<tr>
+						<th style="width: 60%" class="font-weight-bold">Vui lòng trả lời các câu hỏi bên dưới*</th>
+						<th class="font-weight-bold">Có</th>
+						<th class="font-weight-bold">Không</th>
+						<th class="font-weight-bold">Nếu "Có", vui lòng bổ sung hồ sơ dưới đây</th>
+
+					</tr>
+					</thead>
+					<tbody>
+					<tr *ngFor="let item of fatcaList; index as i">
+						<td> {{i + 1}}.&nbsp;{{item.question}}</td>
+						<td>
+							<div style="text-align: center;">
+								<input type="radio" [value]="true" name="{{item.id}}" formControlName="fatca{{i+1}}">
+							</div>
+						</td>
+						<td>
+							<div style="text-align: center;">
+								<input type="radio" [value]="false" name="{{item.id}}" formControlName="fatca{{i+1}}">
+							</div>
+						</td>
+						<td *ngIf="i == 0">Mẫu W-9</td>
+						<td *ngIf="i == 1">
+							Mẫu W-9, hoặc Mẫu W-8BEN và CMND/CCCD/HC thể hiện quyền công dân ở một quốc gia ngoài Hoa Kỳ
+							và
+							văn bản thể hiện việc Khách hàng từ bỏ quyền công dân Hoa Kỳ hay lý do khách hàng không có
+							quốc tịch
+							Hoa Kỳ khi sinh
+						</td>
+						<td *ngIf="i == 2" rowspan="5">
+							Mẫu W-9 hoặc Mẫu W-8BEN và CMND/CCCD/HC thể hiện quyền công dân ở một quốc gia ngoài Hoa Kỳ
+							và giấy tờ
+							chứng nhận nơi cư trú cho năm gần nhất ở một quốc gia không phải Hoa Kỳ
+						</td>
+					</tr>
+
+					</tbody>
+				</table>
+
+			</div>
+
+		</ng-container>
+	</form>
+</div>

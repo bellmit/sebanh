@@ -1,0 +1,296 @@
+<div class="kt-content">
+	<kt-title-top [parentTitle]="parentName" [childOne]="childOne" [childTwo]="childTwo"></kt-title-top>
+
+	<!--	<div class="col-12">-->
+	<form [formGroup]="parentForm">
+		<kt-transaction-info [parentForm]="parentForm" [dataFrmDash]="dataCacheRouter" [isLoading]="(isLoadingSms$ | async)"
+			(onSearch)="getSmsInfo()">
+		</kt-transaction-info>
+
+		<!-- *ngIf="(commonService.isUpdateSMS$ | async) ? (commonService.isUpdateSMS$ | async) : !(isLoadingSms$ | async) && isSearched" -->
+		<div [ngClass]="{'sb-container-readonly': STATUS_APPROVED}">
+
+			<ng-container *ngIf="(inputtable$ | async)">
+				<label style="font-weight: bold">Thông tin dịch vụ SMS</label>
+				<table class="sb-content sb-custom-table table table-striped" style="overflow-x:auto;"
+					[ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async)  || viewData}">
+					<thead class="text-left" style="background-color: #c3cadb">
+						<tr>
+							<td></td>
+							<td class="font-weight-bold">STT</td>
+							<td (click)="sortColumnSmsInfo('accountID')" class="font-weight-bold"><i
+									[class]="(columnValue == 'accountID'&& this.isIncreShow == true) ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+								Số tài khoản
+							</td>
+							<td (click)="sortColumnSmsInfo('telNo')" class="font-weight-bold"><i
+									[class]="(columnValue == 'telNo' && this.isIncreShow == true) ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+								Số điện thoại
+							</td>
+							<td (click)="sortColumnSmsInfo('vadParamId')" class="font-weight-bold"><i
+									[class]="(columnValue == 'vadParamId' && this.isIncreShow == true) ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+								Mã dịch vụ
+							</td>
+							<td (click)="sortColumnSmsInfo('email')" class="font-weight-bold"><i
+									[class]="(columnValue == 'email' && this.isIncreShow == true)? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+								Email
+							</td>
+							<td (click)="sortColumnSmsInfo('promotionId')" class="font-weight-bold"><i
+									[class]="(columnValue == 'promotionId' && this.isIncreShow == true)? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+								Promotion.ID
+							</td>
+							<td (click)="sortColumnSmsInfo('startDate')" class="font-weight-bold"><i
+									[class]="(columnValue == 'startDate'&& this.isIncreShow == true) ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+								Ngày bắt đầu
+							</td>
+							<td (click)="sortColumnSmsInfo('endDate')" class="font-weight-bold"><i
+									[class]="(columnValue == 'endDate'&& this.isIncreShow == true) ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+								Ngày kết thúc
+							</td>
+							<td (click)="sortColumnSmsInfo('coCode')" class="font-weight-bold"><i
+									[class]="(columnValue == 'coCode'&& this.isIncreShow == true) ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+								Chi nhánh
+							</td>
+
+						</tr>
+					</thead>
+
+					<tbody *ngIf="!(isLoadingSms$ | async)">
+						<tr [ngStyle]="{'background-color': i%2 != 0 ? '#E2E5EC' : '#F5F8FA' }"
+							*ngFor="let sms of smsList$ | async; let i = index">
+							<td>
+								<div *ngIf="!(isLoadingSms$.getValue())" class="form-group sb-checkbox__login w-75">
+									<input [disabled]="(authorisable$ | async)" class="check_box_login mr-2 mt-1 ml-3"
+										(change)="onChangeSms($event,sms, i)" type="checkbox" [checked]="sms.checked" />
+								</div>
+							</td>
+
+
+							<td>{{i + 1}}</td>
+							<td>{{sms?.alternateAccountID}}</td>
+							<td>{{sms?.telNo}}</td>
+							<td>{{sms?.vadParamId}}</td>
+							<td>{{sms?.email}}</td>
+							<td>{{sms?.promotionId}}</td>
+							<td>{{sms?.startDate}}</td>
+							<td>{{sms?.endDate}}</td>
+							<td>{{coCode}}</td>
+						</tr>
+					</tbody>
+				</table>
+				<div style=" text-align: center; font-size: 18px;">
+					<span
+						*ngIf="(smsList$.getValue() && smsList$.getValue()?.length == 0 || (smsList$.getValue()==null)) && !(isLoadingSms$ | async)">Không
+						có dữ liệu</span>
+				</div>
+				<div *ngIf="(isLoadingSms$ | async) " style="text-align: -webkit-center; text-align: -moz-center">
+					<table>
+						<tr>
+							<td
+								[ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (isLoadingSms$ | async) }">
+							</td>
+						</tr>
+					</table>
+				</div>
+			</ng-container>
+
+
+			<label style="pointer-events: none;" *ngIf="form.value.length>0 && smsList$.getValue() !== null"
+				class=" font-weight-bolder">
+				<input [disabled]="(authorisable$ | async)" type="checkbox" class="regular-checkbox" style="border-radius: 3px;"
+					[checked]="true" />
+				Cập nhật thông tin dịch vụ
+			</label>
+
+			<div *ngIf="form.value.length>0 && smsList$.getValue() !== null" class="sb-content p-3 mt-3 mb-3"
+				style="overflow-x:auto;">
+				<form [formGroup]="updateForm">
+					<table [ngClass]="{'sb-container-readonly': (dataCacheRouter && (authorisable$ | async))}"
+						class="sb-content sb-custom-table table table-striped">
+						<!--						<thead class="text-center">-->
+						<thead class="text-center" style="background-color: #c3cadb">
+							<tr>
+								<th class="font-weight-bold">STT</th>
+								<th class="font-weight-bold">STK đăng kí SMS</th>
+								<th class="font-weight-bold">Số điện thoại</th>
+								<th class="font-weight-bold">Mã dịch vụ</th>
+								<th class="font-weight-bold">Email <span style="color: #d71920;">(*)</span></th>
+								<th class="font-weight-bold">Promotion.ID</th>
+								<th class="font-weight-bold">Ngày kết thúc</th>
+							</tr>
+						</thead>
+
+
+						<tbody>
+
+							<tr [ngStyle]="{'background-color': index%2 != 0 ? '#E2E5EC' : '#F5F8FA' }" formArrayName="form"
+								*ngFor="let form of form.controls; let index = index">
+								<td>{{index + 1}}</td>
+								<ng-container [formGroupName]="index">
+									<!-- <td>{{ sms.accountID}}</td> -->
+									<td style="width: fit-content !important;">
+										<div class=" text-center">
+											<input [readOnly]="true" class="input-table border-0"
+												style="width: 100%; background: transparent!important;" type="text" formControlName="accountId">
+										</div>
+									</td>
+
+
+									<td style="width: fit-content !important;">
+										<div class="text-center">
+											<input class="input-table border-0" style="width: 100%; background: transparent!important;"
+												type="text" formControlName="phoneNumber">
+										</div>
+										<div class="invalid-feedback" style="display: block!important;"
+											*ngIf="form.controls.phoneNumber.invalid && (form.controls.phoneNumber.touched || form.controls.phoneNumber.dirty)">
+											<!-- <span *ngIf="form.controls.phoneNumber.errors.required">Trường bắt buộc nhập</span> -->
+											<span *ngIf="form.controls.phoneNumber.errors.required">Đây là trường bắt buộc</span>
+											<span *ngIf="form.controls.phoneNumber.errors.pattern">Số điện thoại sai định dạng</span>
+										</div>
+									</td>
+
+									<td>
+										<div class="text-center bg-transparent">
+											<ng-select class="no-border-ng-select" style="width: 100%; border-radius: 2px"
+												[clearable]="form.controls.serviceId.value!='' " [searchable]="false"
+												[items]="serviceList$|async" bindLabel="madichvuId" bindValue="madichvuId" [multiple]="false"
+												formControlName="serviceId">
+
+												<ng-template ng-option-tmp let-item="item">
+													<div class="form-row text-left">
+														<span>{{item.madichvuId}}</span>
+													</div>
+												</ng-template>
+											</ng-select>
+											<div class="invalid-feedback" style="display: block!important;"
+												*ngIf="form.controls.serviceId.invalid && (form.controls.serviceId.touched || form.controls.serviceId.dirty)">
+												<span *ngIf="form.controls.serviceId.errors.required">Trường bắt buộc nhập</span>
+											</div>
+
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('serviceId', form.controls.serviceId.value, ngSelectType, index, null, (serviceList$|async), 'madichvuId', 'madichvuId', 'serviceId')">
+										</kt-old-value-t24>
+									</td>
+
+									<td>
+										<div class="text-center">
+											<input trimSpace class="input-table border-0" style="width: 100%;
+										 background: transparent !important;" type="text" formControlName="email">
+										</div>
+										<div class="invalid-feedback" style="display: block!important;"
+											*ngIf="form.controls.email.invalid && (form.controls.email.touched || form.controls.email.dirty)">
+											<span *ngIf="form.controls.email.errors.required">Trường bắt buộc nhập</span>
+											<span *ngIf="form.controls.email.errors.pattern">Email không đúng định dạng</span>
+										</div>
+
+									</td>
+
+									<td>
+										<div class=" text-center bg-transparent">
+											<ng-select class="border-0 no-border-ng-select" style="width: 100%; border: none !important;"
+												[searchable]="false" [items]="listPromotion$|async"
+												[clearable]="form.controls.promotionId.value != null && form.controls.promotionId.value != '' "
+												bindLabel="promotionId" bindValue="promotionId" [multiple]="false" formControlName="promotionId"
+												readonly>
+											</ng-select>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('promotionId', form.controls.promotionId.value, ngSelectType, index, null, (listPromotion$|async), 'promotionId', 'promotionId', 'promotionId')">
+										</kt-old-value-t24>
+									</td>
+
+									<td>
+										<div>
+											<input style="background: transparent!important;" type="text"
+												class="form-control py-2 border-0  input-table" placeholder="DD/MM/YYYY" [max]="maxDate"
+												[min]="minDate" formControlName="endDate" ktDateEnter [matDatepicker]="picker"
+												(click)="picker.open()">
+											<mat-datepicker #picker color="warn"></mat-datepicker>
+										
+										</div>
+	<kt-old-value-t24 [valueDiff]="compareValueHasChange('endDate', form.get('endDate').value, dateInputType,
+																						index, dateFormatT24, 'endDate', 'endDate', null)"></kt-old-value-t24>
+
+										<!--											<div class="text-center">-->
+										<!--												<input trimSpace placeholder="DD-MM-YYYY" class="input-table"-->
+										<!--													   style="width: 100%" type="text" formControlName="endDate">-->
+										<!--											</div>-->
+									</td>
+								</ng-container>
+							</tr>
+						</tbody>
+
+					</table>
+				</form>
+				<div style=""></div>
+			</div>
+
+			<div *ngIf="(isLoadingSmsDetail$ | async) " style="text-align: -webkit-center; text-align: -moz-center">
+				<table>
+					<tr>
+						<td
+							[ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (isLoadingSmsDetail$ | async) }">
+						</td>
+					</tr>
+				</table>
+			</div>
+
+			<kt-general-info [parentForm]="parentForm" [general_info]="general_info" [viewData]="viewData"
+				[dataFromDash]="dataCacheRouter" [authoraiserble]="authorisable$ | async" [isCheckOldInfo]="'SMS_OLD_INFO'" ></kt-general-info>
+			<kt-audit-info [parentForm]="parentForm" [inputter]="inputtable$ | async" [authoriser]="authorisable$ | async"
+				[dataCacheRouter]='dataCacheRouter' [dataFrmDash]='dataCacheRouter'></kt-audit-info>
+
+			<kt-table-approve-error [headers]="headerError" [data]="dataError" *ngIf="headerError.length">
+			</kt-table-approve-error>
+		</div>
+
+		<div class="form-group row sb-content p-3 m-0 ">
+			<div class=" col-12 text-right">
+				<button type="button" class="btn btn-sm  sb-btn-remove mt-2 mr-2" (click)="backToHome()">
+					Quay lại
+				</button>
+				<ng-container *ngIf="!STATUS_APPROVED  && !viewData">
+					<button type="button" *ngIf="(inputtable$ | async)" (click)="getReportId()"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingReport$ | async)}"
+						[disabled]="isLoadingReport$| async" class="btn btn-sm  sb-btn-display mt-2 mr-2"
+						[ngbTooltip]="isLoadingTooltipReportButton ? 'Đang xử lý...' : null" tooltipClass="tooltip-custom">
+						Hiển thị biểu mẫu
+					</button>
+
+					<button *ngIf="(inputtable$ | async) && !STATUS_APPROVED" type="button"
+						class="btn btn-sm  sb-btn-remove mt-2 mr-2" (click)="deleteSms()"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingDeleteSms$ | async)}">
+						Xóa
+					</button>
+
+					<!--					<button *ngIf="(inputtable$ | async)" type="button"-->
+					<!--							class="btn btn-sm  sb-btn-blue-submit mt-2 mr-2">-->
+					<!--						Lưu-->
+					<!--					</button>-->
+
+					<button *ngIf="(inputtable$ | async) && !STATUS_APPROVED" type="button" (click)="onSubmit()"
+						class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isUpdatingSms$ | async)}">
+						{{dataCacheRouter ? (this.dataCacheRouter.status == 'APPROVED_ERROR' ?'Gửi duyệt lại' : 'Cập nhật') : 'Gửi duyệt'}}
+					</button>
+
+					<button *ngIf="(authorisable$ | async) && STATUS_PENDING" type="button"
+						[disabled]="(form.value.length < 1) || !(commonService.isUpdateSMS$ | async) || (dataCacheRouter.status == 'REJECTED')"
+						(click)="rejectSms()" class="btn btn-sm  sb-btn-remove mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingRejectSms$ | async)}">
+						Từ chối
+					</button>
+
+					<button *ngIf="(authorisable$ | async) && STATUS_PENDING" type="button"
+						[disabled]="(form.value.length < 1) || !(commonService.isUpdateSMS$ | async) || (dataCacheRouter.status == 'REJECTED')"
+						(click)="approveSms()" class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingApproveSms$ | async)}">
+						Duyệt
+					</button>
+				</ng-container>
+
+			</div>
+		</div>
+
+	</form>
+</div>

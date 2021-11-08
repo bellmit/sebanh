@@ -1,0 +1,45 @@
+<div ngbDropdown placement="bottom" autoClose="outside" class="kt-header__topbar-item">
+
+	<div ngbDropdownToggle class="kt-header__topbar-wrapper">
+		<span class="kt-header__topbar-icon"
+			  [ngClass]="{'kt-pulse kt-pulse--brand': pulse, 'kt-pulse--light' : pulseLight, 'kt-header__topbar-icon--success' : iconType === 'success'	}">
+			<i *ngIf="!useSVG" [ngClass]="icon"></i>
+			<span *ngIf="useSVG" class="kt-svg-icon" [ngClass]="{'kt-svg-icon--success' : iconType === 'success'}"
+				  [inlineSVG]="icon"></span>
+		</span>
+		<span *ngIf="(websocketClient.numberOfNewNotification$ | async) > 0"
+			  class="badge badge-default"> {{websocketClient.numberOfNewNotification$ | async}}</span>
+	</div>
+
+	<div ngbDropdownMenu
+		 class="dropdown-menu dropdown-menu-fit dropdown-menu-right dropdown-menu-anim dropdown-menu-top-unround dropdown-menu-lg">
+		<form>
+			<div [ngStyle]="{'max-height': '40vh', 'position': 'relative', 'background': '#D71424'}"
+				 class="kt-notification" id="header_notification">
+				<div class="kt-notification__item">
+					<div class="kt-notification__item-details">
+						<div class="kt-notification__item-title" style="color: #FFFFFF">
+							Bạn có {{websocketClient.numberOfNewNotification$ | async}} thông báo mới
+						</div>
+					</div>
+				</div>
+			</div>
+			<div [perfectScrollbar]="{wheelPropagation: false}"
+				 [ngStyle]="{'max-height': '40vh', 'position': 'relative'}"
+				 class="kt-notification kt-margin-t-10 kt-margin-b-10">
+				<a href="javascript:;" class="kt-notification__item" (click)="updateStatusNotification(data)"
+				   *ngFor="let data of (websocketClient.dataNotifications | async)">
+					<div class="kt-notification__item-details">
+						<div class="kt-notification__item-title"
+							 [ngClass]="data.isRead ? 'kt-notification__item--read': 'kt-notification-not-read'">
+							{{data.content}}
+						</div>
+						<div class="kt-notification__item-time">
+							{{formatDate(data.created)}}
+						</div>
+					</div>
+				</a>
+			</div>
+		</form>
+	</div>
+</div>

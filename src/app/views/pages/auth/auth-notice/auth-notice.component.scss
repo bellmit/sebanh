@@ -1,0 +1,47 @@
+.shakeit {
+	transform: translate3d(0, 0, 0);
+	backface-visibility: hidden;
+
+	-moz-animation: cssAnimation 0s ease-in 15s forwards;
+	/* Firefox */
+	-webkit-animation: cssAnimation 0s ease-in 15s forwards;
+	/* Safari and Chrome */
+	-o-animation: cssAnimation 0s ease-in 15s forwards;
+	/* Opera */
+	animation: cssAnimation 0s ease-in 15s forwards, shake 1s cubic-bezier(.36,.07,.19,.97) both;
+	-webkit-animation-fill-mode: forwards;
+	animation-fill-mode: forwards;
+}
+
+@keyframes shake {
+	10%, 90% {
+		transform: translate3d(-1%, 0, 0);
+	}
+
+	20%, 80% {
+		transform: translate3d(-1%, 0, 0);
+	}
+
+	30%, 50%, 70% {
+		transform: translate3d(-2%, 0, 0);
+	}
+
+	40%, 60% {
+		transform: translate3d(-2%, 0, 0);
+	}
+}
+
+@keyframes cssAnimation {
+	to {
+		width:0;
+		height:0;
+		overflow:hidden;
+	}
+}
+@-webkit-keyframes cssAnimation {
+	to {
+		width:0;
+		height:0;
+		visibility:hidden;
+	}
+}

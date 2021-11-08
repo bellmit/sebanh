@@ -1,0 +1,119 @@
+<div class="sb-content p-3 mt-3 mb-3">
+	<form [formGroup]="infoForm">
+		<div class="p-0">
+			<span class="sb-title">Thông tin chung</span>
+			<hr />
+			<div class="form-group row">
+				<label class="col-form-label col-md-2 ">Campaign ID</label>
+				<div class="col-md-4">
+					<ng-select [clearable]="true" [readonly]="isReadonly|async" formControlName="campaignId">
+						<ng-option *ngFor="let c of campaignList" [value]="c.recid">
+							{{c.recid}} - {{c.description}}
+						</ng-option>
+					</ng-select>
+					<kt-old-value-t24 [valueDiff]="compareValueHasChange('campaignId', frm.campaignId.value)"></kt-old-value-t24>
+				</div>
+
+				<label class="col-form-label col-md-2" [class.required]="!isRemoveRequired">Broker Type</label>
+				<div class="col-md-4">
+					<ng-select [items]="brokerTypeList" bindLabel="name" bindValue="brokerId" [multiple]="false"
+						[readonly]="isReadonly|async" formControlName="brokerType"
+						[ngbTooltip]="isRemoveRequired ? 'Chỉ được phép chỉnh sửa nếu được phân quyền': null"
+						tooltipClass="tooltip-custom">
+						<ng-template ng-header-tmp>
+							Broker Type
+						</ng-template>
+						<ng-template ng-header-tmp let-item="item">
+							{{item.name}}
+						</ng-template>
+					</ng-select>
+					<div class="invalid-feedback" style="display: block">
+						<span *ngIf="(form.brokerType.touched || form.brokerType.dirty || isClicked == true)
+							 && form.brokerType.hasError('required')">Trường bắt buộc nhập
+						</span>
+					</div>
+					<kt-old-value-t24 [valueDiff]="compareValueHasChange('brokerType', frm.brokerType.value)"></kt-old-value-t24>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-form-label col-md-2" [class.required]="!isRemoveRequired">Sale Type</label>
+				<div class="col-md-4">
+					<ng-select [items]="saleList" bindLabel="name" bindValue="saleId" [readonly]="isReadonly|async"
+						[multiple]="false" [ngbTooltip]="isRemoveRequired ? 'Chỉ được phép chỉnh sửa nếu được phân quyền': null"
+						tooltipClass="tooltip-custom" formControlName="saleType">
+						<ng-template ng-header-tmp>
+							Sale Type
+						</ng-template>
+						<ng-template ng-header-tmp let-item="item">
+							{{item.name}}
+						</ng-template>
+					</ng-select>
+
+					<div class="invalid-feedback" style="display: block">
+						<span *ngIf="(form.saleType.touched || form.saleType.dirty || isClicked == true)
+							 && form.saleType.hasError('required')">Trường bắt buộc nhập
+						</span>
+					</div>
+					<kt-old-value-t24 [valueDiff]="compareValueHasChange('saleType', frm.saleType.value)"></kt-old-value-t24>
+				</div>
+
+				<label class="col-form-label col-md-2" [class.required]="!isRemoveRequired">Broker ID</label>
+				<div class="col-md-4">
+					<input type="text" class="form-control" formControlName="brokerId" (blur)="checkCustomerExists('broker')"
+						[readOnly]="isReadonly|async" [ngClass]="{'sb-readonly': isReadonly|async}"
+						[ngbTooltip]="isRemoveRequired ? 'Chỉ được phép chỉnh sửa nếu được phân quyền': null"
+						tooltipClass="tooltip-custom">
+					<div class="invalid-feedback" style="display: block">
+						<span *ngIf="(form.brokerId.touched || form.brokerId.dirty || isClicked == true)
+							 && form.brokerId.hasError('required')">Trường bắt buộc nhập
+						</span>
+						<!-- <span
+							*ngIf="(form.brokerId.touched || form.brokerId.dirty || isClicked == true)
+							 && form.brokerId.hasError('notExist')">Mã KH không tồn tại
+						</span> -->
+					</div>
+					<div class="invalid-feedback" style="display: block">
+						<span *ngIf="(this.nameBroker$|async)">
+							{{this.nameBroker$|async}}
+						</span>
+					</div>
+					<kt-old-value-t24 [valueDiff]="compareValueHasChange('brokerId', frm.brokerId.value)"></kt-old-value-t24>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-form-label col-md-2" [class.required]="!isRemoveRequired">Sale ID</label>
+				<div class="col-md-4">
+					<input type="text" class="form-control" formControlName="saleId" (blur)="checkCustomerExists('sale')"
+						[readOnly]="isReadonly|async" [ngClass]="{'sb-readonly': isReadonly|async}"
+						[ngbTooltip]="isRemoveRequired ? 'Chỉ được phép chỉnh sửa nếu được phân quyền': null"
+						tooltipClass="tooltip-custom">
+					<div class="invalid-feedback" style="display: block">
+						<span *ngIf="(form.saleId.touched || form.saleId.dirty || isClicked == true)
+							 && form.saleId.hasError('required')">Trường bắt buộc nhập
+						</span>
+						<!-- <span
+							*ngIf="(form.saleId.touched || form.saleId.dirty || isClicked == true)
+							 && form.saleId.hasError('notExist')">Mã KH không tồn tại
+						</span> -->
+					</div>
+					<div class="invalid-feedback" style="display: block">
+						<span *ngIf="this.nameSale$|async">
+							{{this.nameSale$|async}}
+						</span>
+					</div>
+					<kt-old-value-t24 [valueDiff]="compareValueHasChange('saleId', frm.saleId.value)"></kt-old-value-t24>
+				</div>
+
+				<ng-container *ngIf="!isSMS">
+					<label class="col-form-label col-md-2  ">Ghi chú</label>
+					<div class="col-md-4">
+						<textarea type="text" class="form-control" formControlName="description" trimFirstLast
+							[readOnly]="isReadonly|async" [ngClass]="{'sb-readonly': isReadonly|async}"></textarea>
+					</div>
+				</ng-container>
+			</div>
+		</div>
+	</form>
+</div>

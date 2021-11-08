@@ -1,0 +1,67 @@
+<!--<div class="col-12">-->
+<form [formGroup]="auditInfoForm">
+	<div class="sb-content p-3 mt-3 mb-3 auditForm-css">
+		<span class="font-weight-bold mt-2 mb-4">Thông tin kiểm toán</span>
+		<hr>
+
+		<div class="form-group row">
+			<label class="col-form-label col-md-2 ">Người nhập</label>
+			<div class="col-md-4">
+				<input type="text" class="form-control sb-readonly" readonly formControlName="inputter">
+			</div>
+
+			<label class="col-form-label col-md-2 ">Thời gian nhập</label>
+			<div class="col-md-4">
+				<input type="text" class="form-control sb-readonly" readonly formControlName="timeUpdate">
+			</div>
+		</div>
+
+		<div class="form-group row" *ngIf="authoriser || (inputter && APPROVED)">
+			<label class="col-form-label col-md-2 ">Người duyệt</label>
+			<div class="col-md-4">
+				<input type="text" class="form-control sb-readonly" readonly formControlName="authoriser">
+			</div>
+
+			<label class="col-form-label col-md-2 ">Thời gian duyệt</label>
+			<div class="col-md-4">
+				<input type="text" class="form-control sb-readonly" readonly formControlName="timeAuth">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label class="col-form-label col-md-2 ">Mã chi nhánh</label>
+			<div class="col-md-4">
+				<input type="text" class="form-control sb-readonly" readonly formControlName="coCode">
+			</div>
+
+<!--			<label class="col-form-label col-md-2 ">Mã phòng ban</label>-->
+<!--			<div class="col-md-4">-->
+<!--				<input type="text" class="form-control sb-readonly" readonly formControlName="roomCode">-->
+<!--			</div>-->
+		</div>
+
+		<div class="form-group row"
+			 *ngIf="authoriser || (dataFrmDash && dataFrmDash.reason) || (dataFrmDash && dataFrmDash.reasonReject)">
+			<label class="col-form-label col-md-2"
+				   [ngClass]="{'required' : auditInfoForm.controls.reason.hasError('required')}"
+			>Lý do từ chối</label>
+			<div class="col-md-10">
+				<textarea maxlength="200" type="text" class="textarea" formControlName="reason" (blur)="trimReason()"
+				id="textarea"
+				(ngModelChange)="autoGrowTextarea($event)"
+				style="overflow: hidden;"
+						  [ngClass]="{'sb-readonly': (rejected$|async)}"
+						  [readOnly]="(!authoriser || (rejected$|async))"
+				></textarea>
+				<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(auditInfoForm.controls.reason.touched || auditInfoForm.controls.reason.dirty)
+							 && auditInfoForm.controls.reason.hasError('required')">Trường bắt buộc nhập
+						</span>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</form>
+<!--</div>-->

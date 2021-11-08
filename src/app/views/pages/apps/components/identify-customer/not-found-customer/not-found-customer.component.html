@@ -1,0 +1,146 @@
+<div class="sb-content p-3">
+	<div class="form-group row mb-5">
+		<div class="sb-title col-6"> Nhận diện khách hàng</div>
+	</div>
+
+	<ng-container *ngIf="predictUser && predictUser.length > 0">
+		<div class="form-group row mt-5">
+			<div class="col-md-6">
+				<span>Độ tin cậy nhận diện khuôn mặt và GTTT</span>
+			</div>
+
+			<div class="col-md-6">
+				<ngb-progressbar type="success"
+								 [value]="similarValue">{{similarValue | number: '1.2-2'}}%
+				</ngb-progressbar>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-md-6">
+				<span>Giới tính: {{viewGender(predictUser[0])}}</span>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-md-6">
+				<span>Ngày sinh: {{predictUser[0]?.ngay_sinh?.normalized?.value}}</span>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-md-6">
+				<span>Loại GTTT: {{predictUser[0]?.class_name?.normalized?.code}}</span>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-md-6">
+				<span>Số GTTT: {{predictUser[0]?.id?.value}}</span>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-md-6">
+				<span>Nghề nghiệp </span>
+				<select class="custom-select">
+					<option value="Tự doanh">Tự doanh</option>
+					<option value="Cán bộ/ Nhân viên VP">Cán bộ/ Nhân viên VP</option>
+					<option value="Hưu trí">Hưu trí</option>
+				</select>
+			</div>
+		</div>
+
+		<button class="mt-2 mb-2 btn btn-sm sb-btn-submit" (click)="filterUser()"
+				[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark': (isLoading$ | async)}">
+			Kiểm tra trùng lặp
+		</button>
+
+		<span *ngIf="!(isLoading$ | async) && isSearch && customersFromSearch && customersFromSearch.length == 0"
+			  style="color: red">Không tồn tại ID KH trong hệ thống</span>
+
+		<ng-container *ngIf="!(isLoading$ | async) && isSearch">
+			<table class="table table-striped">
+				<thead style="background-color: #c3cadb">
+				<tr>
+					<th class="font-weight-bold">ID KH</th>
+					<th class="font-weight-bold">Họ và tên</th>
+					<th class="font-weight-bold">Ngày sinh</th>
+					<th class="font-weight-bold">Số GTTT</th>
+					<th class="font-weight-bold">Ngày cấp</th>
+					<th class="font-weight-bold">Nơi cấp</th>
+					<th class="font-weight-bold">SĐT</th>
+					<th class="font-weight-bold">Địa chỉ thường trú</th>
+					<th class="font-weight-bold">Hạng KH</th>
+					<th class="font-weight-bold">Chi nhánh mở</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr *ngFor="let customer of customersFromSearch">
+					<td style="cursor: pointer; color: #0080FF"
+						(click)="navigateCustomerManage(customer)">{{customer.custId}}</td>
+					<td>{{customer.custName}}</td>
+					<td>{{customer.birthDate}}</td>
+					<td>{{customer.legal}}</td>
+					<td>{{customer.issueDate | datePipeCustom}}</td>
+					<td>{{customer.legalIssAuth}}</td>
+					<td>{{customer.phone}}</td>
+					<td>{{customer.address}}</td>
+					<td>{{customer.custClass}}</td>
+					<td>{{customer.coName}}</td>
+				</tr>
+				</tbody>
+			</table>
+
+			<div class="mt-3 mb-3 row" *ngFor="let customer of customersFromSearch">
+				<div class="col-4" (click)="navigateCustomerManage(customer)" style="cursor: pointer">
+					<img class="border" src="assets/media/users/default.jpg" style="width: 150px">
+					<div>Họ và tên : {{customer.custName}}</div>
+					<div>Giới tính : {{getGender(customer.gender)}}</div>
+					<div>Ngày sinh : {{customer.birthDate}}</div>
+				</div>
+			</div>
+		</ng-container>
+	</ng-container>
+
+	<ng-container *ngIf="similarCompareUser && similarCompareUser.is_matched.value == 'False'">
+		<div class="text-center">
+			<div>
+				<img src="assets/media/logos/nodata.png" height="159">
+			</div>
+
+			<div>
+<!--				<span style="color: red">Không tìm thấy thông tin khách hàng</span>-->
+				<span style="color: red">Ảnh khuôn mặt không khớp với GTTT</span>
+			</div>
+		</div>
+	</ng-container>
+
+	<div *ngIf="(isChecking$ | async) || (isPredicting$ | async)"
+		 style="text-align: -webkit-center; text-align: -moz-center">
+		<table>
+			<tr>
+				<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input':  (isChecking$ | async) || (isPredicting$ | async)}"></td>
+				<td>Đang đối chiếu ảnh GTTT với ảnh chân dung...</td>
+			</tr>
+		</table>
+	</div>
+
+	<div class="row p-3 m-0 col-md-12" *ngIf="predictUser && predictUser.length > 0">
+		<ul class="list-group list-group-horizontal">
+			<li class="list-group-item btn-sm sb-button-selected btn-trans mr-2" style="cursor: pointer"
+				*ngFor="let suggestProduct of (suggestProductSelling$|async)">
+				<a class="pointer"
+				   (click)="onNavigateUrl(suggestProduct.url)">{{suggestProduct.productName}}</a>
+			</li>
+		</ul>
+		<ng-container *ngIf="!(suggestProductSelling$|async).length">
+			<button (click)="redirectCombo('combo1')" class="btn btn-sm  sb-btn-submit mt-2 mr-2">Combo1</button>
+			<button (click)="redirectCombo('combo2')" class="btn btn-sm  sb-btn-submit mt-2 mr-2">Combo2</button>
+			<button (click)="redirectCombo('combo3')" class="btn btn-sm  sb-btn-submit mt-2 mr-2">Combo3</button>
+		</ng-container>
+	</div>
+</div>
+
+
+

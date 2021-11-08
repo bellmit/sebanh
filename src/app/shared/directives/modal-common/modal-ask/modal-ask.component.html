@@ -1,0 +1,21 @@
+<div class="modal-header">
+	<h4 class="modal-title w-100 text-center">{{'message.common.notify' | translate}}</h4>
+	<button class="fix-close"
+			(click)="activeModal.close(false)">
+		<span class="material-icons">close</span>
+	</button>
+</div>
+<div class="modal-body">
+	<div class="text-center content">
+		{{content}}
+	</div>
+</div>
+<div class="modal-footer">
+	<div class="w-100">
+		<button type="button" class="btn text-center btn-danger button-modal-agree p-0 m-0"
+				[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}"
+				(click)="activeModal.close('ok')">{{'buttons.ok' | translate}}</button>
+	</div>
+
+</div>
+

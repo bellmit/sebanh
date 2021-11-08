@@ -1,0 +1,866 @@
+<div class="kt-content">
+	<kt-title-top [parentTitle]="parentName" [childOne]="childOne" [childTwo]="childTwo"
+				  *ngIf="!viewData"></kt-title-top>
+	<!--	<div class="col-12">-->
+	<kt-transaction-info [isLoading]="(isLoadingCardInfo$ | async)"
+						 [inputter]="inputtable$ | async"
+						 [authoriser]="authorisable$ | async"
+						 [dataFrmDash]="dataCacheRouterFromDashboard"
+						 (onSearch)="getListCardPickUpL41ByCustomerId(); getCustomerInfo()"
+						 [parentForm]="parentForm"
+						 [ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async) || viewData}"
+	></kt-transaction-info>
+
+	<!--		(commonService.isFoundCustomerInfo | async) &&-->
+	<div
+		*ngIf="dataCacheRouterFromDashboard && (dataQueryGetCardActionDetail$ | async) && !(isLoadingCardDetail$ | async) || !dataCacheRouterFromDashboard">
+		<table class="sb-content sb-custom-table table table-striped" style="overflow-x:auto;"
+			   *ngIf="(cardInfosQueryByCustomer$.getValue()?.length > 0)"
+			   [ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async)  || viewData}">
+			<thead class="text-left" style="background-color: #c3cadb">
+			<tr>
+				<td></td>
+				<td class="font-weight-bold">STT</td>
+				<td class="font-weight-bold">Tên chủ thẻ</td>
+				<td class="font-weight-bold">Số thẻ</td>
+				<td class="font-weight-bold">Tài khoản liên kết</td>
+				<td class="font-weight-bold">Loại thẻ</td>
+				<td class="font-weight-bold">Trạng thái</td>
+				<td class="font-weight-bold">Ngày phát hành</td>
+				<td class="font-weight-bold">Product Status</td>
+				<td class="font-weight-bold">Ngày hết hạn</td>
+				<td class="font-weight-bold">Bản ghi thẻ</td>
+				<td class="font-weight-bold">Chi nhánh</td>
+			</tr>
+			</thead>
+
+			<!--			<tbody *ngIf="!(isLoadingCardByToken$ | async) && !(isLoadingCardInfo$ | async)">-->
+			<!-- Không hiển thị card có status là Marked -->
+			<!-- [hidden]="((card.productStatus != 'R') && (card.productStatus != 'L')  && card.status == '14')" -->
+			<tbody *ngIf="!(isLoadingCardInfo$ | async)">
+			<tr *ngFor="let card of (cardInfosQueryByCustomer$ | async); let i = index"
+			>
+				<td>
+					<div [hidden]="((card?.productStatusName == 'Marked' || card?.productStatusName == 'Sent') 
+					&& (card?.cardType == 'DEBIT')|| card?.cardType == 'CREDIT'|| (card?.status == PICK_UP_L41_CODE && card?.productStatusName == 'To Close'))" class="form-group w-75 translateY">
+						<mat-radio-button class="btn-radio-green-checked"
+										  (change)="onChangeCard($event,card, i)"
+										  [checked]="(i == checkedValue) || (card.tokenCard  == this.dataCacheRouterFromDashboard?.tokenCard)">
+						</mat-radio-button>
+					</div>
+				</td>
+				<td>{{i + 1}}</td>
+				<td>{{card.embosingName}}</td>
+				<td>{{card.cardNumber}}</td>
+				<td>{{card.accountNo}}</td>
+				<td>{{card.cardProductDesc}}</td>
+				<td>
+					<div>
+						{{card.status| cardStatus :card.productStatus}}
+					</div>
+				</td>
+
+				<td>{{card?.issueMonth}}/{{card?.issueYear}}</td>
+
+				<td>{{card?.productStatusName}}</td>
+				<td>{{card.expireMonth}}/{{card.expireYear}}</td>
+				<td>{{card.mainId}}</td>
+				<td>{{card.companyId}}</td>
+			</tr>
+			</tbody>
+		</table>
+
+		<div *ngIf="(isLoadingCardInfo$ | async) || (isLoadingCardByToken$ | async)"
+			 style="text-align: -webkit-center; text-align: -moz-center">
+			<table>
+				<tr>
+					<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (isLoadingCardInfo$ | async) || (isLoadingCardByToken$ | async)}"></td>
+					<td>{{'DASHBOARD.loading' | translate}}</td>
+				</tr>
+			</table>
+		</div>
+
+		<form [formGroup]="parentForm">
+			<ng-container *ngIf="(dataCacheRouterFromDashboard) || isSearch">
+				<ng-container
+					[ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async)  || viewData}">
+					<div class="sb-content p-3">
+						<div class="form-group row m-2"
+							 [ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async)  || viewData}">
+							<div class="col-6 m-0 p-0">
+								<label class=" font-weight-bolder">
+									<input type="checkbox" class="regular-checkbox"
+										   [(ngModel)]="isActiveCard"
+										   [ngModelOptions]="{standalone: true}"
+										   [disabled]="disabledActiveCard || (disableActions$| async)?.includes('ACTIVE_CARD')"
+										   (change)="changeActiveStatus($event)"
+										   [ngClass]="{'sb-cursor-no-drop': disabledActiveCard}"
+										   style="border-radius: 3px;"/>
+									Kích hoạt thẻ
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div
+						[ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async)  || viewData}"
+						class="sb-content mt-2">
+						<div class="form-group row pt-3 pl-3  m-2">
+							<label class=" font-weight-bolder">
+								<input type="checkbox" class="regular-checkbox"
+									   [(ngModel)]="isClosedCard"
+									   [ngModelOptions]="{standalone: true}"
+									   [disabled]="disableCloseCard  || (disableActions$| async)?.includes('CLOSE_CARD')"
+									   [ngClass]="{'sb-cursor-no-drop': disableCloseCard}"
+									   style="border-radius: 3px;"/>
+								Đóng thẻ
+							</label>
+						</div>
+					<kt-charge-info #closeCard *ngIf="isClosedCard"
+						[chargeInfoData]="dataQueryGetCardActionDetail$.getValue()?.cardActionLock?.chargeInfo"
+						[feePolicies]="feePolicies"
+						[parentForm]="parentForm"
+						[businessType]="chargeBusinessType.CLOSE_CARD"
+						[idParent]="frm.transactionForm.value.transId"
+						[isReadOnly]="(STATUS_APPROVED | async) || (authorisable$ | async)">
+					</kt-charge-info>
+					</div>
+
+					<div
+						[ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async)  || viewData}"
+						class="sb-content mt-2">
+						<div class="form-group row pt-3 pl-3  m-2">
+							<label class=" font-weight-bolder">
+								<input type="checkbox" class="regular-checkbox"
+									   [(ngModel)]="isChangeCardStatus"
+									   [ngModelOptions]="{standalone: true}"
+									   [disabled]="disableCheckboxChangeCardStatus || (disableActions$| async)?.includes('UPDATE_STATUS')"
+									   [ngClass]="{'sb-cursor-no-drop': disableCheckboxChangeCardStatus}"
+									   (click)="changeStatusChildrenBusiness($event)"
+									   style="border-radius: 3px;"/>
+								Thay đổi trạng thái thẻ
+							</label>
+						</div>
+
+
+						<div *ngIf="isChangeCardStatus" class="ml-2 mr-2 pl-2 pr-2">
+							<hr class="w-100">
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 required ">Trạng thái thẻ mới</label>
+								<div class="col-md-4">
+									<ng-select [items]="(cardStatusList$ | async)" style="min-width: 100%"
+											   bindLabel="nameVi"
+											   bindValue="value"
+											   [multiple]="false"
+											   (change)="changeNewCardStatus()"
+											   formControlName="cardStatus">
+									</ng-select>
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.cardStatus.touched || frm.cardStatus.dirty || isClicked == true) && frm.cardStatus.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+
+								<label class="col-form-label col-md-2 required " *ngIf="frm.reasonId.value == 'Khác'">Chi
+									tiết</label>
+								<div class="col-md-4" *ngIf="frm.reasonId.value == 'Khác'">
+									<input type="text" class="form-control" formControlName="detail">
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.detail.touched || frm.detail.dirty || isClicked == true) && frm.detail.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 required">Lý do thay đổi</label>
+								<div class="col-md-4">
+									<ng-select [items]="reasonList" style="min-width: 100%"
+											   (change)="onChangeReasonCard($event)"
+											   bindLabel="nameVi"
+											   bindValue="value"
+											   [multiple]="false"
+											   formControlName="reasonId">
+									</ng-select>
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.reasonId.touched || frm.reasonId.dirty || isClicked == true) && frm.reasonId.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div
+						[ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async)  || viewData}"
+						grt
+						class="sb-content mt-2">
+						<div class="form-group row pt-3 pl-3  m-2">
+							<label class=" font-weight-bolder">
+								<input type="checkbox" class="regular-checkbox"
+									   [(ngModel)]="isChangeTransLimit"
+									   [ngModelOptions]="{standalone: true}"
+									   [disabled]="disableChangeCardTransLimit || (disableActions$| async)?.includes('UPDATE_TRANS_LIMIT')"
+									   (click)="getCardLimit($event)"
+									   [ngClass]="{'sb-cursor-no-drop': disableChangeCardTransLimit}"
+									   style="border-radius: 3px;"/>
+								Thay đổi hạn mức giao dịch
+							</label>
+						</div>
+
+						<div *ngIf="(isLoadingCardLimit$ | async)"
+							 class="ml-2 mr-2 pl-2 pr-2"
+							 style="text-align: -webkit-center; text-align: -moz-center">
+							<table>
+								<tr>
+									<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (isLoadingCardLimit$ | async)}"></td>
+									<td>{{'DASHBOARD.loading' | translate}}</td>
+								</tr>
+							</table>
+						</div>
+
+						<div class="ml-2 mr-2 pl-2 pr-2" *ngIf="isChangeTransLimit && !(isLoadingCardLimit$ | async)">
+							<hr/>
+							<div class="form-group row">
+								<label class="col-form-label col-md-2">Hạn mức rút tiền tại ATM /ngày</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" formControlName="oldAtmLimitPerDay"
+										   [readOnly]="true"
+										   inputCurrency
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+<!--								<label class="col-form-label col-md-2">Hạn mức rút tiền tại ATM/tuần mới</label>-->
+								<label class="col-form-label col-md-2"></label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="newAtmLimitPerDay"
+										   placeholder="GDV nhập hạn mức thay đổi"
+										   [readOnly]="STATUS_APPROVED || (authorisable$| async)"
+										   [ngClass]="{'sb-readonly': STATUS_APPROVED || (authorisable$| async)}"
+										   inputCurrency
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+							</div>
+
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 "> /lần</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" formControlName="oldAtmLimitPerTime"
+										   inputCurrency
+										   [readOnly]="true"
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+								<!--								<label class="col-form-label col-md-2">Hạn mức rút tiền tại ATM/tuần mới</label>-->
+								<label class="col-form-label col-md-2"></label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="newAtmLimitPerTime"
+										   inputCurrency
+										   [ngClass]="{'sb-readonly': STATUS_APPROVED || (authorisable$| async)}"
+										   [readOnly]="STATUS_APPROVED || (authorisable$| async)"
+										   placeholder="GDV nhập hạn mức thay đổi"
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+							</div>
+
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2">Hạn mức thanh toán tại POS /ngày</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" formControlName="oldPosLimitPerDay"
+										   inputCurrency
+										   [readOnly]="true"
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+								<label class="col-form-label col-md-2 "></label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="newPosLimitPerDay"
+										   [ngClass]="{'sb-readonly': !posLimit || STATUS_APPROVED || (authorisable$| async)}"
+										   [readOnly]="!posLimit || STATUS_APPROVED || (authorisable$| async)"
+										   placeholder="GDV nhập hạn mức thay đổi"
+										   inputCurrency
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2"> /lần</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" formControlName="oldPosLimitPerTime"
+										   inputCurrency
+										   [readOnly]="true"
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+								<label class="col-form-label col-md-2 "></label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="newPosLimitPerTime"
+										   [ngClass]="{'sb-readonly': !posLimit || STATUS_APPROVED || (authorisable$| async)}"
+										   [readOnly]="!posLimit || STATUS_APPROVED || (authorisable$| async)"
+										   inputCurrency
+										   placeholder="GDV nhập hạn mức thay đổi"
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2">Hạn mức thanh toán Ecom /ngày</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" formControlName="oldEcomLimitPerDay"
+										   inputCurrency
+										   [readOnly]="true"
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+								<label class="col-form-label col-md-2"></label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="newEcomLimitPerDay"
+										   [ngClass]="{'sb-readonly': !ecomLimit || STATUS_APPROVED || (authorisable$| async)}"
+										   [readOnly]="!ecomLimit || STATUS_APPROVED || (authorisable$| async)"
+										   placeholder="GDV nhập hạn mức thay đổi"
+										   inputCurrency
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 "> /lần</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" formControlName="oldEcomLimitPerTime"
+										   inputCurrency
+										   [readOnly]="true"
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+								<label class="col-form-label col-md-2"></label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="newEcomLimitPerTime"
+										   [ngClass]="{'sb-readonly': !ecomLimit || STATUS_APPROVED || (authorisable$| async)}"
+										   [readOnly]="!ecomLimit || STATUS_APPROVED || (authorisable$| async)"
+										   placeholder="GDV nhập hạn mức thay đổi"
+										   inputCurrency
+										   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+
+					<div
+						[ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async)  || viewData}"
+						class="sb-content mt-2">
+						<div class="form-group row pt-3 pl-3  m-2">
+							<label class=" font-weight-bolder">
+								<input type="checkbox" class="regular-checkbox"
+									   [(ngModel)]="isChangeCardInfo"
+									   (click)="getAccountInfo($event, 'infoCard')"
+									   [ngModelOptions]="{standalone: true}"
+									   [disabled]="disabledUpdateCard || (dataWasChosenFromCheckbox| async)?.type == TYPE_THE_PHU || (disableActions$| async)?.includes('UPDATE_INFO')"
+									   [ngClass]="{'sb-cursor-no-drop': disabledUpdateCard}"
+									   style="border-radius: 3px;"/>
+								Cập nhật thông tin thẻ
+							</label>
+						</div>
+
+						<div *ngIf="(isLoadingEcomStatus$ | async)"
+							 class="ml-2 mr-2 pl-2 pr-2"
+							 style="text-align: -webkit-center; text-align: -moz-center">
+							<table>
+								<tr>
+									<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (isLoadingEcomStatus$ | async)}"></td>
+									<td>{{'DASHBOARD.loading' | translate}}</td>
+								</tr>
+							</table>
+						</div>
+
+						<div class="ml-2 mr-2 pl-2 pr-2" *ngIf="isChangeCardInfo && !(isLoadingEcomStatus$ | async)">
+							<hr/>
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 ">Tài khoản liên kết</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" readonly
+										   formControlName="oldAccountAssociate">
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.oldAccountAssociate.touched || frm.oldAccountAssociate.dirty || isClicked == true) && frm.oldAccountAssociate.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+								<label class="col-form-label col-md-2 ">Tài khoản liên kết mới</label>
+								<div class="col-md-4">
+									<ng-select
+										[searchable]="true"
+										bindLabel="accountID"
+										bindValue="accountID"
+										[readonly]="isCreditCard() || (dataWasChosenFromCheckbox| async)?.type == TYPE_THE_PHU"
+										[items]="(accountLK$ | async)"
+										[loading]="isLoadingAccountInfo$ | async"
+										formControlName="newAccountAssociate"
+										dropdownPosition="bottom">
+										<ng-template ng-label-tmp let-item="item" let-index="index">
+									<span>
+										{{item.accountID}}
+									</span>
+										</ng-template>
+										<ng-template ng-option-tmp let-item="item" let-index="index"
+													 let-search="searchTerm">
+									<span>
+                                     {{item.accountID}}
+									</span>
+										</ng-template>
+										<ng-template ng-notfound-tmp>
+											Không tìm thấy
+										</ng-template>
+									</ng-select>
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.newAccountAssociate.touched || frm.newAccountAssociate.dirty || isClicked == true) && frm.newAccountAssociate.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 ">Mức trích nợ tự động</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly"
+										   readonly
+										   formControlName="oldAutomaticallyDebit">
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.oldAutomaticallyDebit.touched || frm.oldAutomaticallyDebit.dirty || isClicked == true) && frm.oldAutomaticallyDebit.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+								<label class="col-form-label col-md-2">Mức trích nợ tự động mới</label>
+								<div class="col-md-4">
+									<!-- [readonly]="isDebitCard()" -->
+
+									<ng-select
+										[searchable]="true"
+										[readonly]="true"
+										bindLabel="value"
+										bindValue="nameVi"
+										[items]="debitLevelList"
+										formControlName="newAutomaticallyDebit"
+										dropdownPosition="bottom">
+										<ng-template ng-label-tmp let-item="item" let-index="index">
+									<span>
+										{{item.nameVi}}
+									</span>
+										</ng-template>
+										<ng-template ng-option-tmp let-item="item" let-index="index"
+													 let-search="searchTerm">
+									<span>
+                                     {{item.nameVi}}
+									</span>
+										</ng-template>
+										<ng-template ng-notfound-tmp>
+											Không tìm thấy
+										</ng-template>
+									</ng-select>
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.newAutomaticallyDebit.touched || frm.newAutomaticallyDebit.dirty || isClicked == true) && frm.newAutomaticallyDebit.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 ">Đăng ký Ecom</label>
+								<div class="col-md-4">
+									<input type="text" [readOnly]="true" class="form-control sb-readonly" formControlName="oldRegisEcom">
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.oldRegisEcom.touched || frm.oldRegisEcom.dirty || isClicked == true) && frm.oldRegisEcom.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+								<label class="col-form-label col-md-2">Đăng ký Ecom mới</label>
+								<div class="col-md-4">
+									<!-- [readonly]="checkSubCard()" -->
+
+									<ng-select
+										[readonly]="cardStatusIsPinblockReady || (disableEcom$|async) || (dataWasChosenFromCheckbox| async)?.type == TYPE_THE_PHU || (dataWasChosenFromCheckbox| async)?.cardType == 'DEBIT' "
+										[searchable]="true"
+										bindLabel="value"
+										bindValue="nameVi"
+										[items]="ecomRegisterList"
+										formControlName="newRegisEcom"
+										dropdownPosition="bottom">
+										<ng-template ng-label-tmp let-item="item" let-index="index">
+									<span>
+										{{item.nameVi}}
+									</span>
+										</ng-template>
+										<ng-template ng-option-tmp let-item="item" let-index="index"
+													 let-search="searchTerm">
+									<span>
+                                     {{item.nameVi}}
+									</span>
+										</ng-template>
+										<ng-template ng-notfound-tmp>
+											Không tìm thấy
+										</ng-template>
+									</ng-select>
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.newRegisEcom.touched || frm.newRegisEcom.dirty || isClicked == true) && frm.newRegisEcom.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 ">Số điện thoại nhận OTP cũ</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" formControlName="oldOtpPhone"
+										   readonly>
+								</div>
+
+								<label class="col-form-label col-md-2 ">Số điện thoại nhận OTP mới</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="newOtpPhone"
+									[readOnly]="(dataWasChosenFromCheckbox| async)?.type == TYPE_THE_PHU">
+									<div class="invalid-feedback" style="display: block">
+										<span *ngIf="frm.newOtpPhone.hasError('pattern')
+													&& (frm.newOtpPhone.touched || frm.newOtpPhone.dirty || isClicked == true)">
+													Số điện thoại sai định dạng</span>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+
+					<div
+						[ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async)  || viewData}"
+						class="sb-content mt-2">
+						<div class="form-group row pt-3 pl-3  m-2">
+							<label class=" font-weight-bolder">
+								<input type="checkbox" class="regular-checkbox"
+									   [(ngModel)]="isResetPin"
+									   [ngModelOptions]="{standalone: true}"
+									   [disabled]="disableResetPin || (disableActions$| async)?.includes('RESET_PIN_CARD_SERCURE')"
+									   (click)="getWrongEntryPinCodeInfo()"
+									   [ngClass]="{'sb-cursor-no-drop': disableResetPin}"
+									   style="border-radius: 3px;"/>
+								Reset PIN/3D Secure
+							</label>
+						</div>
+
+						<div class="ml-2 mr-2 pl-2 pr-2" *ngIf="isResetPin">
+							<hr/>
+							<div class="form-group row">
+								<label class="col-form-label col-md-1">Pin</label>
+								<div class="col-md-5 w-100">
+									<div class="row mr-circle"
+										 [ngClass]="{'kt-spinner kt-spinner--right kt-spinner--sb': isLoadingWrongEntryPinCode$ | async}">
+										<input readonly type="text" class="form-control w-50" value="Số lần nhập sai"
+											   style="background-color: #F2F3F5; border-radius: 0 !important;">
+										<input readonly type="text" class="form-control w-25"
+											   formControlName="pinValNum"
+											   style="border-radius: 0 !important;">
+
+										<label class="ml-1">
+											Reset
+											<input type="checkbox" class="regular-checkbox mt-2"
+												   formControlName="pinVal"
+												   style="height: 20px; width: 20px; border-radius: 4px"
+												   [ngClass]="{'sb-readonly': (isLoadingWrongEntryPinCode$ | async)}">
+										</label>
+									</div>
+								</div>
+
+								<label class="col-form-label col-md-1">3D Secure</label>
+								<div class="col-md-5" [ngClass]="{'sb-readonly': isDebitCard()}">
+									<div class="row mr-circle"
+										 [ngClass]="{'kt-spinner kt-spinner--right kt-spinner--sb': isLoadingWrongEntryPinCode$ | async}">
+										<input readonly type="text" class="form-control w-50" value="Số lần nhập sai"
+											   style="background-color: #F2F3F5; border-radius: 0 !important;">
+										<input readonly type="text" class="form-control w-25"
+											   formControlName="secure3DValNum" style="border-radius: 0 !important;">
+										<label class="ml-1">
+											Reset
+											<input type="checkbox" class="regular-checkbox  mt-2"
+												   formControlName="secure3DVal"
+												   [ngClass]="{'sb-readonly': (isLoadingWrongEntryPinCode$ | async)}"
+												   style="height: 20px; width: 20px; border-radius: 4px">
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<div
+						[ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async)  || viewData}"
+						class="sb-content mt-2">
+						<div class="form-group row pt-3 pl-3  m-2">
+							<label class=" font-weight-bolder">
+								<input type="checkbox" class="regular-checkbox"
+									   [(ngModel)]="isReleaseCard"
+									   [ngModelOptions]="{standalone: true}"
+									   (click)="getAccountInfo($event, 'release')"
+									   [disabled]="disableReleaseCardPin  || (disableActions$| async)?.includes('RELEASE_CARD_PIN')"
+									   [ngClass]="{'sb-cursor-no-drop': disableReleaseCardPin}"
+									   style="border-radius: 3px;"/>
+								Phát hành lại thẻ PIN
+							</label>
+						</div>
+
+						<div class="ml-2 mr-2 pl-2 pr-2" *ngIf="isReleaseCard">
+							<hr/>
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 required ">Phát hành lại</label>
+								<div class="col-md-4">
+									<ng-select formControlName="reIssueVal" [loading]="isLoadingCardInfo$ | async">
+										<ng-option value="1">Thẻ</ng-option>
+										<ng-option value="2">Pin</ng-option>
+										<ng-option value="3">Thẻ/Pin</ng-option>
+										<ng-option value="4" *ngIf="(dataWasChosenFromCheckbox | async)?.status == PICK_UP_L41_CODE">Thẻ mất</ng-option>
+									</ng-select>
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.reIssueVal.touched || frm.reIssueVal.dirty || isClicked == true) && frm.reIssueVal.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+
+								<label class="col-form-label col-md-2 required ">Lý do</label>
+								<div class="col-md-4">
+									<ng-select [items]="cardReleaseReason" style="min-width: 100%"
+											   bindLabel="nameVi"
+											   bindValue="value"
+											   [multiple]="false"
+											   formControlName="reasonId$">
+									</ng-select>
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.reasonId$.touched || frm.reasonId$.dirty || isClicked == true) && frm.reasonId$.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 ">Tên in trên thẻ</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" formControlName="oldNameCard">
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.oldNameCard.touched || frm.oldNameCard.dirty || isClicked == true) && frm.oldNameCard.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+
+								<label class="col-form-label col-md-2 ">Tên in trên thẻ mới</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control text-uppercase" formControlName="newNameCard"
+										   [ngbTooltip]="'Nhập tiếng việt không dấu và không có ký tự đặc biệt !@#$%^&*'"
+										   tooltipClass="tooltip-custom"
+										   removeVietNameses>
+									<div class="invalid-feedback" style="display: block"
+										 *ngIf="frm.newNameCard.invalid && (frm.newNameCard.dirty || frm.newNameCard.touched)">
+										<span
+											*ngIf="frm.newNameCard.hasError('required')">Trường bắt buộc nhập</span>
+										<span
+											*ngIf="frm.newNameCard.hasError('maxlength') && (!mainCard)">Trường độ dài tối đa 19 ký tự</span>
+										<span
+											*ngIf="frm.newNameCard.hasError('maxlength') && mainCard">Trường độ dài tối đa 20 ký tự</span>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 ">Địa chỉ nhận thẻ</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly"
+										   formControlName="oldAddressCard">
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.oldAddressCard.touched || frm.oldAddressCard.dirty || isClicked == true) && frm.oldAddressCard.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+
+								<label class="col-form-label col-md-2 ">Địa chỉ nhận thẻ mới</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="newAddressCard"
+										   [ngbTooltip]="'Nhập tiếng việt không dấu và không có ký tự đặc biệt !@#$%^&*'"
+										   tooltipClass="tooltip-custom">
+									<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.newAddressCard.touched || frm.newAddressCard.dirty || isClicked == true) && frm.newAddressCard.hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+							</div>
+
+					<kt-charge-info #releaseCard
+					[chargeInfoData]="dataQueryGetCardActionDetail$.getValue()?.cardActionReleaseCardPin?.chargeInfo"
+						[feePolicies]="feePolicies"
+						[parentForm]="parentForm"
+						[businessType]="chargeBusinessType.RELEASE_CARD"
+						[idParent]="frm.transactionForm.value.transId"
+						[isReadOnly]="(STATUS_APPROVED | async) || (authorisable$ | async)">
+					</kt-charge-info>
+						</div>
+					</div>
+
+
+					<div
+						[ngClass]="{'sb-container-readonly': dataCacheRouterFromDashboard && (authorisable$ | async)  || viewData}"
+						class="sb-content mt-2">
+						<div class="form-group row pt-3 pl-3  m-2">
+							<label class=" font-weight-bolder">
+								<input type="checkbox" class="regular-checkbox"
+									   [(ngModel)]="isExtendCard"
+									   [ngModelOptions]="{standalone: true}"
+									   (click)="getAccountInfo($event, 'extend')"
+									   [disabled]="disabledExtendCard || (disableActions$| async)?.includes('EXTEND_CARD')"
+									   [ngClass]="{'sb-cursor-no-drop': disabledExtendCard}"
+									   style="border-radius: 3px;"/>
+								Gia hạn thẻ
+							</label>
+						</div>
+
+						<div class="ml-2 mr-2 pl-2 pr-2" *ngIf="isExtendCard">
+							<hr/>
+							<div class="form-group row">
+								<label class="col-form-label col-md-2">Ngày hết hạn thẻ</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" formControlName="oldDateExpire">
+								</div>
+
+								<label class="col-form-label col-md-2 required">Ngày hết hạn thẻ mới</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="newDateExpire"
+										   (blur)="checkExpireDate($event)"
+										   placeholder="MM/YYYY" maxlength="7">
+									<!--																<div class="text-center input-group">-->
+									<!--																	<input readonly class="form-control py-2 border-right-0 border-0"-->
+									<!--																		   [matDatepicker]="picker"-->
+									<!--																		   [formControl]="newDateExpire"-->
+									<!--																		   (click)="picker.open()">-->
+									<!--																	<div class="input-group-append">-->
+									<!--																		<div class="input-group-text bg-transparent border-0"-->
+									<!--																			 style="cursor: pointer"><img src="assets/media/icons/calendar.svg"-->
+									<!--																										  (click)="picker.open()">-->
+									<!--																			<mat-datepicker #picker startView="year"-->
+									<!--																							(monthSelected)="chosenMonthHandler($event, picker)"-->
+									<!--																							panelClass="example-month-picker">-->
+									<!--																			</mat-datepicker>-->
+									<!--																		</div>-->
+
+									<!--																	</div>-->
+									<!--																</div>-->
+									<div class="invalid-feedback" style="display: block">
+
+									<span
+										*ngIf="(frm.newDateExpire.touched || frm.newDateExpire.dirty || isClicked == true)">
+										<span *ngIf="frm.newDateExpire.hasError('pattern')">Ngày hết hạn thẻ mới không đúng định dạng</span>
+										<span *ngIf="frm.newDateExpire.hasError('required')">Trường bắt buộc nhập</span>
+										<span *ngIf="isValidNewExpireDate == true">Ngày hết hạn thẻ mơi phải lớn hơn ngày hết hạn thẻ cũ</span>
+									</span>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 ">Địa chỉ nhận thẻ</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control sb-readonly" readonly
+										   formControlName="oldAddress">
+								</div>
+
+								<label class="col-form-label col-md-2 ">Địa chỉ nhận thẻ mới</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="newAddress">
+								</div>
+							</div>
+					<kt-charge-info #extendCard
+						[chargeInfoData]="dataQueryGetCardActionDetail$.getValue()?.cardActionExtendCard?.chargeInfo"
+						[feePolicies]="feePolicies"
+						[parentForm]="parentForm"
+						[businessType]="chargeBusinessType.EXTEND_CARD"
+						[idParent]="frm.transactionForm.value.transId"
+						[isReadOnly]="(STATUS_APPROVED | async) || (authorisable$ | async)">
+					</kt-charge-info>
+						</div>
+					</div>
+				</ng-container>
+
+
+				<kt-audit-info [parentForm]="parentForm"
+							   [dataCacheRouter]="dataCacheRouterFromDashboard"
+							   [inputter]="inputtable$ | async"
+							   [authoriser]="authorisable$ | async"
+							   [ngClass]="{'sb-container-readonly': (STATUS_APPROVED || viewData)}"
+				>
+				</kt-audit-info>
+
+				<kt-table-approve-error [headers]="headerError" [data]="dataError"
+										*ngIf="headerError.length"></kt-table-approve-error>
+
+				<div class="sb-content p-2 mt-3 mb-3" [hidden]="STATUS_APPROVED  || viewData">
+					<div class="form-group row">
+						<div class=" col-12 text-right" *ngIf="inputtable$ | async">
+							<!--							<button type="button" (click)="redirectDashboard()" *ngIf="!dataCacheRouterFromDashboard"-->
+							<!--									class="btn btn-sm  sb-btn-submit mt-2 mr-2">-->
+							<!--								Quay lại-->
+							<!--							</button>-->
+							<button type="button" (click)="getReportId()"
+									[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isSubmittingReport$ | async)}"
+									[disabled]="isSubmittingReport$| async"
+									class="btn btn-sm  sb-btn-display mt-2 mr-2"
+									[ngbTooltip]="isLoadingTooltipReportButton ? 'Đang xử lý...' : null"
+									tooltipClass="tooltip-custom">
+								Hiển thị biểu mẫu
+							</button>
+							<!--Nếu là tạo mới-->
+							<button type="button" (click)="resetForm()" *ngIf="!dataCacheRouterFromDashboard"
+									class="btn btn-sm  sb-btn-remove mt-2 mr-2">
+								Xóa
+							</button>
+
+							<!--Nếu là importer chỉnh sửa dữ liệu sau khi tạo-->
+							<button type="button" (click)="removeRecord()" *ngIf="dataCacheRouterFromDashboard"
+									class="btn btn-sm  sb-btn-remove mt-2 mr-2">
+								Xóa
+							</button>
+
+							<button type="button"
+									(click)="onImporterSubmit()"
+									class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+									[disabled]="((isLoadingWrongEntryPinCode$ | async) || (isLoadingCardInfo$|async)) == true"
+									[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingInput$ | async)}">
+								{{dataCacheRouterFromDashboard ? (this.dataCacheRouterFromDashboard.status == 'APPROVED_ERROR' ? 'Gửi duyệt lại' : 'Cập nhật') : 'Gửi duyệt'}}
+							</button>
+
+
+						</div>
+
+						<div class="col-12 text-right" *ngIf="authorisable$ | async">
+							<button type="button" (click)="askUserToRejectRecord()"
+									[disabled]="isLoadingAuth$ | async"
+									*ngIf="STATUS_PENDING"
+									[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingRejected$ | async)}"
+									class="btn btn-sm  sb-btn-display mt-2 mr-2">
+								Từ chối
+							</button>
+							<button type="button"
+									(click)="onApproved()"
+									*ngIf="STATUS_PENDING"
+									[disabled]="isLoadingRejected$ | async"
+									class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+									[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingAuth$ | async)}">
+								Duyệt
+							</button>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+		</form>
+	</div>
+
+	<div *ngIf="(isLoadingCardDetail$ | async) "
+		 style="text-align: -webkit-center; text-align: -moz-center">
+		<table>
+			<tr>
+				<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (isLoadingCardDetail$ | async)}"></td>
+				<td>{{'DASHBOARD.loading' | translate}}</td>
+			</tr>
+		</table>
+	</div>
+</div>
+

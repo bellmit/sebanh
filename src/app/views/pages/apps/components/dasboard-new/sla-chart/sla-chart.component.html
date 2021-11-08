@@ -1,0 +1,11 @@
+<div class="text-center row pb-0 pie-legend" style="display: inline-block" *ngIf="getNumberOfExecutedTransactionOfUser() > 0">
+	<table>
+		<tr>
+			<td *ngFor="let c of circlePro ; let i = index" (click)="chartHover(i)" id="table-chart"
+				(mouseover)="onMouseOver(i)" (mouseout)="onMouseOut()">
+				<button id="btn-{{i}}" class="border-0"
+						[ngStyle]="{'background-color': c.color, 'border-radius': '10px', 'color': c.textColor}">{{c.name}}</button>
+			</td>
+		</tr>
+	</table>
+</div>

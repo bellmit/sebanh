@@ -1,0 +1,584 @@
+<div class="sb-content p-3 mt-3 mb-3">
+	<form [formGroup]="createCardForm">
+		<label class="sb-title" [ngbTooltip]="(isOpenCardWithAccountVndCurrency() |async) == false ? 'Mở tài khoản VND để chọn mở thẻ' : null"
+			   tooltipClass="tooltip-custom">
+			<input type="checkbox" formControlName="cardCheckbox" (ngModelChange)="this.onChangeValidate();"
+				   (change)="isOpenCardWithAccountVndCurrency()"
+				   [attr.disabled]="(isReadonly|async) || (isOpenCardWithAccountVndCurrency() |async)== false || null"
+				   class="regular-checkbox" style="border-radius: 3px; top: -3px"
+				   />
+
+			<span class="pl-1" *ngIf="cardTypeCreated == THE_QUOC_TE">Đăng ký dịch vụ thẻ ghi nợ quốc tế</span>
+			<span class="pl-1" *ngIf="cardTypeCreated == THE_NOI_DIA">Đăng ký dịch vụ thẻ ghi nợ nội địa</span>
+		</label>
+
+		<span *ngIf="(commonService.cardStatus$|async) == 'ERROR'"
+			  style="color: red;">Duyệt lỗi: {{commonService.cardError$|async}}</span>
+		<ng-container *ngIf="createCardForm.controls.cardCheckbox.value">
+			<hr/>
+
+			<div class="pb-3" *ngIf="isExCombo == true">
+				<span class="font-weight-bold mt-2 mb-2">Danh sách thẻ của khách hàng</span>
+				<div *ngIf="(cardInfo$|async).length">
+					<table class="sb-custom-table table table-striped table-borderless" style="overflow-x:auto;" [class.sb-readonly] = this.authoriserble>
+						<thead class="text-left" style="background-color: #c3cadb">
+						<tr>
+							<td></td>
+							<td class="font-weight-bold">STT</td>
+							<td class="font-weight-bold">Mã bản ghi thẻ</td>
+							<td class="font-weight-bold">Tên trên thẻ</td>
+							<td class="font-weight-bold">Loại thẻ</td>
+							<td class="font-weight-bold">Số thẻ</td>
+							<td class="font-weight-bold">Tài khoản</td>
+							<td class="font-weight-bold">Chi nhánh</td>
+						</tr>
+						</thead>
+
+						<tbody *ngIf="!(isLoadingCardInfo$ | async)">
+						<tr *ngFor="let info of (cardInfo$ | async); let i = index">
+							<td>
+								<div class="form-group w-75 translateY" *ngIf="info.type != THE_PHU">
+
+									<mat-radio-button class="btn-radio-green-checked sb-cursor-pointer"
+													  [id]="'mainCardId' + info?.mainId"
+													  #mainCardId
+													  [disabled]="this.authoriserble"
+													  (click)="onChangeCardRecord(info, i)"
+													  [checked]="((i == checkedValue))">
+									</mat-radio-button>
+								</div>
+							</td>
+							<td>{{i + 1}}</td>
+							<td>{{info?.mainId}}</td>
+							<td>{{info?.embosingName}}</td>
+							<td>{{info?.cardProductDesc}}</td>
+							<td>{{info?.cardNumber}}</td>
+							<td>{{info?.accountNo}}</td>
+							<td>{{info?.companyId}}</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div *ngIf="(isLoadingCardInfo$ | async)"
+					 style="text-align: -webkit-center; text-align: -moz-center">
+					<table>
+						<tr>
+							<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (isLoadingCardInfo$ | async)}"></td>
+							<td>{{'DASHBOARD.loading' | translate}}</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div style="margin-bottom: 20px;" *ngIf="this.isExCombo" [hidden]="authoriserble || hideAddPrimaryCardButton">
+				<button (click)="addPrimaryCard()" [disabled]="isReadonly|async" class="btn btn-sm sb-btn-blue-submit sb-cursor-not-allowed" type="button">Thêm thẻ chính </button>
+			</div>
+			<div *ngIf="showPrimaryForm">
+				<div class="col-10 pt-3 pb-2" style="color: #0101DF;font-weight: bold;font-style: italic; padding-left: 220px!important;">Lưu ý kiểm tra và đăng ký câu hỏi bảo mật cho chủ thẻ chính tại menu Cập nhật thông tin KH</div>
+				<div class="form-group row">
+					<label class="col-form-label col-md-2 required">Mã bản ghi thẻ chính</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control sb-readonly" readonly formControlName="cardRecordID">
+					</div>
+
+					<label class="col-form-label col-md-2"
+						   [ngClass]="{'required': createCardForm.get('cardType').value == 'VSSP'}">Promotion.ID</label>
+					<div class="col-md-4">
+						<ng-select [items]="promotionCards$|async"
+								   [readonly]="isReadonly|async"
+								   (change)="setValueDescriptionUnderLabel($event, 'promotionId')"
+								   bindLabel="promoCardId"
+								   bindValue="promoCardId"
+								   [multiple]="false"
+								   formControlName="promotionId">
+						</ng-select>
+						<div class="under-input-value mt-2 text-overflow" [ngbTooltip]="(promotion$|async)"
+							 tooltipClass="tooltip-custom">
+							{{promotion$|async}}
+						</div>
+						<div class="invalid-feedback" style="display: block"
+							 *ngIf="createCardForm.get('promotionId').invalid && (createCardForm.get('promotionId').dirty || createCardForm.get('promotionId').touched)">
+						<span
+							*ngIf="createCardForm.get('promotionId').hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group row">
+
+					<label class="col-form-label col-md-2 required ">Tài khoản</label>
+					<div class="col-md-4">
+						<ng-select
+							[readonly]="isReadonly|async"
+							class="sb-input"
+							formControlName="accountNumber"
+							dropdownPosition="bottom">
+							<ng-option value="newAccount" *ngIf="isOpenAccountVND">TKTT mới
+							</ng-option>
+							<ng-container *ngIf="this.isExCombo">
+								<ng-option  *ngFor="let acc of (accountsVndOfCustomer$|async)"
+										   [value]="acc.accountID">{{acc.accountID}}</ng-option>
+							</ng-container>
+
+						</ng-select>
+
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(createCardForm.controls.accountNumber.touched || createCardForm.controls.accountNumber.dirty || isClicked == true) && createCardForm.controls.accountNumber.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+
+					<label class="col-form-label col-md-2 required">Tên trên thẻ</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="cardName" trimFirstLast maxlength="20"
+							   [readOnly]="isReadonly|async" [ngClass]="{'sb-readonly': (isReadonly|async)}">
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(createCardForm.controls.cardName.touched || createCardForm.controls.cardName.dirty || isClicked == true) && createCardForm.controls.cardName.hasError('required')">Trường bắt buộc nhập</span>
+							<span
+								*ngIf="(createCardForm.controls.cardName.touched || createCardForm.controls.cardName.dirty || isClicked == true) && createCardForm.controls.cardName.hasError('maxlength')">Tên in trên thẻ không được quá 20 ký tự</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-form-label col-md-2 required ">Loại thẻ</label>
+					<div class="col-md-4">
+						<!-- <ng-select
+							(change)="onChangeCardType($event)"
+							[readonly]="isReadonly|async"
+							[multiple]="false"
+							formControlName="cardType">
+							<ng-option *ngFor="let item of cardTypeList" [value]="item.cardtype.trim()">{{item.cardtype}}-{{item.cardname}}</ng-option>
+						</ng-select> -->
+						<ng-select [items]="cardTypeList" style="min-width:100%"
+									(change)="onChangeCardType($event)"
+									   bindLabel="gbDescription"
+									   [readonly]="isReadonly|async"
+									   bindValue="cardtype"
+									   [multiple]="false"
+									   formControlName="cardType">
+								<ng-template ng-option-tmp let-item="item" ng-label-tmp>
+									<div class="form-row">
+												<span class="col-sm-11" style="top: 1px;">{{item.cardtype}}-{{item.cardname}}</span>
+									</div>
+								</ng-template>
+							</ng-select>
+
+
+
+						<div class="invalid-feedback" style="display: block"
+							 *ngIf="createCardForm.controls.cardType.invalid && (createCardForm.controls.cardType.dirty || createCardForm.controls.cardType.touched)">
+						<span
+							*ngIf="createCardForm.controls.cardType.hasError('required')">Trường bắt buộc nhập</span>
+							<span
+								*ngIf="createCardForm.get('cardType').hasError('existed')">Khách hàng đã có loại thẻ này</span>
+						</div>
+					</div>
+
+					<label class="col-form-label col-md-2 ">Trans.pro.ID</label>
+					<div class="col-md-4">
+						<ng-select [items]="transPromotionCards$|async"
+								   bindLabel="transPromoCardId"
+								   bindValue="transPromoCardId"
+								   (change)="setValueDescriptionUnderLabel($event, 'transProId')"
+								   [multiple]="false"
+								   [readonly]="isReadonly|async"
+								   formControlName="transProId">
+						</ng-select>
+						<div class="under-input-value mt-2 text-overflow" [ngbTooltip]="(transPro$|async)"
+							 tooltipClass="tooltip-custom">
+							{{transPro$|async}}
+						</div>
+
+					</div>
+				</div>
+
+
+				<div class="form-group row" *ngIf="cardTypeCreated == THE_QUOC_TE">
+					<label class="col-form-label col-md-2"
+						   [ngClass]="{'required': createCardForm.get('cardType').value == 'VSSN'}">Member.code</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="memberCode" trimFirstLast
+							   [readOnly]="isReadonly|async" [ngClass]="{'sb-readonly': (isReadonly|async)}">
+						<div class="invalid-feedback" style="display: block"
+							 *ngIf="createCardForm.get('memberCode').invalid && (createCardForm.get('memberCode').dirty || createCardForm.get('memberCode').touched)">
+						<span
+							*ngIf="createCardForm.get('memberCode').hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+
+					<label class="col-form-label col-md-2 ">Member.date.exp</label>
+					<div class="col-md-4">
+						<div class="input-group">
+							<input type="text" class="form-control py-2 border-right-0 border-0"
+								   [readOnly]="isReadonly|async"
+								   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+								   formControlName="memberDateExpored"
+								   [matDatepicker]="picker4"
+								   (click)="picker4.open()">
+							<span class="input-group-append">
+							<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+								<img src="assets/media/icons/calendar.svg" (click)="picker4.open()">
+								<mat-datepicker #picker4 color="warn"></mat-datepicker>
+							</div>
+						</span>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="form-group row">
+					<label class="col-form-label col-md-2 required">Địa chỉ</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="homeAddress" trimFirstLast
+							   [readOnly]="isReadonly|async" [ngClass]="{'sb-readonly': (isReadonly|async)}"
+							   (blur)="setHomeAddressNameInSecondaryCard($event.target?.value)"
+							   [ngbTooltip]="'Lưu ý nhập đầy đủ thông tin số nhà, phường/xã , quận/huyện, Tỉnh/thành phố'"
+							   tooltipClass="tooltip-custom">
+						<div class="invalid-feedback" style="display: block"
+							 *ngIf="createCardForm.get('homeAddress').invalid && (createCardForm.get('homeAddress').dirty || createCardForm.get('homeAddress').touched)">
+						<span
+							*ngIf="createCardForm.get('homeAddress').hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+				</div>
+
+				<div formArrayName="informations">
+					<div *ngFor="let info of informationFormArray.controls; let i=index">
+						<div [formGroupName]="i">
+							<div class="form-group row mt-3">
+								<label class="col-form-label col-md-1 ">Info.list</label>
+
+								<div class="text-right col-md-1 m-0 p-0 row">
+									<i class="icon text-center minus pr-2 sb-cursor-pointer" *ngIf="i > 0"
+									   (click)="removeInformationFormAtIndex(i)">
+									</i>
+
+									<i class="icon text-center plus sb-cursor-pointer"
+									   *ngIf="i == informationFormArray.controls.length -1"
+									   (click)="addMoreInformationForm()">
+									</i>
+								</div>
+
+								<div class="col-md-4 ">
+									<div class="w-100 d-inline-flex">
+										<ng-select style="min-width: 100%"
+												   [readonly]="isReadonly|async"
+												   class="sb-input"
+												   bindValue="value"
+												   bindLabel="nameVi"
+												   [searchable]="true"
+												   [items]="infoList"
+												   formControlName="infoList"
+												   dropdownPosition="bottom"
+												   (change)="onChangeInfoList($event, i)">
+											<ng-template ng-label-tmp let-item="item" let-index="index">
+										<span>
+											{{item.nameVi}}
+										</span>
+											</ng-template>
+											<ng-template ng-option-tmp let-item="item" let-index="index"
+														 let-search="searchTerm">
+										<span>
+										{{item.nameVi}}
+										</span>
+											</ng-template>
+											<ng-template ng-notfound-tmp>
+												Không tìm thấy
+											</ng-template>
+										</ng-select>
+									</div>
+								</div>
+
+								<label class="col-form-label col-md-2 ">Info.detail</label>
+								<div class="col-md-4">
+									<input type="text" class="form-control" formControlName="infoDetail"
+										   (blur)="setHomeAddressNameInSecondaryCard($event.target?.value, i)"
+										   [readOnly]="isReadonly|async" [ngClass]="{'sb-readonly': (isReadonly|async)}"
+										   trimFirstLast maxlength="150">
+									<div class="invalid-feedback" style="display: block"
+										 *ngIf="info.get('infoDetail').invalid && (info.get('infoDetail').dirty || info.get('infoDetail').touched)">
+										<span *ngIf="info.get('infoDetail').errors.required">Trường bắt buộc nhập</span>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group row" *ngIf="cardTypeCreated == THE_QUOC_TE">
+					<label class="col-form-label col-md-2">Ecommer</label>
+					<div class="col-md-4">
+						<ng-select [items]="ecommerList"
+								   [readonly]="isReadonly|async"
+								   bindLabel="nameVi"
+								   bindValue="value"
+								   [multiple]="false"
+								   formControlName="ycomer">
+							<ng-template ng-header-tmp>
+								Ecommer
+							</ng-template>
+						</ng-select>
+					</div>
+				</div>
+
+			</div>
+
+
+			<div *ngIf="secondaryCardForm.length > 0" class="form-group row">
+				<label class="col-form-label col-md-12 font-weight-bold">Thông tin thẻ phụ
+					<span style="color: #7B7B7B">(Tối đa 3 thẻ)</span>
+				</label>
+			</div>
+
+			<div formArrayName="lstSecondaryCard" *ngFor="let secondCard of secondaryCardForm.controls; let i = index"
+				 class="p-0">
+				<div [formGroupName]="i">
+					<div class="form-group row">
+						<div class="col-2">
+							<label class="col-form-label col-md-12 font-weight-bold">Thẻ phụ {{i + 1}}
+								<span *ngIf="secondaryCardForm.length <=3" [hidden]="authoriserble"
+									  (click)="removeSecondaryCardFormAtIndex(i)">
+						<i class="fa fa-minus-square fa-2x ml-2" aria-hidden="true"></i>
+					</span>
+							</label>
+						</div>
+
+
+						<div class="col-10 pt-3" style="color: #0101DF;font-weight: bold;font-style: italic;">Lưu ý kiểm tra và đăng ký câu hỏi bảo mật cho chủ thẻ phụ tại menu Cập nhật thông tin KH</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">Mã bản ghi thẻ phụ</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="mainCardId" disabled>
+						</div>
+
+						<label class="col-form-label col-md-2 required">Mã khách hàng</label>
+						<div class="col-md-4 mr-circle"
+							 [ngClass]="{'kt-spinner kt-spinner--right kt-spinner--sb': (isLoadingSearchingCustomerByCustomerId$ | async) && (i == currentIndexFormSearchCustomerInfo)}">
+							<input type="text" class="form-control"
+								   [readOnly]="isReadonly|async"
+								   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+								   trimSpace maxlength="15"
+								   (keypress)="commonService.checkSpecialChar($event)"
+								   (blur)="searchCustomerInfoInSecondaryCard(i, $event, 'CUSTOMER_ID');"
+								   formControlName="prospectId"
+								   [id]="'prospectId' + i"
+								   #prospectId>
+
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf=" secondCard.get('prospectId').pristine && (isNotFoundCustomerSearchDataFromCustomerId$ | async) && (i == currentIndexFormSearchCustomerInfo)">
+								{{resultSearchCustomerFind2$ | async}}
+							</div>
+
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('prospectId').hasError('required')
+								 && (secondCard.get('prospectId').touched || secondCard.get('prospectId').dirty || isClicked == true) ">
+								Trường bắt buộc nhập
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 required ">Họ và tên</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="fullName" trimFirstLast
+								   maxlength="35"
+								   [readOnly]="isReadonly|async" [ngClass]="{'sb-readonly': (isReadonly|async)}">
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('fullName').hasError('required')
+								 && (secondCard.get('fullName').touched || secondCard.get('fullName').dirty || isClicked == true) ">
+								Trường bắt buộc nhập
+							</div>
+
+						</div>
+
+						<label class="col-form-label col-md-2 required">Số GTTT</label>
+						<div class="col-md-4 mr-circle"
+							 [ngClass]="{'kt-spinner kt-spinner--right kt-spinner--sb': (isLoadingSearchingCustomerByGttt$ | async) && (i == currentIndexFormSearchCustomerInfo)}">
+							<input type="text" class="form-control" formControlName="legalId"
+								   [readOnly]="isReadonly|async"
+								   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+								   trimSpace maxlength="35"
+								   (keypress)="commonService.checkSpecialChar($event)"
+								   (blur)="searchCustomerInfoInSecondaryCard(i, $event, 'GTTT');"
+								   [id]="'legalId' + i"
+								   #legalId>
+
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf=" secondCard.get('legalId').pristine && (isNotFoundCustomerSearchDataFromGttt$ | async) && (i == currentIndexFormSearchCustomerInfo)">
+								{{resultSearchCustomerFind2$ | async}}
+							</div>
+
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('legalId').hasError('required')
+								 && (secondCard.get('legalId').touched || secondCard.get('legalId').dirty || isClicked == true) ">
+								Trường bắt buộc nhập
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+
+						<label class="col-form-label col-md-2 required ">Tên in trên thẻ</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="embosingName" trimFirstLast
+								   maxlength="19"
+								   [readOnly]="isReadonly|async" [ngClass]="{'sb-readonly': (isReadonly|async)}">
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('embosingName').hasError('required')
+								 && (secondCard.get('embosingName').touched || secondCard.get('embosingName').dirty || isClicked == true) ">
+								Trường bắt buộc nhập
+							</div>
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('embosingName').hasError('maxlength')
+								 && (secondCard.get('embosingName').touched || secondCard.get('embosingName').dirty || isClicked == true) ">
+								Tên in trên thẻ không được quá 19 ký tự
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 required">Loại GTTT</label>
+						<div class="col-md-4">
+							<ng-select [items]="identificationList"
+									   [readonly]="isReadonly|async"
+									   bindLabel="nameVi"
+									   bindValue="value"
+									   [multiple]="false"
+									   formControlName="legalDocName">
+								<ng-template ng-header-tmp>
+									Loại GTTT
+								</ng-template>
+							</ng-select>
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('legalDocName').hasError('required')
+								 && (secondCard.get('legalDocName').touched || secondCard.get('legalDocName').dirty || isClicked == true) ">
+								Trường bắt buộc nhập
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 required ">Điện thoại</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="phoneNumber" trimSpace
+								   [readOnly]="isReadonly|async" [ngClass]="{'sb-readonly': (isReadonly|async)}">
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('phoneNumber').hasError('required')
+								 && (secondCard.get('phoneNumber').touched || secondCard.get('phoneNumber').dirty || isClicked == true) ">
+								Trường bắt buộc nhập
+							</div>
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('phoneNumber').hasError('pattern')
+								 && (secondCard.get('phoneNumber').touched || secondCard.get('phoneNumber').dirty || isClicked == true) ">
+								Số điện thoại sai định dạng
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 required">Nơi cấp</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="legalIssuePlace" trimFirstLast
+								   maxlength="20"
+								   [ngClass]="{'sb-readonly': (isReadonly|async)}" [readOnly]="isReadonly|async">
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('legalIssuePlace').invalid && (secondCard.get('legalIssuePlace').touched || secondCard.get('legalIssuePlace').dirty)">
+								 <span *ngIf="secondCard.get('legalIssuePlace').hasError('required')">
+									 Trường bắt buộc nhập</span>
+								<span *ngIf="secondCard.get('legalIssuePlace').hasError('maxlength')">
+									 Trường nơi cấp tối đa 20 ký tự</span>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 required">Địa chỉ nhà</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="homeAddress" trimFirstLast maxlength="35"
+								   [ngClass]="{'sb-readonly': (isReadonly|async)}" [readOnly]="isReadonly|async">
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('homeAddress').invalid && (secondCard.get('homeAddress').touched || secondCard.get('homeAddress').dirty)">
+								<span
+									*ngIf="secondCard.get('homeAddress').hasError('required')">Trường bắt buộc nhập</span>
+								<span
+									*ngIf="secondCard.get('homeAddress').hasError('maxlength')">Địa chỉ nhà tối đa 35 ký tự</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 required">Ngày cấp</label>
+						<div class="col-md-4">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0"
+									   style="border: none !important;"
+									   formControlName="legalIssueDate"
+									   [matDatepicker]="picker4"
+									   [readOnly]="isReadonly|async"
+									   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+									   ktDateEnter>
+								<span class="input-group-append">
+		                    		<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<img src="assets/media/icons/calendar.svg" (click)="picker4.open()">
+										<mat-datepicker #picker4 color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="secondCard.get('legalIssueDate').hasError('required')
+								 && (secondCard.get('legalIssueDate').touched || secondCard.get('legalIssueDate').dirty || isClicked == true) ">
+								Trường bắt buộc nhập
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">Hạn mức thẻ phụ</label>
+						<div class="col-md-4">
+							<!-- [readonly]="isReadonly|async" -->
+							<ng-select [readonly]="true"
+									   [multiple]="false"
+									   formControlName="subCardLimit">
+									   <ng-option value="50%">50%</ng-option>
+							</ng-select>
+						</div>
+
+						<label class="col-form-label col-md-2 required">Quan hệ với chủ thẻ chính</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="subCardRelation" trimFirstLast
+								   [ngClass]="{'sb-readonly': (isReadonly|async)}" [readOnly]="isReadonly|async">
+							<div style="display: block" class="invalid-feedback"
+								 *ngIf="(secondCard.get('subCardRelation').touched || secondCard.get('subCardRelation').dirty)">
+								 <span *ngIf="secondCard.get('subCardRelation').hasError('required')">
+									 Trường bắt buộc nhập</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">Địa chỉ nhận thẻ</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control sb-readonly" formControlName="receiveAddress" trimFirstLast
+								   maxlength="35" [readOnly]="true">
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group row pl-3">
+				<button class="btn btn-sm sb-btn-submit sb-cursor-pointer" (click)="addNewSecondaryCard()" type="button"
+						[disabled]="isReadonly|async"
+				*ngIf="secondaryCardForm.length < 3 || authoriserble || (isLoadingCardInfo$ | async) || (hideAddSecondaryCardButton$ | async) || (!(this.primaryCardSelected$ | async) && !this.showPrimaryForm)">
+
+					<div style="display: inline-flex">
+						<span class="mr-2">Thêm thẻ phụ</span>
+						<span
+							style="background-color: white; border-radius: 50%; color: red; width: 20px; height: 20px">{{secondaryCardForm.length + 1}}</span>
+					</div>
+				</button>
+			</div>
+		</ng-container>
+	</form>
+</div>
+

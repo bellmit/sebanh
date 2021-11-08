@@ -1,0 +1,1323 @@
+<div class="mt-3 mb-3">
+	<form [formGroup]="customerForm">
+		<div class="sb-content p-3 mt-3 mb-3">
+
+			<div class="form-group row pl-3" *ngIf="showCheckboxCustomerManage">
+				<label class=" font-weight-bolder">
+					<input type="checkbox" class="regular-checkbox"
+						   (change)="checkedUpdate($event)"
+						   [checked]="(((commonService.isUpdateCus$ |async)) &&  !isUpdateSignature )"
+						   style="border-radius: 3px;"/>
+					Cập nhật thông tin cá nhân
+				</label>
+			</div>
+
+			<hr *ngIf="!commonService.isComboComponent$.getValue()"/>
+
+			<ng-container>
+				<span class="sb-title font-weight-bolder mt-2 mb-4 col-md-4">Thông tin cá nhân</span>
+
+				<!-- <hr> -->
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2 ">Mã khách hàng</label>
+					<div class="col-md-4">
+						<input trimFirstLast type="text" class="form-control sb-readonly" readonly
+							   formControlName="customerId">
+					</div>
+
+					<label class="col-form-label col-md-2 required ">Họ và tên</label>
+					<div class="col-md-4">
+						<input trimFirstLast type="text" class="form-control" formControlName="customerName"
+							   [readOnly]="isReadonly|async"
+							   (keypress)="checkSpecialChar($event)"
+							   maxlength="35" (blur)="passNameToAcc()"
+							   [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+							   [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.customerName.touched || frm.customerName.dirty || isClicked == true) && frm.customerName.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('customerName', frm.customerName.value)"></kt-old-value-t24>
+					</div>
+				</div>
+
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2 required ">Giới tính</label>
+					<div class="col-md-4">
+						<ng-select formControlName="sex"
+								   [readonly]="isReadonly|async"
+								   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+							<ng-option *ngFor="let g of genderList" [value]="g.code">{{g.value}}</ng-option>
+						</ng-select>
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.sex.touched || frm.sex.dirty || isClicked == true) && frm.sex.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('sex', frm.sex.value, ngSelectType,
+							null, null, genderList, 'code', 'value')"></kt-old-value-t24>
+					</div>
+
+					<label class="col-form-label col-md-2 required ">Danh xưng</label>
+					<div class="col-md-4">
+						<ng-select [items]="titleList"
+								   [readonly]="isReadonly|async"
+								   [multiple]="false"
+								   formControlName="title">
+							<ng-template ng-header-tmp>
+								Chọn danh xưng
+							</ng-template>
+						</ng-select>
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.title.touched || frm.title.dirty || isClicked == true) && frm.title.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('title', frm.title.value, ngSelectType,
+							null, null, titleList)"></kt-old-value-t24>
+					</div>
+				</div>
+
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2 required ">Ngày sinh</label>
+					<div class="col-md-4">
+						<div class="input-group"
+							 [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+							 [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+							<input type="text" class="form-control py-2 border-right-0 border"
+								   style="border: none !important;"
+								   [readOnly]="isReadonly|async"
+								   ktDateEnter
+								   formControlName="birthday"
+								   [matDatepicker]="picker"
+								   [max]="maxDate"
+								   [min]="minDate">
+							<span class="input-group-append">
+                    		<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+								<img src="assets/media/icons/calendar.svg" (click)="picker.open()">
+								<mat-datepicker #picker color="warn"></mat-datepicker>
+							</div>
+						</span>
+						</div>
+						<div class="invalid-feedback" style="display: block">
+							<span
+								*ngIf="(frm.birthday.touched || frm.birthday.dirty || isClicked == true) && frm.birthday.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<div class="invalid-feedback" style="display: block"
+							 *ngIf="invalidDate">
+							<span>Độ tuổi phải lớn hơn 15</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('birthday', frm.birthday.value, dateInputType,
+							null, dateFormatT24, null, null, null)"></kt-old-value-t24>
+					</div>
+
+					<label class="col-form-label col-md-2 required">Nơi sinh</label>
+					<div class="col-md-4">
+						<ng-select [items]="countrys" style="min-width:100%"
+								   [readonly]="isReadonly|async"
+								   bindLabel="nameGb"
+								   bindValue="countryId"
+								   [multiple]="false"
+								   formControlName="placeOfBirth">
+						</ng-select>
+						<div class="under-input-value mt-2">
+							{{frm.placeOfBirth.value}}
+						</div>
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.placeOfBirth.touched || frm.placeOfBirth.dirty || isClicked == true) && frm.placeOfBirth.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('placeOfBirth', frm.placeOfBirth.value, ngSelectType,
+							null, null, countrys, 'countryId', 'nameGb')"></kt-old-value-t24>
+					</div>
+				</div>
+
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2 required ">Tình trạng hôn nhân</label>
+					<div class="col-md-4">
+						<ng-select [items]="maritalStatusList"
+								   [readonly]="isReadonly|async"
+								   bindLabel="nameVi"
+								   bindValue="value"
+								   [multiple]="false"
+								   formControlName="maritalStatus">
+							<ng-template ng-header-tmp>
+								Tình trạng hôn nhân
+							</ng-template>
+						</ng-select>
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.maritalStatus.touched || frm.maritalStatus.dirty || isClicked == true) && frm.maritalStatus.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('maritalStatus', frm.maritalStatus.value, ngSelectType,
+							null, null, maritalStatusList, 'value', 'nameVi')"></kt-old-value-t24>
+					</div>
+
+					<label class="col-form-label col-md-2 required ">Mục đích GD với NH</label>
+					<div class="col-md-4">
+						<ng-select [items]="purposeList"
+								   [readonly]="isReadonly|async"
+								   bindLabel="nameVi"
+								   bindValue="value"
+								   [multiple]="false"
+								   formControlName="purpose">
+							<ng-template ng-header-tmp>
+								Mục đích GD vơi NH
+							</ng-template>
+						</ng-select>
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.purpose.touched || frm.purpose.dirty || isClicked == true) && frm.purpose.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('purpose', frm.purpose.value, ngSelectType,
+							null, null, purposeList, 'value', 'nameVi')"></kt-old-value-t24>
+					</div>
+				</div>
+
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2 required ">Quốc tịch</label>
+					<div class="col-md-4 ">
+						<div class="w-100 d-inline-flex">
+							<ng-select [items]="countrys" style="min-width:100%"
+									   [readonly]="isReadonly|async"
+									   bindLabel="nameGb"
+									   bindValue="countryId"
+									   [multiple]="true"
+									   formControlName="national">
+								<ng-template ng-option-tmp let-item="item">
+									<div class="form-row">
+										<span>{{item.nameGb}}</span>
+									</div>
+								</ng-template>
+
+								<ng-template ng-label-tmp let-item="item" #nationalLabel>
+									<div class="form-row">
+										<span class="col-sm-11" style="top: 1px;">
+											{{item.nameGb}}
+										</span>
+									</div>
+								</ng-template>
+							</ng-select>
+						</div>
+
+						<div class="under-input-value mt-2">
+							{{frm.national.value}}
+						</div>
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.national.touched || frm.national.dirty || isClicked == true) && frm.national.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('national', frm.national.value, ngSelectType)"></kt-old-value-t24>
+					</div>
+
+
+					<label class="col-form-label col-md-2 required ">Tình trạng cư trú</label>
+					<div class="col-md-4">
+						<!--					<input trimFirstLast type="text" class="form-control" formControlName="residentStstus">-->
+						<ng-select [items]="residentStatusList"
+								   [readonly]="isReadonly|async"
+								   bindLabel="nameVi"
+								   bindValue="value"
+								   [multiple]="false"
+								   formControlName="residentStstus">
+							<ng-template ng-header-tmp>
+								Tình trạng cư trú
+							</ng-template>
+						</ng-select>
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.residentStstus.touched || frm.residentStstus.dirty || isClicked == true) && frm.residentStstus.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('residentStstus', frm.residentStstus.value, ngSelectType,
+							null, null, residentStatusList, 'value', 'nameVi')"></kt-old-value-t24>
+					</div>
+				</div>
+
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2 required">Mã CV QLKH</label>
+					<div class="col-md-4">
+						<ng-select [items]="portfolios"
+								   [readonly]="isReadonly|async"
+								   bindLabel="recid"
+								   bindValue="recid"
+								   [multiple]="false"
+								   formControlName="portfolio">
+							<ng-template ng-option-tmp let-item="item">
+								<div class="form-row">
+									<span>{{item.recid}}</span>
+								</div>
+							</ng-template>
+						</ng-select>
+						<div class="invalid-feedback" style="display: block">
+							<span
+								*ngIf="(frm.portfolio.touched || frm.portfolio.dirty) && frm.portfolio.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('portfolio', frm.portfolio.value, ngSelectType,
+							null, null, portfolios, 'recid', 'recid')"></kt-old-value-t24>
+					</div>
+
+					<label class="col-form-label col-md-2 ">Quốc gia cư trú</label>
+					<div class="col-md-4">
+						<ng-select [items]="nationalities"
+								   (change)="cloneCountry($event)"
+								   [readonly]="isReadonly|async"
+								   bindLabel="nameVi"
+								   bindValue="value"
+								   [multiple]="false"
+								   formControlName="residentNational">
+							<ng-template ng-header-tmp>
+								Chọn quốc gia cư trú
+							</ng-template>
+
+							<ng-template ng-label-tmp let-item="item" #residenceLabel>
+								<div class="form-row">
+										<span class="col-sm-11" style="top: 1px;">
+											{{item.nameVi}}
+										</span>
+								</div>
+							</ng-template>
+						</ng-select>
+						<div class="under-input-value mt-2">
+							{{frm.residentNational.value}}
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('residentNational', frm.residentNational.value, ngSelectType,
+							null, null, nationalities, 'value', 'nameVi')"></kt-old-value-t24>
+					</div>
+				</div>
+
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2  required">Chủ sở hữu hưởng lợi</label>
+					<div class="col-md-4">
+						<ng-select [items]="ownerBenefitList"
+								   [readonly]="isReadonly|async"
+								   (change)="changeOwner()"
+								   bindLabel="nameVi"
+								   bindValue="value"
+								   [multiple]="false"
+								   formControlName="ownerBen">
+							<ng-template ng-header-tmp>
+								Chủ sở hữu hưởng lợi
+							</ng-template>
+						</ng-select>
+						<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.ownerBen.touched || frm.ownerBen.dirty || isClicked == true) && frm.ownerBen.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('ownerBen', frm.ownerBen.value, ngSelectType,
+							null, null, ownerBenefitList, null, null)"></kt-old-value-t24>
+					</div>
+
+					<label class="col-form-label col-md-2  kt-spinner.kt-spinner--sb:before">ID chủ sở hữu hưởng
+						lợi</label>
+					<div class="col-md-4">
+						<input trimFirstLast type="text" (change)="changeOwner()" class="form-control"
+							   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+							   [readOnly]="isReadonly|async"
+							   (blur)="checkCustomerExists()"
+							   formControlName="ownCustomer">
+						<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(this.ownerId$|async)">
+									{{this.ownerId$|async}}
+								</span>
+						</div>
+						<kt-old-value-t24
+							[valueDiff]="compareValueHasChange('ownCustomer', frm.ownCustomer.value)"></kt-old-value-t24>
+					</div>
+
+				</div>
+
+				<div formArrayName="questionAnswer">
+					<div *ngFor="let qAndA of questionAnswerForm.controls; let i = index;">
+						<div [formGroupName]="i">
+							<div class="d-inline-flex mb-3">
+								<span *ngIf="i > 0" class="font-weight-bold mr-2" style="transform: translateY(20%)">Câu hỏi bảo mật {{i + 1}}</span>
+								<span *ngIf="i > 0" class="text-right ml-2" style="margin-left: 4px"
+									  (click)="removeQA(i)">
+							<div class="icon text-right minus"></div>
+							</span>
+							</div>
+							<div class="form-group row">
+								<label class="col-form-label col-md-2 required">Câu hỏi bảo mật</label>
+								<div class="col-md-4">
+									<div class="d-inline-flex w-100">
+										<ng-select formControlName="question"
+												   [readonly]="isReadonly|async"
+												   style="min-width: 100%"
+												   [loading]="isLoadingSecurityQuestion$ | async"
+												   (change)="onChangeQuestion(i, $event)">
+											<ng-template ng-header-tmp>
+												Câu hỏi bảo mật
+											</ng-template>
+											<ng-option *ngFor="let q of questionList" [value]="q.nameVi"
+													   [disabled]="disabledOptionQ(q.nameVi)">
+												{{q.value}}
+											</ng-option>
+										</ng-select>
+									</div>
+									<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(qAndA.get('question').touched || qAndA.get('question').dirty)
+										&& qAndA.get('question').hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+									<kt-old-value-t24
+										[valueDiff]="compareValueQuestion(qAndA.get('question').value, qAndA.get('answer').value, 'q', i)"></kt-old-value-t24>
+								</div>
+								<label class="col-form-label col-md-2 required">Câu trả lời</label>
+								<div class="col-md-4">
+									<input trimFirstLast type="text" class="form-control"
+										   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+										   [readOnly]="isReadonly|async"
+										   formControlName="answer"
+										   style="min-width: 100%">
+									<div class="invalid-feedback" style="display: block">
+											<span
+												*ngIf="(qAndA.get('answer').touched || qAndA.get('answer').dirty )
+												&& qAndA.get('answer').hasError('required')">Trường bắt buộc nhập</span>
+									</div>
+									<kt-old-value-t24
+										[valueDiff]="compareValueQuestion(qAndA.get('question').value, qAndA.get('answer').value, 'a', i)"></kt-old-value-t24>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+					<div class="d-inline-flex mb-3" *ngIf="questionAnswerForm.length < 3">
+						<span class="font-weight-bold mr-2"
+							  style="transform: translateY(20%)">Thêm câu hỏi bảo mật</span>
+						<span class="text-right ml-2" style="margin-left: 4px" (click)="addQA()">
+							<div class="icon text-right plus"></div>
+						</span>
+					</div>
+				</div>
+
+				<div class="sb-content p-2 mt-3 mb-3" [ngClass]="{'sb-container-readonly': isDisableForm == true}">
+					<span class="sb-title mt-2 mb-4">Thông tin liên lạc</span>
+					<hr>
+
+					<div formArrayName="contactInfos">
+						<div *ngFor="let contact of contactInfo.controls; let i = index;">
+							<div [formGroupName]="i">
+								<div class="d-inline-flex mb-3">
+									<span *ngIf="i > 0" class="font-weight-bold mr-2"
+										  style="transform: translateY(20%)">Thông tin liên lạc {{i + 1}}</span>
+									<span *ngIf="i > 0" class="text-right ml-2" style="margin-left: 4px"
+										  (click)="removeContact(i)">
+							<div class="icon text-right minus"></div>
+							</span>
+								</div>
+
+								<div class="form-group row mt-3">
+									<label class="col-form-label col-md-2">Số điện thoại cố định</label>
+									<div class="col-md-4">
+										<!-- <div class="w-100 d-inline-flex"> -->
+										<input trimFirstLast type="text" class="form-control" maxlength="11"
+											   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+											   [readOnly]="isReadonly|async"
+											   formControlName="phone" blockNonNumber style="min-width: 100%">
+										<div class="invalid-feedback" style="display: block">
+											<span
+												*ngIf="(contact.get('phone').touched || contact.get('phone').dirty || isClicked == true)
+												&& contact.get('phone').errors?.pattern">Số điện thoại sai định dạng</span>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('phone', contact.get('phone').value, null,
+										 i, null, null, 'phone', null)"></kt-old-value-t24>
+									</div>
+
+									<label class="col-form-label col-md-2 required">Email</label>
+									<div class="col-md-4">
+										<input trimFirstLast type="text" class="form-control"
+											   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+											   [readOnly]="isReadonly|async"
+											   formControlName="email" (blur)="fillDataToSms(i, 'email')"
+											   [ngbTooltip]="'Email có định dạng …@..., không có ký tự đặc biệt khác dấu.'"
+											   tooltipClass="tooltip-custom">
+
+										<div class="invalid-feedback" style="display: block">
+											<span
+												*ngIf="(contact.get('email').touched || contact.get('email').dirty || isClicked == true)
+												&& contact.get('email').errors?.pattern">Nhập đúng định dạng email
+											</span>
+											<span
+												*ngIf="(contact.get('email').touched || contact.get('email').dirty || isClicked == true)
+												&& contact.get('email').errors?.required">Nhập đúng định dạng email
+											</span>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('email', contact.get('email').value, null,
+										 i, null, null, 'email', null)"></kt-old-value-t24>
+									</div>
+								</div>
+
+								<div class="form-group row">
+									<label class="col-form-label col-md-2 required ">Số điện thoại di động</label>
+									<div class="col-md-4">
+										<input trimFirstLast type="text" class="form-control" formControlName="mobile"
+											   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+											   [readOnly]="(isReadonly|async)"
+											   maxlength="10"
+											   (blur)="fillDataToSms(i, 'mobile')"
+											   blockNonNumber>
+										<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf=" (contact.get('mobile').touched || contact.get('mobile').dirty || isClicked == true)
+									 && contact.get('mobile').hasError('required')">Trường bắt buộc nhập</span>
+											<span
+												*ngIf=" (contact.get('mobile').touched || contact.get('mobile').dirty || isClicked == true)
+									 && contact.get('mobile').hasError('pattern')">Số điện thoại sai định dạng</span>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('mobile', contact.get('mobile').value, null,
+										 i, null, null, 'mobile', null)"></kt-old-value-t24>
+									</div>
+
+									<label class="col-form-label col-md-2 required ">Độ ưu tiên</label>
+									<div class="col-md-4">
+										<!--					<input trimFirstLast type="text" class="form-control" formControlName="piority">-->
+										<ng-select [items]="priorityList"
+												   [readonly]="isReadonly|async"
+												   [loading]="isLoadingCities$ | async"
+												   bindLabel="nameVi"
+												   bindValue="value"
+												   [multiple]="false"
+												   formControlName="priority">
+											<ng-template ng-header-tmp>
+												Độ ưu tiên
+											</ng-template>
+										</ng-select>
+										<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(contact.get('priority').touched || contact.get('priority').dirty || isClicked == true)
+									 && contact.get('priority').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('priority', contact.get('priority').value, ngSelectType,
+										 i, null, priorityList, 'value', 'nameVi', 'priority')"></kt-old-value-t24>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<span class="font-weight-bold mr-2" *ngIf="contactInfo.length > 1">Địa chỉ liên lạc</span>
+					<div class="form-group row mt-2">
+						<label class="col-form-label col-md-2 required">Đường/Phố</label>
+						<div class="col-md-4">
+					<textarea trimFirstLast type="text" class="col-12 sb-text-area-fee" style="resize: none"
+							  (ngModelChange)="checkLength($event, 'stress')"
+							  formControlName="stress" id="inputStress"
+							  #inputStress maxlength="69"
+							  [ngClass]="{'sb-readonly': (isReadonly|async)}"
+							  [readOnly]="isReadonly|async"></textarea>
+							<div class="invalid-feedback" style="display: block">
+								<div
+									*ngIf="(frm.stress.touched || frm.stress.dirty)
+									&& frm.stress.hasError('required')">Trường bắt buộc nhập
+								</div>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<div
+									*ngIf="(maxLengthAddress$|async)">{{maxLengthAddress$|async}}
+								</div>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<div
+									*ngIf="(stressTwoSpaces$|async)">{{stressTwoSpaces$|async}}
+								</div>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('stress', frm.stress.value, null,
+										 null, null, null, null, null)"></kt-old-value-t24>
+						</div>
+
+						<label class="col-form-label col-md-2 required ">Tỉnh/thành phố</label>
+						<div class="col-md-4">
+							<ng-select [items]="cityList"
+									   [readonly]="isReadonly|async"
+									   (change)="getDistrict($event); resetDistrict()"
+									   bindLabel="name_gb"
+									   bindValue="cityID"
+									   [multiple]="false"
+									   formControlName="province">
+								<ng-template ng-header-tmp>
+									Tỉnh/ Thành phố
+								</ng-template>
+
+								<ng-template ng-label-tmp let-item="item" #cityLabel>
+									<span>{{item.name_gb}}</span>
+								</ng-template>
+							</ng-select>
+							<div class="under-input-value mt-2">
+								{{frm.province.value}}
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.province.touched || frm.province.dirty || isClicked == true) && frm.province.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('province', frm.province.value, ngSelectType,
+										 null, null, cityList, 'cityID', 'name_gb')"></kt-old-value-t24>
+						</div>
+					</div>
+
+					<div class="form-group row">
+
+						<label class="col-form-label col-md-2 required ">Quận huyện</label>
+						<div class="col-md-4">
+							<ng-select [items]="districtList"
+									   [readonly]="isReadonly|async"
+									   bindLabel="name_gb"
+									   bindValue="districID"
+									   [multiple]="false"
+									   [loading]="isLoadingDistrict$ | async"
+									   formControlName="district">
+								<ng-template ng-header-tmp>
+									Quận/ Huyện
+								</ng-template>
+
+								<ng-template ng-label-tmp let-item="item" #districtLabel>
+									<span>{{item.name_gb}}</span>
+								</ng-template>
+							</ng-select>
+							<div class="under-input-value mt-2">
+								{{frm.district.value}}
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.district.touched || frm.district.dirty || isClicked == true) && frm.district.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.district.touched || frm.district.dirty || isClicked == true) && frm.province.hasError('required')">Bạn phải chọn Tỉnh/ Thành phố</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('district', frm.district.value, ngSelectType,
+										 null, null, oldDistrictList, 'districID', 'name_gb')"></kt-old-value-t24>
+						</div>
+
+						<label class="col-form-label col-md-2 required">Phường/Xã</label>
+						<div class="col-md-4">
+							<input trimFirstLast maxlength="69" type="text" class="form-control"
+								   (ngModelChange)="checkLength($event, 'town')"
+								   [readOnly]="isReadonly|async"
+								   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+								   formControlName="town">
+							<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.town.touched || frm.town.dirty) && frm.town.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+											<span
+												*ngIf="(townTwoSpaces$|async)">{{townTwoSpaces$|async}}
+												</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('town', frm.town.value, null,
+										 null, null, null, null, null)"></kt-old-value-t24>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 ">Quốc gia</label>
+						<div class="col-md-4">
+							<input trimFirstLast type="text" class="col-12 sb-text-area-fee" style="resize: none"
+								   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+								   [readOnly]="isReadonly|async"
+								   formControlName="country"/>
+						</div>
+
+					</div>
+
+					<div class="d-inline-flex mb-3">
+						<span class="font-weight-bold mr-2"
+							  style="transform: translateY(20%)">Thêm thông tin liên lạc</span>
+						<span class="text-right ml-2" style="margin-left: 4px" (click)="addContact()">
+							<div class="icon text-right plus"></div>
+						</span>
+					</div>
+				</div>
+
+				<div class="sb-content p-2 mt-3 mb-3" [ngClass]="{'sb-container-readonly': isDisableForm == true}">
+					<span class="sb-title mt-2 mb-4 " (click)="addIden()">Giấy tờ tùy thân</span>
+					<hr>
+					<div formArrayName="identification">
+						<div *ngFor="let iden of identification.controls; let i=index">
+							<div [formGroupName]="i">
+								<div class="d-inline-flex mb-3">
+									<span *ngIf="i > 0" class="font-weight-bold mr-2"
+										  style="transform: translateY(20%)">Giấy tờ tùy thân {{i + 1}}</span>
+									<span *ngIf="i > 0" class="text-right ml-2" style="margin-left: 4px"
+										  (click)="removeIden(i)">
+							<div class="icon text-right minus"></div>
+							</span>
+								</div>
+
+								<div class="form-group row mt-3">
+									<label class="col-form-label col-md-2 required ">Số GTTT</label>
+									<div class="col-md-4">
+										<div class="w-100 d-inline-flex">
+											<input trimFirstLast type="text" class="form-control" maxlength="35"
+												   (keypress)="checkSpecialChar($event)"
+												   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+												   [readOnly]="isReadonly|async"
+												   formControlName="gttt"
+												   style="min-width: 100%">
+										</div>
+										<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(iden.get('gttt').touched || iden.get('gttt').dirty || isClicked == true)
+										&& iden.get('gttt').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('gttt', iden.get('gttt').value, null,
+											i, null, null, 'gttt', null)"></kt-old-value-t24>
+									</div>
+
+									<label class="col-form-label col-md-2 required ">Loại GTTT</label>
+									<div class="col-md-4">
+										<ng-select [items]="identificationList"
+												   [readonly]="isReadonly|async"
+												   bindLabel="nameVi"
+												   bindValue="value"
+												   [multiple]="false"
+												   formControlName="idenType">
+											<ng-template ng-header-tmp>
+												Loại GTTT
+											</ng-template>
+
+											<ng-template ng-label-tmp let-item=item #idenTypeLabel>
+												<span>
+													{{item.nameVi}}
+												</span>
+											</ng-template>
+										</ng-select>
+										<div class="invalid-feedback" style="display: block">
+											<span *ngIf="(iden.get('idenType').touched || iden.get('idenType').dirty || isClicked == true)
+														 && iden.get('idenType').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('idenType', iden.get('idenType').value, ngSelectType,
+											i, null, identificationList, 'value', 'nameVi', 'idenType')"></kt-old-value-t24>
+									</div>
+								</div>
+
+								<div class="form-group row">
+									<label class="col-form-label col-md-2 required">Cơ quan cấp</label>
+									<div class="col-md-4">
+										<textarea trimFirstLast type="text" class="sb-text-area-fee col-12"
+												  [ngClass]="{'sb-readonly': (isReadonly|async)}"
+												  style="resize: none"
+												  maxlength="70"
+												  [readOnly]="isReadonly|async"
+												  formControlName="organization"></textarea>
+										<div class="invalid-feedback" style="display: block">
+											<span *ngIf="(iden.get('organization').touched || iden.get('organization').dirty || isClicked == true)
+														 && iden.get('organization').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('organization', iden.get('organization').value, null,
+											i, null, null, 'organization', null, null)"></kt-old-value-t24>
+									</div>
+
+									<label class="col-form-label col-md-2 required">Ngày cấp</label>
+									<div class="col-md-4">
+										<div [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+											 class="input-group">
+											<input type="text" class="form-control border-right-0 border"
+												   [readOnly]="isReadonly|async"
+												   formControlName="idenTime"
+												   style="border: none !important;"
+												   [matDatepicker]="picker2"
+												   ktDateEnter
+												   [max]="today">
+											<span class="input-group-append">
+												<div class="input-group-text bg-transparent border-0"
+													 style="cursor: pointer">
+													<img src="assets/media/icons/calendar.svg" (click)="picker2.open()">
+													<mat-datepicker #picker2 color="warn"></mat-datepicker>
+												</div>
+											</span>
+										</div>
+										<div class="invalid-feedback" style="display: block">
+											<span *ngIf="(iden.get('idenTime').touched || iden.get('idenTime').dirty || isClicked == true)
+														 && iden.get('idenTime').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('idenTime', iden.get('idenTime').value, dateInputType,
+											i, dateFormatT24, null, 'idenTime', null)"></kt-old-value-t24>
+									</div>
+								</div>
+
+
+								<div class="form-group row">
+									<label class="col-form-label col-md-2  ">Ngày hết hạn</label>
+									<div class="col-md-4">
+										<div class="input-group"
+											 [ngClass]="{'sb-container-readonly': (isReadonly|async)}">
+											<input type="text" class="form-control py-2 border-right-0 border"
+												   [readOnly]="isReadonly|async"
+												   formControlName="idenTimeExpired"
+												   style="border: none !important;"
+												   [matDatepicker]="picker3"
+												   ktDateEnter
+												   (dateChange)="onDateChangeIdenTimeExpired($event)">
+											<span class="input-group-append">
+												<div class="input-group-text bg-transparent border-0"
+													 style="cursor: pointer">
+													<img src="assets/media/icons/calendar.svg" (click)="picker3.open()">
+													<mat-datepicker #picker3 color="warn"></mat-datepicker>
+												</div>
+											</span>
+										</div>
+										<div class="invalid-feedback" style="display: block">
+											<span
+												*ngIf="idenTimeExpired$|async">Ngày hết hạn phải lớn hơn ngày hiện tại
+											</span>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('idenTimeExpired', iden.get('idenTimeExpired').value, dateInputType,
+											i, dateFormatT24, null, 'idenTimeExpired', null)"></kt-old-value-t24>
+									</div>
+
+									<label class="col-form-label col-md-2 required">Nơi cấp</label>
+									<div class="col-md-4">
+										<input trimFirstLast type="text" class="form-control"
+											   [readOnly]="isReadonly|async"
+											   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+											   formControlName="idenAdress">
+										<div class="invalid-feedback" style="display: block">
+											<span *ngIf="(iden.get('idenAdress').touched || iden.get('idenAdress').dirty || isClicked == true)
+													 && iden.get('idenAdress').hasError('required')">Trường bắt buộc nhập</span>
+
+											<span *ngIf="(iden.get('idenAdress').touched || iden.get('idenAdress').dirty || isClicked == true)
+											&& iden.get('idenAdress').hasError('longerError')">Nơi cấp chỉ nhập tối đa 20 ký tự</span>
+											<span *ngIf="(iden.get('idenAdress').touched || iden.get('idenAdress').dirty || isClicked == true)
+											&& iden.get('idenAdress').hasError('maxlength')">Nơi cấp chỉ nhập tối đa 20 ký tự</span>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('idenAdress', iden.get('idenAdress').value, null,
+											i, null, null, 'idenAdress', null, null)"></kt-old-value-t24>
+									</div>
+
+								</div>
+
+
+							</div>
+						</div>
+					</div>
+					<div class="d-inline-flex mb-3">
+						<span class="font-weight-bold mr-2"
+							  style="transform: translateY(20%)">Thêm giấy tờ tùy thân</span>
+						<span class="text-right ml-2" style="margin-left: 4px" (click)="addIden()">
+							<div class="icon text-right plus"></div>
+						</span>
+					</div>
+					<div class="form-group row">
+
+
+						<label class="col-form-label col-md-2  ">Ngày hiệu lực Visa/thị thực</label>
+						<div class="col-md-4">
+							<div class="input-group" [ngClass]="{'sb-container-readonly': (isReadonly|async)}">
+								<input type="text" class="form-control py-2 border-right-0"
+									   [readOnly]="isReadonly|async"
+									   style="border: none !important;"
+									   formControlName="idenTimeValue"
+									   readonly
+									   [matDatepicker]="picker4" (click)="picker4.open()">
+								<mat-icon *ngIf="frm.idenTimeValue.value" class="close-date" matDatepickerToggleIcon
+										  (click)="clearDate($event)">clear
+								</mat-icon>
+								<span class="input-group-append">
+									<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<img src="assets/media/icons/calendar.svg" (click)="picker4.open()">
+										<mat-datepicker #picker4 color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('idenTimeValue', frm.idenTimeValue.value, dateInputType, null, 'YYYYMMDD')"></kt-old-value-t24>
+						</div>
+					</div>
+					<div class="form-group row mt-2">
+						<label class="col-md-2 col-form-label"
+							   style="font-weight: 700; font-size: 16px;">Địa chỉ thường trú</label>
+						<div class="col-md-4" style="align-self: center;">
+							<mat-checkbox [disabled]="(authoriserble|async) || (disabledAddress|async)" color="primary"
+										  (change)="cloneAddress($event)"
+										  [(ngModel)]="isSameCheckbox"
+										  formControlName="isSameIdenAddress">
+								Giống địa chỉ liên lạc
+							</mat-checkbox>
+						</div>
+					</div>
+
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 required">Địa chỉ thường trú</label>
+						<div class="col-md-10">
+							<textarea trimFirstLast type="text" class="col-12 sb-text-area-fee" style="resize: none"
+									  formControlName="idenAddress"
+									  [ngClass]="{'sb-readonly': (isReadonly|async) || isSameCheckbox}"
+									  [readOnly]="((isReadonly|async) || isSameCheckbox)"></textarea>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.idenAddress.touched || frm.idenAddress.dirty || isClicked == true)
+									&& frm.idenAddress.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('idenAddress', frm.idenAddress.value, null,
+								null, null, null, null, null)"></kt-old-value-t24>
+						</div>
+
+
+					</div>
+
+				</div>
+
+				<div class="sb-content p-2 mt-3 mb-3" [ngClass]="{'sb-container-readonly': isDisableForm == true}">
+					<span class="sb-title mt-2 mb-4">Thông tin nghề nghiệp</span>
+					<hr>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 required ">Nhóm nghề nghiệp</label>
+						<div class="col-md-4">
+							<ng-select [items]="employmentList$|async"
+									   [readonly]="isReadonly|async"
+									   bindLabel="name_VI"
+									   bindValue="nhomNganhId"
+									   (change)="onChangeOccupation()"
+									   formControlName="employment">
+							</ng-select>
+							<div class="under-input-value mt-2">
+								{{frm.employment.value}}
+							</div>
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.employment.touched || frm.employment.dirty) && frm.employment.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('employment', frm.employment.value, ngSelectType,
+								null, null, (employmentList$|async), 'nhomNganhId', 'name_VI')"></kt-old-value-t24>
+						</div>
+
+						<label class="col-form-label col-md-2 required ">Nghề nghiệp</label>
+						<div class="col-md-4">
+							<ng-select [items]="occupationList$|async"
+									   [readonly]="isReadonly|async"
+									   bindLabel="nameEN"
+									   bindValue="nhomNgeId"
+									   formControlName="occupation">
+								<ng-template ng-label-tmp let-item="item" #jobLabel>
+									<div class="form-row">
+										<span class="col-sm-11" style="top: 1px;">
+											{{item.nameEN}}
+										</span>
+									</div>
+								</ng-template>
+							</ng-select>
+							<div class="under-input-value mt-2">
+								{{frm.occupation.value}}
+							</div>
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.occupation.touched || frm.occupation.dirty) && frm.occupation.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.occupation.touched || frm.occupation.dirty) && frm.employment.hasError('required')">Bạn phải chọn Nhóm nghề nghiệp</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('occupation', frm.occupation.value, ngSelectType,
+								null, null, oldOccupationList, 'nhomNgeId', 'nameEN')"></kt-old-value-t24>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 required ">Tên công ty</label>
+						<div class="col-md-4">
+							<input trimFirstLast type="text" maxlength="35" class="form-control"
+								   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+								   [readOnly]="isReadonly|async"
+								   formControlName="employerName">
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.employerName.touched || frm.employerName.dirty) && frm.employerName.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('employerName', frm.employerName.value)"></kt-old-value-t24>
+						</div>
+
+						<label class="col-form-label col-md-2 required ">Lĩnh vực ngành nghề</label>
+						<div class="col-md-4">
+
+							<ng-select [items]="industrysGroup$|async" style="min-width:100%"
+									   [readonly]="isReadonly|async"
+									   bindLabel="description"
+									   bindValue="industryId"
+									   (change)="onChangeIndustry()"
+									   [multiple]="false"
+									   formControlName="industryGroup">
+							</ng-select>
+
+							<div class="under-input-value mt-2">
+								{{frm.industryGroup.value}}
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.industryGroup.touched || frm.industryGroup.dirty) && frm.industryGroup.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('industryGroup', frm.industryGroup.value, ngSelectType,
+								null, null, (industrysGroup$|async), 'industryId', 'description')"></kt-old-value-t24>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 required ">Địa chỉ cơ quan</label>
+						<div class="col-md-4">
+							<input trimFirstLast type="text" class="form-control" maxlength="35"
+								   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+								   [readOnly]="isReadonly|async"
+								   formControlName="employerAddress">
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.employerAddress.touched || frm.employerAddress.dirty) && frm.employerAddress.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('employerAddress', frm.employerAddress.value)"></kt-old-value-t24>
+						</div>
+
+						<label class="col-form-label col-md-2 required ">Nhóm ngành nghề</label>
+						<div class="col-md-4">
+							<ng-select [items]="industrys$|async" style="min-width:100%"
+									   [readonly]="isReadonly|async"
+									   bindLabel="description"
+									   bindValue="industryId"
+									   [multiple]="false"
+									   (change)="onChangeIndustryClass()"
+									   formControlName="industry">
+							</ng-select>
+
+							<div class="under-input-value mt-2">
+								{{frm.industry.value}}
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.industry.touched || frm.industry.dirty) && frm.industry.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('industry', frm.industry.value, ngSelectType,
+								null, null, oldIndustrys, 'industryId', 'description')"></kt-old-value-t24>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2"></label>
+						<div class="col-md-4"></div>
+						<label class="col-form-label col-md-2 required ">Ngành nghề chi tiết</label>
+						<div class="col-md-4">
+							<ng-select [items]="industryClass$|async" style="min-width:100%"
+									   [readonly]="isReadonly|async"
+									   bindLabel="description"
+									   bindValue="industryId"
+									   [multiple]="false"
+									   formControlName="industryClass">
+								<ng-template ng-option-tmp let-item="item">
+									<div class="form-row">
+										<span>{{item.description}}</span>
+									</div>
+								</ng-template>
+
+								<ng-template ng-label-tmp let-item="item">
+									<div class="form-row">
+										<span class="col-sm-11" style="top: 1px;">
+											{{item.description}}
+										</span>
+									</div>
+								</ng-template>
+							</ng-select>
+
+							<div class="under-input-value mt-2">
+								{{frm.industryClass.value}}
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.industryClass.touched || frm.industryClass.dirty) && frm.industryClass.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<kt-old-value-t24
+								[valueDiff]="compareValueHasChange('industryClass', frm.industryClass.value, ngSelectType,
+								null, null, oldIndustryClass, 'industryId', 'description')"></kt-old-value-t24>
+						</div>
+					</div>
+				</div>
+
+				<!--		DISPLAY ANOTHER CUSTOMER'S INFORMATION-->
+				<div class="sb-content mt-3 mb-3 p-3">
+
+					<label class=" sb-title">
+						Thông tin khác
+					</label>
+
+					<span (click)="toggleOther()">
+						<i [class]="isShowOtherInfo ? 'fa fa-minus-square fa-2x ml-2':  'fa fa-plus-square fa-2x ml-2'"
+						   aria-hidden="true"></i>
+						</span>
+
+					<hr *ngIf="isShowOtherInfo">
+					<div [ngClass]="{'sb-container-readonly': isDisableForm == true}" *ngIf="isShowOtherInfo">
+
+						<div class="form-group row">
+							<label class="col-form-label col-md-2  ">Số người phụ thuộc</label>
+							<div class="col-md-4">
+								<input trimFirstLast type="text" blockNonNumber class="form-control"
+									   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+									   [readOnly]="isReadonly|async"
+									   formControlName="noOfDependents">
+								<kt-old-value-t24
+									[valueDiff]="compareValueHasChange('noOfDependents', frm.noOfDependents.value)"></kt-old-value-t24>
+							</div>
+
+							<label class="col-form-label col-md-2  ">Loại tiền thu nhập</label>
+							<div class="col-md-4">
+								<ng-select [items]="ccyList"
+										   [readonly]="isReadonly|async"
+										   [loading]="isLoadingCcyList$ | async"
+										   bindLabel="nameEN"
+										   bindValue="ccy"
+										   [multiple]="false"
+										   formControlName="customerCurrency">
+									<ng-template ng-header-tmp>
+										Loại tiền thu nhập
+									</ng-template>
+								</ng-select>
+								<div class="under-input-value mt-2">
+									{{frm.customerCurrency.value}}
+								</div>
+								<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.customerCurrency.touched || frm.customerCurrency.dirty) && frm.customerCurrency.hasError('required')">Trường bắt buộc nhập</span>
+								</div>
+								<kt-old-value-t24
+									[valueDiff]="compareValueHasChange('customerCurrency', frm.customerCurrency.value, ngSelectType,
+								null, null, ccyList, 'ccy', 'nameEN')"></kt-old-value-t24>
+							</div>
+
+						</div>
+
+
+						<div class="form-group row">
+							<label class="col-form-label col-md-2 ">Fax</label>
+							<div formArrayName="faxs" class="col-md-4 w-100">
+								<div *ngFor="let fax of faxs.controls; let i = index;" class="w-100">
+									<div [formGroupName]="i" class="w-100 mt-2">
+										<div class="d-inline-flex w-100">
+											<input trimFirstLast type="text" class="form-control" formControlName="fax"
+												   [readOnly]="isReadonly|async"
+												   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+												   style="min-width: 85%">
+											<div class="text-right" style="margin-left: 4px"
+												 (click)="i > 0 ? removeFax(i) :addFax()">
+												<div class="icon_plus text-right plus"
+													 [ngClass]="{'icon text-right minus' :(isMinusFaxSign$|async) && i>0}"></div>
+											</div>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('fax', fax.get('fax').value, null, i)"></kt-old-value-t24>
+									</div>
+								</div>
+							</div>
+
+							<label class="col-form-label col-md-2 ">Thu nhập</label>
+							<div class="col-md-4">
+								<input class="form-control" formControlName="salaryReq"
+									   inputCurrency (blur)="setRequiredCurrency($event)"
+									   [readOnly]="(isReadonly|async)"
+									   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+									   [options]="{numeral: true, numeralIntegerScale: 15, numeralPositiveOnly: true}">
+								<div class="invalid-feedback" style="display: block">
+									<span *ngIf="isInvalidSalary">Quý khách cần nhập số tiền lớn hơn 0</span>
+								</div>
+								<kt-old-value-t24
+									[valueDiff]="compareValueHasChange('salaryReq', frm.salaryReq.value)"></kt-old-value-t24>
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-form-label col-md-2 ">Mã số thuế</label>
+							<div class="col-md-4 w-100" formArrayName="taxs">
+								<div *ngFor="let tax of taxs.controls; let i = index;" class="w-100">
+									<div [formGroupName]="i" class="w-100 mt-2">
+										<div class="d-inline-flex w-100">
+											<input trimFirstLast type="text" class="form-control"
+												   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+												   [readOnly]="isReadonly|async"
+												   formControlName="taxId"
+												   style="min-width: 85%">
+
+											<div class="text-right" style="margin-left: 4px"
+												 (click)="i > 0 ? removeTax(i) :addTax()">
+												<div class="icon_plus text-right plus"
+													 [ngClass]="{'icon text-right minus' :(isMinusTaxSign$|async) && i>0}"></div>
+											</div>
+										</div>
+										<kt-old-value-t24
+											[valueDiff]="compareValueHasChange('taxId', tax.get('taxId').value, null, i)"></kt-old-value-t24>
+									</div>
+								</div>
+							</div>
+
+							<label class="col-form-label col-md-2 ">Loyalty</label>
+							<div class="col-md-4">
+								<ng-select [items]="loyaltyList"
+										   [readonly]="(isReadonly|async)"
+										   bindLabel="nameVi"
+										   bindValue="value"
+										   [multiple]="false"
+										   formControlName="loyalty">
+									<ng-template ng-header-tmp>
+										Loyalty
+									</ng-template>
+								</ng-select>
+								<div class="under-input-value mt-2">
+									{{frm.loyalty.value}}
+								</div>
+								<kt-old-value-t24
+									[valueDiff]="compareValueHasChange('loyalty', frm.loyalty.value, ngSelectType,
+									null, null, loyaltyList,'value', 'nameVi')"></kt-old-value-t24>
+							</div>
+						</div>
+
+						<div formArrayName="relates">
+							<div *ngFor="let relate of relates.controls; let i = index;">
+								<div [formGroupName]="i">
+									<div class="d-inline-flex mb-3">
+										<span *ngIf="i > 0" class="font-weight-bold mr-2"
+											  style="transform: translateY(20%)">Mối quan hệ {{i + 1}}</span>
+										<span *ngIf="i > 0" class="text-right ml-2" style="margin-left: 4px"
+											  (click)="removeRelate(i)">
+								<div class="icon text-right minus"></div>
+								</span>
+									</div>
+									<div class="form-group row">
+										<label class="col-form-label col-md-2 ">Mối quan hệ</label>
+										<div class="col-md-4">
+											<div class="d-inline-flex w-100">
+												<ng-select [items]="relations$|async" style="min-width:100%"
+														   [readonly]="(isReadonly|async)"
+														   (change)="setRequireIdRelate($event, i)"
+														   bindLabel="description"
+														   bindValue="relationId"
+														   [multiple]="false"
+														   formControlName="relationCustomer">
+													<ng-template ng-option-tmp let-item="item">
+														<div class="form-row">
+															<span>{{item.description}}</span>
+														</div>
+													</ng-template>
+													<ng-template ng-label-tmp let-item="item">
+														<div class="form-row">
+															<span class="col-sm-11" style="top: 1px;">
+																{{item.description}}
+															</span>
+														</div>
+													</ng-template>
+												</ng-select>
+											</div>
+											<div class="invalid-feedback" style="display: block">
+												<span
+													*ngIf="(relate.get('relationCustomer').touched || relate.get('relationCustomer').dirty) && relate.get('relationCustomer').hasError('required')">Trường bắt buộc nhập</span>
+											</div>
+											<kt-old-value-t24
+												[valueDiff]="compareValueHasChange('relationCustomer', relate.get('relationCustomer').value, ngSelectType,
+												i, null, (relations$|async), 'relationId', 'description', 'relationCustomer')"></kt-old-value-t24>
+										</div>
+
+										<label class="col-form-label col-md-2 ">Mã khách hàng quan hệ</label>
+										<div class="col-md-4">
+											<input trimFirstLast type="text" class="form-control"
+												   (blur)="getCustomerInfoRelate($event, i)"
+												   (ngModelChange)="resetFormRelate($event, i)"
+												   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+												   [readOnly]="(isReadonly|async)"
+												   formControlName="idRelate">
+											<div class="invalid-feedback" style="display: block">
+													<span
+														*ngIf="(relate.get('idRelate').touched || relate.get('idRelate').dirty) && relate.get('idRelate').hasError('required')">Trường bắt buộc nhập</span>
+												<span
+													*ngIf="(relate.get('idRelate').touched || relate.get('idRelate').dirty) && relate.get('idRelate').hasError('notExist')">Mã KH không tồn tại</span>
+											</div>
+											<div class="invalid-feedback" style="display: block">
+												<span>
+													{{(listName$|async) && (listName$|async)[i]}}
+												</span>
+											</div>
+											<kt-old-value-t24
+												[valueDiff]="compareValueHasChange('idRelate', relate.get('idRelate').value, null, i, null, null, 'idRelate', null)"></kt-old-value-t24>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="d-inline-flex mb-3">
+								<span class="font-weight-bold mr-2"
+									  style="transform: translateY(20%)">Thêm mối quan hệ</span>
+								<span class="text-right ml-2" style="margin-left: 4px" (click)="addRelate()">
+							<div class="icon text-right plus"></div>
+						</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				<div [hidden]="(commonService.manageAble$|async)" class="sb-content p-3 mt-3 mb-3">
+					<label class="sb-title">
+						<input type="checkbox" class="regular-checkbox"
+							   style="border-radius: 3px; top: -3px"/>
+						Kiểm tra AML
+					</label>
+
+					<span (click)="toggleAml()">
+					<i [class]="isShowAML ? 'fa fa-minus-square fa-2x ml-2':  'fa fa-plus-square fa-2x ml-2'"
+					   aria-hidden="true"></i>
+			</span>
+
+					<hr *ngIf="isShowAML">
+					<div class="form-group row m-3 mb-5" *ngIf="isShowAML">
+						<div class="col-md-6 text-left font-weight-bold">
+							Kết quả AML
+						</div>
+					</div>
+
+					<!--			<div class="form-group row m-3 mt-5" *ngIf="isShowAML">-->
+					<!--				<div class="col-md-6 text-left">-->
+					<!--					<button class="btn btn-sm sb-button-selected">Cập nhật</button>-->
+					<!--				</div>-->
+					<!--			</div>-->
+				</div>
+			</ng-container>
+		</div>
+	</form>
+	<div class="form-group row">
+		<div class="col-md-12 text-right">
+			<div *ngIf="isExCombo"
+				 [hidden]="cusDataFrmDash && cusDataFrmDash.customer && cusDataFrmDash.customer.status =='APPROVED_SUCCESS' ">
+				<button class="btn btn-sm sb-btn-submit" (click)="unDisableForm()">Cập nhật</button>
+			</div>
+		</div>
+	</div>
+</div>

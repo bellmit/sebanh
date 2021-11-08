@@ -1,0 +1,71 @@
+<div ngbDropdown placement="bottom-right" *ngIf="user$ as userInfo"
+	 class="kt-header__topbar-item kt-header__topbar-item--user">
+	<div ngbDropdownToggle class="kt-header__topbar-wrapper">
+		<div class="kt-header__topbar-user" [ngClass]="{'kt-header__topbar-icon': icon}" title="Thông tin tài khoản">
+			<span class="kt-header__topbar-welcome kt-hidden-mobile"><img alt="Pic"
+																		  src="assets/media/users/default.jpg"></span>
+			<div class="user-name">
+				<span class="kt-header__topbar-username kt-hidden-mobile"
+					  style="margin-bottom: -0.1rem!important;">{{user$.shortName}}</span>
+				<span class="kt-header__topbar-username kt-hidden-mobile"
+					  style="font-size: 0.75rem!important;color: #868AA8!important;">{{userType$|async}}</span>
+			</div>
+			<span>&#x25BE;</span>
+		</div>
+	</div>
+	<div ngbDropdownMenu
+		 class="dropdown-menu dropdown-menu-fit dropdown-menu-right dropdown-menu-anim dropdown-menu-top-unround dropdown-menu-xl">
+		<!--begin: Head -->
+		<div class="kt-user-card kt-user-card--skin-dark kt-notification-item-padding-x"
+			 style="background-color: white!important;">
+			<div class="kt-user-card__avatar">
+				<img alt="Pic" src="assets/media/users/default.jpg">
+				<span [hidden]="true" class="kt-badge kt-badge--lg kt-badge--rounded kt-badge--bold kt-font-success">
+					{{user$.shortName|firstLetter}}
+				</span>
+			</div>
+			<!--			<div class="kt-user-card__name">-->
+			<!--				{{user$.shortName}}-->
+			<!--			</div>-->
+			<div class="kt-user-card__name"
+				 style="color: black!important; font-size: 1rem!important; font-weight: bold">
+				{{userProfile.user_id}}
+				<br>
+				<span class="gray-color">{{userProfile.name}}</span>
+				<br>
+				<span><a [href]="mail"
+						 style="text-decoration: none; color: #0080ff">{{getLowerCase(userProfile.user_id)}}
+					@seabank.com.vn</a></span>
+				<br>
+				<button class="sb-button-logout btn btn-sm" style="margin-top: 1rem" (click)="logout()">Đăng xuất
+				</button>
+			</div>
+
+		</div>
+		<!--end: Head -->
+
+		<!--begin: Navigation -->
+		<div class="kt-notification">
+			<div class="kt-notification__custom" style="padding: 0.6rem 1.5rem!important;">
+				<!--				<a href="javascript:;" (click)="logout()" class="btn btn-outline-brand btn-upper btn-sm btn-bold">Sign-->
+				<!--					Out</a>-->
+				<div class="form-group row">
+					<span
+						style="font-weight: bold; word-wrap: break-word; word-break: break-all">{{userProfile.desc}}</span>
+					<br>
+					<!--					<span class="gray-color">Vận hành dịch vụ đa kênh - Khối vận hành</span>-->
+					<!--					<span class="gray-color">Lần truy cập gần nhất: HH:MM:SS DD-MM-YYYY</span>-->
+				</div>
+			</div>
+		</div>
+		<!--end: Navigation -->
+
+		<!--begin: Navigation(alternative) -->
+		<!--		<ul class="kt-nav kt-margin-b-10 kt-hidden">-->
+		<!--			<li class="kt-nav__item kt-nav__item&#45;&#45;custom kt-margin-t-15">-->
+		<!--				<a (click)="logout()" class="btn btn-outline-brand btn-upper btn-sm btn-bold">Sign Out</a>-->
+		<!--			</li>-->
+		<!--		</ul>-->
+		<!--end: Navigation(alternative) -->
+	</div>
+</div>

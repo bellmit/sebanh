@@ -1,0 +1,261 @@
+<kt-title-top [parentTitle]="'Trang chủ'" [childOne]="'Truy vấn/In báo cáo'"
+			  [childTwo]="'Truy vấn giao dịch'"></kt-title-top>
+<div class="m-0 p-0">
+	<div class="p-3 col-12" style="background-color: white; border-radius: 10px">
+		<!--		<h5 class="pt-2 pb-1">Truy vấn giao dịch</h5>-->
+		<div class="table-content-class">
+			<div class="col-12">
+				<form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+					<div class="form-group row mt-3">
+						<label class="col-form-label col-md-2 pl-md-5">Mã giao dịch</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control text-uppercase" formControlName="transId" trimFirstLast>
+						</div>
+
+						<label class="col-form-label col-md-2 pl-md-5">Mã KH</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="custId">
+						</div>
+					</div>
+					<div class="form-group row mt-3">
+						<label class="col-form-label col-md-2 pl-md-5">User</label>
+						<div class="col-md-4">
+							<ng-select formControlName="inputter">
+								<ng-option *ngFor="let user of (users$|async)"
+										   [value]="user.user_id">{{user.user_id}}</ng-option>
+							</ng-select>
+						</div>
+
+						<label class="col-form-label col-md-2 pl-md-5">Loại SPDV</label>
+						<div class="col-md-4">
+							<ng-select formControlName="transType">
+								<ng-option *ngFor="let type of transTypes"
+										   [value]="type.code">{{type.value}}</ng-option>
+							</ng-select>
+						</div>
+					</div>
+					<div class="form-group row mt-3">
+						<label class="col-form-label col-md-2 required pl-md-5">Từ ngày</label>
+						<div class="col-md-4">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   style="border: none !important;"
+									   formControlName="fromDate"
+									   [matDatepicker]="picker"
+									   [max]="searchForm.controls.toDate.value"
+									   readonly
+									   (click)="picker.open()">
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="flaticon2-calendar-1" style="color: red" (click)="picker.open()"></i>
+										<mat-datepicker #picker color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 required pl-md-5">Đến ngày</label>
+						<div class="col-md-4">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   style="border: none !important;"
+									   formControlName="toDate"
+									   [matDatepicker]="picker2"
+									   [max]="today"
+									   readonly
+									   (click)="picker2.open()">
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="flaticon2-calendar-1" style="color: red" (click)="picker2.open()"></i>
+										<mat-datepicker #picker2 color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row mt-3">
+						<label class="col-form-label col-md-2 pl-md-5">Mã TKTT Fatca</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control text-uppercase" formControlName="fatca" trimFirstLast />
+						</div>
+
+						<label class="col-form-label col-md-2 pl-md-5"></label>
+						<div class="col-md-4">
+							<button type="submit" id="dbSearch" class="py-2 btn sb-btn-submit" [ngClass]="{
+									'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2':
+										(isLoadingData$ | async)
+								}">Tìm kiếm</button>
+						</div>
+					</div>
+				</form>
+			</div>
+
+			<table class="sb-custom-table table table-striped mt-0" style="overflow-x:auto;">
+				<thead style="background-color: #c3cadb">
+				<tr class="text-left">
+					<th class="font-weight-bold">STT</th>
+					<th class="font-weight-bold">Mã giao dịch</th>
+					<th class="font-weight-bold">ID KH</th>
+					<th class="font-weight-bold">Số GTTT</th>
+					<th class="font-weight-bold">Loại GTTT</th>
+					<th class="font-weight-bold">Hạng KH</th>
+					<th class="font-weight-bold">Loại NV</th>
+					<th class="font-weight-bold">Độ ưu tiên</th>
+					<th class="font-weight-bold">Trạng thái</th>
+					<th class="font-weight-bold">User nhập</th>
+					<th class="font-weight-bold">User duyệt</th>
+					<th class="font-weight-bold">Thời gian hạch toán</th>
+				</tr>
+				</thead>
+
+				<tbody *ngIf="!(isLoadingData$ | async)">
+				<tr *ngFor="let obj of (filteredData$|async) | slice: (page-1) * pageSize : (page-1) * pageSize + pageSize; index as i"
+					class="text-left">
+					<td>{{i + 1 + (page - 1) * pageSize}}</td>
+					<td (click)="chooseTransaction(obj)"
+						class="transId">{{obj.combo ? obj.combo.id : obj.id}}</td>
+					<td>{{obj.combo ? (obj?.combo?.customerId || obj?.combo?.username?.slice(0, -2)) : obj?.customerId || obj?.username?.slice(0, -2)}}</td>
+					<td>{{obj.combo ? obj?.customer?.gttt : (obj?.gttt ? obj?.gttt : null)}}</td>
+					<td>{{obj.combo ? obj?.customer?.idenType : (obj?.idenType ? obj?.idenType : null)}}</td>
+					<td></td>
+					<td>{{obj.combo ? (obj.combo.comboType | comboType)
+						: (obj.type | productType)}}</td>
+					<td class="text-left">
+						<span class="pl-0"
+							  [ngClass]="{'icon-dot-custom-normal': (obj.combo ? obj.combo.priority : obj.priority) == 'PRIMARY',
+							   			'icon-dot-custom-high': (obj.combo ? obj.combo.priority : obj.priority) == 'HIGH'}">&#9679;
+						</span>
+						<span [ngClass]="{'text-normal': (obj.combo ? obj.combo.priority : obj.priority) == 'PRIMARY',
+							   			'text-high': (obj.combo ? obj.combo.priority : obj.priority) == 'HIGH'}">
+							{{obj.combo ? (obj.combo.priority | priorityPipe) : (obj.priority | priorityPipe)}}
+						</span>
+					</td>
+					<td>
+						<div [ngClass]="{'gray-lable': (obj.combo ? obj.combo.status : obj.status) == 'PENDING',
+						 'green-lable': (obj.combo ? obj.combo.status : obj.status) == 'APPROVED',
+						 'red-lable': (obj.combo ? obj.combo.status : obj.status) == 'CANCEL',
+						 'red-lable': (obj.combo ? obj.combo.status : obj.status) == 'DELETED',
+						 'red2-lable': (obj.combo ? obj.combo.status : obj.status) == 'REJECTED'}">
+							{{obj.combo ? (obj.combo.status | statusDashboard) : (obj.status | statusDashboard)}}
+						</div>
+					</td>
+					<td>{{obj.combo ? obj.combo.inputter : obj.inputter}}</td>
+					<td>{{obj.combo ? obj.combo.authoriser : obj.authoriser}}</td>
+					<td>{{obj.combo ? obj.combo.timeUpdate : obj.timeUpdate}}</td>
+				</tr>
+				</tbody>
+			</table>
+
+			<div class="row col-12" *ngIf="(filteredData$ | async).length > 0 && !(isLoadingData$ | async)">
+				<div class="text-center col-6">
+					<ngb-pagination [rotate]="true" [maxSize]="5" [collectionSize]="(filteredData$|async).length"
+									[pageSize]="pageSize"
+									[(page)]="page"></ngb-pagination>
+				</div>
+
+				<div class="text-right col-6">
+					Hiển thị kết quả: {{calculateTotalPage()}}/{{(filteredData$|async).length}} kết quả
+				</div>
+			</div>
+
+			<div style="text-align: center; font-size: 18px">
+				<span *ngIf="
+									(filteredData$ | async).length === 0 &&
+									!(isLoadingData$ | async)
+								">Không có dữ liệu</span>
+			</div>
+
+			<div *ngIf="isLoadingData$ | async" style="text-align: -webkit-center; text-align: -moz-center">
+				<table>
+					<tr>
+						<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': isLoadingData$ | async}"></td>
+						<td>Đang tải...</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--	detail transaction	-->
+<div style="margin-top: 2rem;">
+	<div class="p-3 col-12" style="background-color: white; border-radius: 10px">
+		<div class="row col-12" *ngIf="(transType$|async) == 'COMBO1' then combo1">
+
+		</div>
+		<div class="row col-12" *ngIf="(transType$|async) == 'COMBO2' then combo2">
+
+		</div>
+		<div class="row col-12" *ngIf="(transType$|async) == 'COMBO3' then combo3">
+
+		</div>
+		<div class="row col-12" *ngIf="(transType$|async) == 'COMBO1_EX' then combo1ex">
+
+		</div>
+		<div class="row col-12" *ngIf="(transType$|async) == 'COMBO2_EX' then combo2ex">
+
+		</div>
+		<div class="row col-12" *ngIf="(transType$|async) == 'COMBO3_EX' then combo3ex">
+
+		</div>
+		<div class="row col-12" *ngIf="(transType$|async) == 'sms' then sms">
+
+		</div>
+		<div class="row col-12" *ngIf="(transType$|async) == 'account' then account">
+
+		</div>
+		<div class="row col-12" *ngIf="(transType$|async) == 'customer' then customer">
+
+		</div>
+		<div class="row col-12" *ngIf="(transType$|async) == 'ebank' then ebank">
+
+		</div>
+		<div class="row col-12" *ngIf="(transType$|async) == 'card' then card">
+
+		</div>
+		<div class="row col-12" *ngIf="!(transType$|async) then loading">
+
+		</div>
+	</div>
+</div>
+<!--	end detail transaction	-->
+
+<ng-template #combo1>
+	<kt-combo [viewData]="selectedTrans$|async"></kt-combo>
+</ng-template>
+<ng-template #combo2>
+	<kt-combo2 [viewData]="selectedTrans$|async"></kt-combo2>
+</ng-template>
+<ng-template #combo3>
+	<kt-combo3 [viewData]="selectedTrans$|async"></kt-combo3>
+</ng-template>
+<ng-template #combo1ex>
+	<kt-combo1-ex-customer [viewData]="selectedTrans$|async"></kt-combo1-ex-customer>
+</ng-template>
+<ng-template #combo2ex>
+	<kt-combo2-ex-customer [viewData]="selectedTrans$|async"></kt-combo2-ex-customer>
+</ng-template>
+<ng-template #combo3ex>
+	<kt-combo3-ex-customer [viewData]="selectedTrans$|async"></kt-combo3-ex-customer>
+</ng-template>
+<ng-template #sms>
+	<kt-sms [viewData]="selectedTrans$|async"></kt-sms>
+</ng-template>
+<ng-template #account>
+	<kt-account [viewData]="selectedTrans$|async"></kt-account>
+</ng-template>
+<ng-template #customer>
+	<kt-customer-manage [viewData]="selectedTrans$|async"></kt-customer-manage>
+</ng-template>
+<ng-template #ebank>
+	<kt-seanet [viewData]="selectedTrans$|async"></kt-seanet>
+</ng-template>
+<ng-template #card>
+	<kt-card [viewData]="selectedTrans$|async"></kt-card>
+</ng-template>
+<ng-template #loading>
+	<div style="min-height: 150px; text-align: center; padding: 70px">
+		<p>Vui lòng hiển thị thông tin chi tiết giao dịch tương ứng khi click vào mã GD trong bảng</p>
+	</div>
+</ng-template>

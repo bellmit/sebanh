@@ -1,0 +1,36 @@
+<div class="text-right p-1 newsFeed"
+	 style="background-color: white; min-height: 400px;  border-radius: 10px">
+	<!--			Header-->
+	<div class="row col-12 p-0">
+		<div class="col-11 text-left">
+			<h6 class="p-2 text-left font-weight-bold">Thông báo quản trị</h6>
+		</div>
+		<div class="col-1 text-right p-0">
+			<i class="fas fa-ellipsis-h"></i>
+		</div>
+	</div>
+	<hr>
+	<!--			Body-->
+	<div class="table-content" style="height: 330px">
+		<table class="table table-scroll" *ngFor="let news of (notfications$|async); let i = index">
+			<tr>
+				<td class="pb-0 border-top-0">
+					<p style="color:#63D327; word-wrap: break-word; word-break: break-all"
+					   (mouseout)="mouseOutOfContent()"
+					   (mouseover)="mouseOveredContent(i)"
+					   (click)="showPopup(news)"
+					   class="text-left m-0 p-0"
+					   [ngClass]="{'read-color': isRead(news)}"><span class="pr-1"><i
+						[class.content]="(contentIndex$ |async) == i"
+						class="fas fa-circle"></i></span>{{news.description | slice:0:100}}...</p>
+				</td>
+			</tr>
+			<tr>
+				<td class="border-top-0 border-bottom pt-0">
+					<p style="font-size: 10px; color: #888"
+					   class="text-left m-0 p-0">{{getTimeUpdate(news.timeUpdate)}}</p>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

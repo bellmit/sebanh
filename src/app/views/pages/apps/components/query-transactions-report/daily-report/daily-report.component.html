@@ -1,0 +1,101 @@
+<kt-title-top [parentTitle]="'Trang chủ'" [childOne]="'Truy vấn/In báo cáo'"
+			  [childTwo]="'Báo cáo giao dịch cuối ngày'"></kt-title-top>
+<div class="m-0 p-0">
+	<div class="p-3 col-12" style="background-color: white; border-radius: 10px">
+		<div class="col-12">
+			<form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2  pl-3 required">Loại truy vấn</label>
+					<div class="col-md-4">
+						<ng-select formControlName="type"
+								   [searchable]="true"
+								   bindLabel="nameVi"
+								   bindValue="value"
+								   [items]="reportType"
+								   dropdownPosition="bottom">
+						</ng-select>
+					</div>
+
+					<label class="col-form-label col-md-2" [ngClass]="{'required': true}">Tài khoản quỹ</label>
+					<div class="col-md-4 mr-circle"
+						 [ngClass]="{'kt-spinner kt-spinner--right kt-spinner--sb': (isLoadingCheckFundAccount$ | async)}">
+						<input type="text" class="form-control" formControlName="fundAccount"
+							   (blur)="checkFundAccount($event?.target?.value)"
+							   (ngModelChange)="onFundAccountChange()"
+						>
+						<div class="invalid-feedback" style="display: block">
+							<span
+								*ngIf="fundAccountName$|async">{{(fundAccountName$|async)}}</span>
+							<span
+								*ngIf="(frm.fundAccount.touched || frm.fundAccount.dirty) && frm.fundAccount.hasError('required')">Trường bắt buộc nhập
+							</span>
+							<span
+								*ngIf="(frm.fundAccount.touched || frm.fundAccount.dirty) && frm.fundAccount.hasError('notExist')">Tài khoản không tồn tại
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2 required">Từ ngày</label>
+					<div class="col-md-4">
+						<div class="input-group">
+							<input type="text" class="form-control py-2 border-right-0 border"
+								   style="border: none !important;"
+								   formControlName="fromDate"
+								   [max]="searchForm.get('toDate').value"
+								   ktDateEnter
+								   [matDatepicker]="picker">
+							<span class="input-group-append">
+								<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+									<i class="flaticon2-calendar-1" style="color: red" (click)="picker.open()"></i>
+									<mat-datepicker #picker color="warn"></mat-datepicker>
+								</div>
+							</span>
+						</div>
+						<div class="invalid-feedback" style="display: block"
+							 *ngIf="searchForm.controls.fromDate.invalid && (searchForm.controls.fromDate.touched || searchForm.controls.fromDate.dirty)">
+								<span
+									*ngIf="searchForm.controls.fromDate.hasError('required') ||
+									searchForm.controls.fromDate.hasError('matDatepickerParse')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+
+					<label class="col-form-label col-md-2 required">Đến ngày</label>
+					<div class="col-md-4">
+						<div class="input-group">
+							<input type="text" class="form-control py-2 border-right-0 border"
+								   style="border: none !important;"
+								   ktDateEnter
+								   formControlName="toDate"
+								   [max]="today"
+								   [matDatepicker]="picker1">
+							<span class="input-group-append">
+								<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+									<i class="flaticon2-calendar-1" style="color: red" (click)="picker1.open()"></i>
+									<mat-datepicker #picker1 color="warn"></mat-datepicker>
+								</div>
+							</span>
+						</div>
+						<div class="invalid-feedback" style="display: block"
+							 *ngIf="searchForm.controls.toDate.invalid && (searchForm.controls.toDate.touched || searchForm.controls.toDate.dirty)">
+								<span
+									*ngIf="searchForm.controls.toDate.hasError('required') ||
+									searchForm.controls.toDate.hasError('matDatepickerParse')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+				</div>
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2 pl-md-5"></label>
+					<div class="col-md-4">
+						<button [disabled]="searchForm.invalid || hasNoFundAccount()" type="submit" id="dbSearch" class="py-2 btn sb-btn-submit"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingTransaction$ | async)}">Hiển thị biểu mẫu</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</div>
+
+
+

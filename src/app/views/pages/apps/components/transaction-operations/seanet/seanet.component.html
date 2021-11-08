@@ -1,0 +1,453 @@
+<div>
+	<kt-title-top [parentTitle]="parentName" [childOne]="childOne" [childTwo]="childTwo"
+				  *ngIf="!viewData"></kt-title-top>
+	<!--	<div class="col-12">-->
+	<form [formGroup]="parentForm">
+		<kt-transaction-info [parentForm]="parentForm"
+							 [dataFrmDash]="dataCacheRouter"
+							 [inputter]="inputtable$ | async"
+							 [authoriser]="authorisable$ | async"
+							 [isLoading]="isLoadingEBankInfo$.getValue()"
+							 (onSearch)="getEBankInfo()"
+							 (onResetFormValue)="reSetFormValue()"
+							 [ngClass]="{'sb-container-readonly': (dataCacheRouter && (authorisable$ | async) || viewData)}">
+		</kt-transaction-info>
+
+		<div [ngClass]="{'sb-container-readonly': STATUS_APPROVED}">
+			<label class=" font-weight-bolder"
+				   [ngClass]="{'sb-container-readonly': (dataCacheRouter && (authorisable$ | async)) || (!isSearched && !dataCacheRouter) || viewData}">
+				<input type="checkbox" class="regular-checkbox"
+					   [checked]="isEBankCheckbox"
+					   (change)="onChangeEBank($event); changeCheckBox()"
+					   [(ngModel)]="isEBankCheckbox"
+					   [ngModelOptions]="{standalone: true}"
+					   [disabled]="dataCacheRouter && (authorisable$ | async)"
+					   style="border-radius: 3px;"/>
+				Cập nhật thông tin dịch vụ SeANet
+			</label>
+			<ng-container>
+				<div class="p-3 mt-3 mb-3 sb-content"
+
+				>
+					<!-- [ngClass]="{'sb-content' : isEBankCheckbox,
+					'sb-container-readonly': ((isLoadingEBankInfo$ | async) || !isEBankCheckbox)
+					}" -->
+					<div class="form-group row">
+						<label class="col-form-label col-md-2   required">Tài khoản SeANet</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control sb-readonly" formControlName="seaNetId" readonly>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.seaNetId.touched || frm.seaNetId.dirty) && frm.seaNetId.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2  required ">Tài khoản chính</label>
+						<div class="col-md-4">
+							<!--							<input type="text" class="form-control" formControlName="mainCurrAcc"-->
+							<!--								   [ngClass]="{'sb-readonly': ((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)}">-->
+
+							<ng-select
+								[loading]="(isLoadingAccountInfo$ | async)"
+								formControlName="mainCurrAcc"
+								[readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)">
+								<ng-option *ngFor="let acc of (accountInfo$| async)" [value]="acc.accountID">
+									{{acc.accountID}}
+								</ng-option>
+							</ng-select>
+
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.mainCurrAcc.touched || frm.mainCurrAcc.dirty) && frm.mainCurrAcc.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">Email</label>
+						<div class="col-md-4">
+							<input type="text" maxlength="50" class="form-control" formControlName="email"
+								   (blur)="checkValidateEmail()"
+								   [ngClass]="{'sb-readonly': ((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)}">
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(emailPattern$ | async)">Nhập đúng định dạng email
+								</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2  required ">Số điện thoại</label>
+						<div class="col-md-4">
+							<input [ngClass]="{'sb-readonly': ((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)}" type="text" class="form-control" formControlName="handyNumber">
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.handyNumber.touched || frm.handyNumber.dirty) && frm.handyNumber.hasError('required')">Trường bắt buộc nhập
+								</span>
+								<span
+									*ngIf="(frm.handyNumber.touched || frm.handyNumber.dirty) && frm.handyNumber.hasError('pattern')">Số điện thoại sai định dạng</span>
+							</div>
+						</div>
+
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2  required ">Gói dịch vụ</label>
+						<div class="col-md-4">
+							<ng-select [items]="servicePackages$|async"
+									   bindLabel="description"
+									   bindValue="servicePackId"
+									   [multiple]="false"
+									   [readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)"
+									   formControlName="servicePackage">
+								<ng-template ng-header-tmp>
+									Gói dịch vụ
+								</ng-template>
+								<ng-template ng-label-tmp let-item="item" #servicePackageLabel>
+
+										<span>{{item.description}}</span>
+
+								</ng-template>
+							</ng-select>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.servicePackage.touched || frm.servicePackage.dirty) && frm.servicePackage.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2  required ">Mã dịch vụ</label>
+						<div class="col-md-4">
+							<!--							<input type="text" class="form-control" formControlName="serviceId"-->
+							<!--								   [ngClass]="{'sb-readonly': ((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async))}">-->
+							<!--							<ng-select-->
+							<!--								formControlName="serviceId"-->
+							<!--								[readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)"-->
+							<!--							>-->
+							<!--								<ng-option *ngFor="let service of serviceList"-->
+							<!--										   [value]="service.value">{{service.nameVi}}</ng-option>-->
+							<!--							</ng-select>-->
+							<ng-select [items]="serviceList"
+									   [readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)"
+									   bindLabel="nameVi"
+									   bindValue="value"
+									   [multiple]="false"
+									   formControlName="serviceId">
+								<!--							<ng-template ng-header-tmp>-->
+								<!--								Mã dịch vụ-->
+								<!--							</ng-template>-->
+								<ng-template ng-option-tmp let-item="item">
+									<div class="form-row">
+										<span>{{item.nameVi}}</span>
+									</div>
+								</ng-template>
+							</ng-select>
+
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.serviceId.touched || frm.serviceId.dirty) && frm.serviceId.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2  required ">Tình trạng dịch vụ</label>
+						<div class="col-md-4">
+							<!--							<input type="text" class="form-control" formControlName="serviceStatus"-->
+							<!--								   [ngClass]="{'sb-readonly': ((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async))}">-->
+							<ng-select
+								formControlName="serviceStatus"
+								[readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)">
+								<ng-option *ngFor="let serviceStatus of serviceStatusList" [value]="serviceStatus">
+									{{serviceStatus}}
+								</ng-option>
+							</ng-select>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.serviceStatus.touched || frm.serviceStatus.dirty) && frm.serviceStatus.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2  required ">Loại mật khẩu</label>
+						<div class="col-md-4">
+
+							<ng-select
+								formControlName="authenticationType"
+								[readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)"
+							>
+								<ng-option [value]="'SMS'">SMS</ng-option>
+							</ng-select>
+
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.authenticationType.touched || frm.authenticationType.dirty) && frm.authenticationType.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2  required ">Hạn mức chuyển tiền</label>
+
+						<div class="col-md-4">
+							<ng-select
+								[readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)"
+								formControlName="transLimit">
+								<ng-option *ngFor="let item of (limitList$|async)"
+
+										   [value]="item.transLimitId">{{item.transLimitId}}</ng-option>
+							</ng-select>
+
+
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.transLimit.touched || frm.transLimit.dirty) && frm.transLimit.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2">Campaign ID</label>
+						<div class="col-md-4">
+							<ng-select
+								formControlName="campaignId"
+								[readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)">
+								<ng-option *ngFor="let c of (campaignList$|async)" [value]="c.recid">
+									{{c.recid}} - {{c.description}}
+								</ng-option>
+							</ng-select>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2   ">Promotion ID</label>
+						<div class="col-md-4">
+							<ng-select [items]="promotionList$|async"
+									   [readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)"
+									   (change)="setValueDesc($event)"
+									   bindLabel="promotionId"
+									   bindValue="promotionId"
+									   [multiple]="false"
+									   formControlName="promotionId">
+								<!-- <ng-template ng-header-tmp>
+									Promotion ID
+								</ng-template>
+								<ng-template ng-header-tmp let-item="item">
+									{{item.description}}
+								</ng-template> -->
+							</ng-select>
+							<div class="under-input-value mt-2" [ngbTooltip]="(promotion$|async)"
+							tooltipClass="tooltip-custom">
+						   {{promotion$|async}}
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2   ">Tran SeANet Pro</label>
+						<div class="col-md-4">
+							<ng-select [items]="promotionList$|async"
+									   [readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)"
+									   bindLabel="description"
+									   bindValue="promotionId"
+									   [multiple]="false"
+									   formControlName="transSeanetPro">
+								<ng-template ng-header-tmp>
+									TranSeanet Pro
+								</ng-template>
+								<ng-template ng-header-tmp let-item="item">
+									{{item.description}}
+								</ng-template>
+							</ng-select>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">Sale Type</label>
+						<div class="col-md-4">
+							<ng-select [items]="saleList$|async"
+									   bindLabel="name"
+									   bindValue="saleId"
+									   [multiple]="false"
+									   [readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)"
+									   formControlName="salesType"
+									   [ngbTooltip]="'Chỉ được phép chỉnh sửa nếu được phân quyền'"
+									   tooltipClass="tooltip-custom">
+								<ng-template ng-header-tmp>
+									Sale Type
+								</ng-template>
+								<ng-template ng-header-tmp let-item="item">
+									{{item.name}}
+								</ng-template>
+							</ng-select>
+						</div>
+
+						<label class="col-form-label col-md-2">Sale ID</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="salesId"
+								   [ngbTooltip]="'Chỉ được phép chỉnh sửa nếu được phân quyền'"
+								   tooltipClass="tooltip-custom"
+								   [ngClass]="{'sb-readonly': ((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)}
+">
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">Broker Type</label>
+						<div class="col-md-4">
+							<ng-select [items]="brokerTypeList$|async"
+									   bindLabel="name"
+									   bindValue="brokerId"
+									   [multiple]="false"
+									   [readonly]="((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)"
+									   formControlName="brokerType"
+									   [ngbTooltip]="'Chỉ được phép chỉnh sửa nếu được phân quyền'"
+									   tooltipClass="tooltip-custom">
+								<ng-template ng-header-tmp>
+									Broker Type
+								</ng-template>
+								<ng-template ng-header-tmp let-item="item">
+									{{item.name}}
+								</ng-template>
+							</ng-select>
+						</div>
+
+						<label class="col-form-label col-md-2">Broker ID</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="brokerId"
+								   [ngClass]="{'sb-readonly': ((dataCacheRouter && (authorisable$ | async)) || !(isEBankCheckbox$|async) || viewData)}"
+								   [ngbTooltip]="'Chỉ được phép chỉnh sửa nếu được phân quyền'"
+								   tooltipClass="tooltip-custom">
+						</div>
+					</div>
+
+					<!--user status + co code-->
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">User status</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control sb-readonly" readonly formControlName="userStatus">
+						</div>
+						<label class="col-form-label col-md-2">Mã chi nhánh</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control sb-readonly" readonly formControlName="coCodeT24">
+						</div>
+					</div>
+
+				</div>
+
+
+				<div class="form-group row pl-3"
+					 [ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async)|| (!isSearched && !dataCacheRouter) || viewData}">
+					<label class=" font-weight-bolder">
+						<input type="checkbox" [(ngModel)]="isResetPassword"
+							   [ngModelOptions]="{standalone: true}" class="regular-checkbox"
+							   [checked]="isResetPassword"
+							   (change)="onResetPassword($event); changeCheckBox()"
+							   [disabled]="dataCacheRouter && (authorisable$ | async)"
+							   style="border-radius: 3px;"/>
+						Reset password
+					</label>
+				</div>
+
+				<div class="form-group row pl-3"
+					 [ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async)|| (!isSearched && !dataCacheRouter) || viewData}">
+					<label class=" font-weight-bolder">
+						<input type="checkbox" [(ngModel)]="isBlockAccount"
+							   [checked]="isBlockAccount"
+							   [ngModelOptions]="{standalone: true}" class="regular-checkbox"
+							   (change)="onLockAccount($event); changeCheckBox()"
+							   [disabled]="disableUnlock"
+							   style="border-radius: 3px;"/>
+						Khóa/ gỡ khoá tài khoản
+					</label>
+				</div>
+				<kt-audit-info [parentForm]="parentForm"
+							   [dataFrmDash]="dataCacheRouter"
+							   [inputter]="inputtable$ | async"
+							   [authoriser]="authorisable$ | async"
+							   [dataCacheRouter]="dataCacheRouter"
+							   [ngClass]="{'sb-container-readonly': (STATUS_APPROVED || viewData)}"
+				>
+					<!--				[ngClass]="{'sb-container-readonly': (dataCacheRouter && (authorisable$ | async) || APPROVED)}"-->
+				</kt-audit-info>
+
+				<kt-table-approve-error [headers]="headerError" [data]="dataError"
+										*ngIf="headerError.length"></kt-table-approve-error>
+			</ng-container>
+
+		</div>
+		<div class="sb-content p-2 mt-3 mb-3">
+
+			<div class="form-group row">
+				<div class=" col-12 text-right" *ngIf="inputtable$ | async">
+
+					<button type="button"
+							class="btn btn-sm  sb-btn-remove mt-2 mr-2" (click)="backToHome()">
+						Quay lại
+					</button>
+
+					<ng-container *ngIf="!STATUS_APPROVED  && !viewData">
+						<button type="button" (click)="getReportId()"
+								class="btn btn-sm  sb-btn-display mt-2 mr-2"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingReport$ | async)}"
+								[disabled]="isLoadingReport$| async"
+								[ngbTooltip]="isLoadingTooltipReportButton ? 'Đang xử lý...' : null"
+								tooltipClass="tooltip-custom">
+							Hiển thị biểu mẫu
+						</button>
+
+						<!--Nếu là tạo mới-->
+						<button type="button" (click)="resetForm()"
+								*ngIf="!dataCacheRouter && (inputtable$ | async) && !STATUS_APPROVED"
+								class="btn btn-sm  sb-btn-remove mt-2 mr-2">
+							Xóa
+						</button>
+
+						<!--Nếu là importer chỉnh sửa dữ liệu sau khi tạo-->
+						<button type="button" (click)="askUserToDeleteRecord()"
+								*ngIf="dataCacheRouter && (inputtable$ | async) && !STATUS_APPROVED"
+								class="btn btn-sm  sb-btn-remove mt-2 mr-2"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isDeletingRecord$ | async)}">
+							Xóa
+						</button>
+
+						<button type="button" *ngIf="!STATUS_APPROVED"
+								(click)="onSubmit()"
+								class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+							{{dataCacheRouter ? (this.dataCacheRouter.status == 'APPROVED_ERROR' ?'Gửi duyệt lại' : 'Cập nhật') : 'Gửi duyệt'}}
+						</button>
+					</ng-container>
+				</div>
+
+				<div class="col-12 text-right" *ngIf="authorisable$ | async">
+					<button type="button"
+							class="btn btn-sm  sb-btn-remove mt-2 mr-2" (click)="backToHome()">
+						Quay lại
+					</button>
+
+					<ng-container *ngIf="!STATUS_APPROVED  && !viewData">
+
+						<button type="button"
+								*ngIf="STATUS_PENDING"
+								(click)="askUserToRejectRecord()"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isRejecting$ | async)}"
+								class="btn btn-sm  sb-btn-remove mt-2 mr-2"
+								[disabled]="rejected$|async">
+							Từ chối
+						</button>
+
+						<button *ngIf="(authorisable$ | async) && STATUS_PENDING" type="button"
+								(click)="approveEBank()"
+								[disabled]="rejected$|async"
+								class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isApproving$ | async)}">
+							Duyệt
+						</button>
+					</ng-container>
+
+				</div>
+			</div>
+		</div>
+	</form>
+</div>

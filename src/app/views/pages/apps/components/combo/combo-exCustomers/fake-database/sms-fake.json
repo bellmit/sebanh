@@ -1,0 +1,42 @@
+[
+	{
+		"id": "11111",
+		"phoneNumber": "0975051376",
+		"serviceId": "0010",
+		"email": "namsev0312@gmail.com",
+		"promotionId": "A112",
+		"coCode": "12"
+	},
+	{
+		"id": "22222",
+		"phoneNumber": "0975051376",
+		"serviceId": "0010",
+		"email": "namsev0312@gmail.com",
+		"promotionId": "A112",
+		"coCode": "12"
+	},
+	{
+		"id": "333333",
+		"phoneNumber": "0975051376",
+		"serviceId": "0010",
+		"email": "namsev0312@gmail.com",
+		"promotionId": "A112",
+		"coCode": "12"
+	},
+	{
+		"id": "4444444",
+		"phoneNumber": "0975051376",
+		"serviceId": "0010",
+		"email": "namsev0312@gmail.com",
+		"promotionId": "A112",
+		"coCode": "12"
+	},
+	{
+		"id": "5555555",
+		"phoneNumber": "0975051376",
+		"serviceId": "0010",
+		"email": "namsev0312@gmail.com",
+		"promotionId": "A112",
+		"coCode": "12"
+	}
+]

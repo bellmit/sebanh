@@ -1,0 +1,139 @@
+<div class="table-content-class">
+	<table [class]="configTable.isBorder? 'sb-custom-table table' : 'no-border table' " style="overflow-x:auto;">
+		<thead style="background-color: #c3cadb">
+		<tr>
+			<th [ngStyle]="{'background-color': configTable?.backgroundTitleColor, 'color': configTable?.titleTextColor}"
+				*ngIf="configTable.isChooseAllRecord">
+				<!--				For checked all check box-->
+				<div class="custom-control form-control-lg custom-checkbox">
+					<input type="checkbox" class="custom-control-input" id="customCheck1" [(ngModel)]="masterSelected"
+						   name="list_name" value="m1" (change)="checkUncheckAll()">
+					<label class="custom-control-label" for="customCheck1"></label>
+				</div>
+			</th>
+			<th [ngStyle]="{'background-color': configTable?.backgroundTitleColor, 'color': configTable?.titleTextColor}"
+				*ngIf="!configTable.isChooseAllRecord && configTable.isCheckBoxByEachRecord">
+			</th>
+
+			<!--For label of each column-->
+			<th [ngStyle]="{'background-color': configTable?.backgroundTitleColor, 'color': configTable?.titleTextColor}"
+				*ngIf="configTable.isNumericalOrder">STT
+			</th>
+			<th [ngStyle]="{'background-color': configTable?.backgroundTitleColor, 'color': configTable?.titleTextColor}"
+				*ngFor="let title of configTable.properties index as index"
+				[class]="configTable.isSortByFieldColumn ? 'curs-move-over text-nowrap' : 'text-nowrap'"
+				(click)="sortEmit(title.fieldName, index, configTable.isSortByFieldColumn)">
+			<span class="pr-1" *ngIf="configTable.isSortByFieldColumn">
+				<i [class]="(isIncrease && (selectedIndex$ | async) == index) ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+			</span>
+				{{'Table.' + configTable.nameTable + '.' + title?.fieldName | translate}}
+			</th>
+
+			<!--			For edit and delete action-->
+			<th *ngIf="configTable.isDeleteAndEditAction">Action</th>
+		</tr>
+
+		</thead>
+		<tbody>
+		<tr *ngFor="let obj of data | slice: (page-1) * pageSize : (page-1) * pageSize + pageSize; let i = index; let even = even"
+			[ngClass]="{'text-red-highlight': selectIndex == i && configTable.isHighlightTextSelected}">
+			<td [class]="!even ? 'row-even' : 'row-old' " *ngIf="configTable.isCheckBoxByEachRecord">
+				<div class="custom-control form-control-lg custom-checkbox">
+					<input type="checkbox" class="custom-control-input" id="{{i}}"
+						   name="list_name" value="{{obj.id}}" (change)="isAllSelected(obj)">
+					<label class="custom-control-label" for="{{i}}"></label>
+				</div>
+			</td>
+
+			<!--			numerical oder without paginator-->
+			<td [class]="!even ? 'row-even' : 'row-old' "
+				*ngIf="configTable?.isNumericalOrder && !configTable.isPaginator"
+				(click)="chooseObject(obj, i)">{{i + 1}}
+			</td>
+
+			<!--			numerical oder with paginator-->
+			<td [class]="!even ? 'row-even' : 'row-old' "
+				*ngIf="configTable?.isNumericalOrder && configTable.isPaginator"
+				(click)="chooseObject(obj, i)">{{i + 1 + (page - 1) * pageSize}}
+			</td>
+
+			<td class="text-left" [class]="!even ? 'row-even' : 'row-old' "
+				*ngFor="let property of configTable?.properties"
+				(click)="chooseObject(obj, i)">
+
+				<div [ngClass]="{'gray-lable': obj['status'] == 'PENDING'
+					&& property.isLabelColor,'green-lable': obj['status'] == 'APPROVED'
+					&& property.isLabelColor,'red-lable': (obj['status'] == 'CANCEL' || obj['status'] == 'REJECTED')
+			 		&& property.isLabelColor}"
+					 [ngStyle]="{'color': property?.textColor}">{{obj[property?.fieldName]}}
+				</div>
+			</td>
+
+			<!--			For edit and delete action-->
+			<td *ngIf="configTable.isDeleteAndEditAction" [class]="!even ? 'row-even' : 'row-old' " class="text-center">
+				<span (click)="emitDeleteAction(obj)" class="pr-3 sb-cursor-pointer">
+					<i style="color: #d61817" class="fas fa-wrench"></i>
+				</span>
+				<span (click)="emitEditAction(obj)" class="sb-cursor-pointer">
+					<i style="color: #d61817" class="fas fa-trash-alt"></i>
+				</span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	<div class="row col-12">
+		<div class="text-center col-6" *ngIf="configTable.isPaginator">
+			<ngb-pagination [rotate]="true" [maxSize]="5" [collectionSize]="data.length" [pageSize]="pageSize"
+							[(page)]="page"></ngb-pagination>
+		</div>
+		<div class="text-right col-6">
+			Hiển thị kết quả: {{calculateTotalPage()}}/{{data.length}} kết quả
+		</div>
+	</div>
+
+	<div *ngIf="loading" style="text-align: -webkit-center; text-align: -moz-center">
+		<table>
+			<tr>
+				<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': loading}"></td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+
+<!--<div class="example-container mat-elevation-z8">-->
+<!--	<mat-table #table [dataSource]="dataSource" matSort>-->
+
+
+<!--		<ng-container *ngFor="let col of displayedColumns" [matColumnDef]="col">-->
+<!--			&lt;!&ndash; Checkbox Column &ndash;&gt;-->
+<!--			<ng-container *ngIf="col == 'select'">-->
+<!--				<mat-header-cell style="background-color:#f5f8fa; color: black" *matHeaderCellDef>-->
+<!--					<mat-checkbox (change)="$event ? masterToggle() : null"-->
+<!--								  [checked]="selection.hasValue() && isAllSelected()"-->
+<!--								  [indeterminate]="selection.hasValue() && !isAllSelected()">-->
+<!--					</mat-checkbox>-->
+<!--				</mat-header-cell>-->
+<!--				<mat-cell *matCellDef="let row index as i; let even = even" [class.row-even]="!even" >-->
+<!--					<mat-checkbox class="aaa"  (click)="$event.stopPropagation()"-->
+<!--								  (change)="$event ? selection.toggle(row) : null"-->
+<!--								  [checked]="selection.isSelected(row)">-->
+<!--					</mat-checkbox>-->
+<!--				</mat-cell>-->
+<!--			</ng-container>-->
+<!--			<mat-header-cell style="background-color:#f5f8fa; color: black" *matHeaderCellDef mat-sort-header> {{col}} </mat-header-cell>-->
+<!--			<mat-cell *matCellDef="let element; index as i; let even = even" [class.row-even]="!even"> {{element[col]}} </mat-cell>-->
+<!--		</ng-container>-->
+
+<!--		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>-->
+<!--		<mat-row *matRowDef="let row; columns: displayedColumns;"-->
+<!--				 (click)="selection.toggle(row)">-->
+<!--		</mat-row>-->
+<!--	</mat-table>-->
+<!--	<mat-paginator #paginator-->
+<!--				   [pageSize]="3"-->
+<!--				   [pageSizeOptions]="[3,5,7]"-->
+<!--				   [showFirstLastButtons]="true">-->
+<!--	</mat-paginator>-->
+
+

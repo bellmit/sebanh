@@ -1,0 +1,44 @@
+:host {
+	::ng-deep {
+		ngb-tabset > .nav-tabs {
+			display: none;
+		}
+	}
+
+	.kt-notification .kt-notification__item:after {
+		content: "" !important;
+	}
+
+	#header_notification .kt-notification__item:hover {
+		background: #D71424;
+		color: #FFFFFF;
+		max-height:40vh;
+		position:relative;
+	};
+
+	.kt-notification-not-read {
+		font-weight: bold !important;
+	}
+
+	.badge.badge-default {
+		background-color: #D71424;
+		color: #fff;
+	}
+
+	.badge {
+		position: absolute;
+		top: 10px;
+		right: 0px;
+		font-weight: 300;
+		padding: 3px 6px;
+		font-size: 11px!important;
+		height: 18px;
+		-webkit-border-radius: 12px!important;
+		-moz-border-radius: 12px!important;
+		border-radius: 12px!important;
+		text-shadow: none!important;
+		text-align: center;
+		vertical-align: middle;
+	}
+
+}

@@ -1,0 +1,89 @@
+<div class="kt-content">
+	<p class="sb-title">Quản lý danh mục bảng</p>
+
+	<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2">
+		<!--		<form [formGroup]="paymentForm" (ngSubmit)="onImporterSubmit(paymentForm.value)">-->
+		<div class="form-group row">
+			<label class="col-12 sb-label">Tên bảng</label>
+			<div class=" col-12 text-center">
+				<input type="text" class="form-control sb-input" placeholder="Nhập tên sản phẩm để tìm kiếm">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class=" col-12 text-right">
+				<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4">Tìm kiếm</button>
+			</div>
+		</div>
+		<!--		</form>-->
+	</div>
+
+	<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2">
+		<p class="sb-title">Danh sách bảng danh mục</p>
+		<kt-dynamic-table class="text-left" [data]="data" (selectedObject)="chooseObject($event)"
+						  [configTable]="configTableManageCatalogTable"
+						  [loading]="isLoading">
+		</kt-dynamic-table>
+	</div>
+
+	<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2" *ngIf="selectedObject">
+		<p class="sb-title">Thông tin chi tiết</p>
+
+		<form [formGroup]="editForm" (ngSubmit)="onSubmit(editForm.value)">
+			<div class="form-group row">
+				<label class="col-12 sb-label">Tên bảng</label>
+				<div class=" col-12 text-center">
+					<input type="text" readonly class="form-control sb-input" [value]="selectedObject.tableName">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-12 sb-label">Mô tả</label>
+				<div class=" col-12 text-center">
+					<input type="text" readonly class="form-control sb-input" [value]="selectedObject.description">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-12 sb-label">Tìm kiếm bản ghi chi tiết</label>
+				<div class=" col-12 text-center">
+					<input type="text" class="form-control sb-input">
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class=" col-12 text-right">
+					<button type="button" class="btn btn-sm sb-button-danger mt-2 mb-4">Tìm kiếm</button>
+				</div>
+			</div>
+		</form>
+
+		<p class="sb-title">Thông tin bảng</p>
+		<kt-dynamic-table class="text-left" [data]="data2" (selectedObject)="chooseObject($event)"
+						  [configTable]="configTableManageTableDetail"
+						  [loading]="isLoading">
+		</kt-dynamic-table>
+
+		<div class="form-group row">
+			<label class="col-12 sb-label mt-3">Số lần cập nhật</label>
+			<div class=" col-12 text-center">
+				<input type="text" readonly class="form-control sb-input" [value]="5">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label class="col-12 sb-label">Ngày cập nhật</label>
+			<div class=" col-12 text-center">
+				<input type="text" readonly class="form-control sb-input" [value]="'15/10/2020'">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label class="col-12 sb-label">User cập nhật</label>
+			<div class=" col-12 text-center">
+				<input type="text" readonly class="form-control sb-input" [value]="'bao.nkg'">
+			</div>
+		</div>
+
+	</div>
+</div>

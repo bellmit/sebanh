@@ -1,0 +1,65 @@
+<div class="modal-header">
+	<h4 class="modal-title">Thông tin chi tiết các bản ghi {{type}}</h4>
+	<button class="fix-close"
+			(click)="activeModal.close(false)">
+		<span class="material-icons">close</span>
+	</button>
+</div>
+<div class="modal-body">
+	<div class="text-left" style="font-weight: bold; overflow-y: hidden">
+		<table class="table table-striped ">
+			<thead style="background-color: #c3cadb">
+			<tr>
+				<th class="font-weight-bold">STT</th>
+				<th class="font-weight-bold">Mã bản ghi</th>
+				<th class="font-weight-bold">Loại nghiệp vụ</th>
+				<th class="font-weight-bold" *ngIf="authoriser">Người nhập</th>
+				<th class="font-weight-bold">Tình trạng</th>
+				<th *ngIf="pieChart" class="font-weight-bold text-center">Thời gian vượt SLA (phút)</th>
+			</tr>
+			</thead>
+
+			<tbody>
+			<tr *ngFor="let content of contents | slice: (page-1) * pageSize : (page-1) * pageSize + pageSize; index as i">
+				<td class="font-weight-normal">{{i + 1 + (page - 1) * pageSize}}</td>
+				<td class="font-weight-normal">{{content.combo ? content.combo.id :(content.id || content.accBalId)}}</td>
+				<td class="font-weight-normal">{{content.combo ? (content.combo.comboType | comboType)
+					: (content.type | productType)}}</td>
+				<td class="font-weight-normal"
+					*ngIf="authoriser">{{content.combo ? content.combo.inputter : content.inputter}}</td>
+				<td class="font-weight-normal">
+					<div [ngClass]="{'gray-lable': (content.combo ? content.combo.status : content.status) == 'PENDING',
+						 'green-lable': (content.combo ? content.combo.status : content.status) == 'APPROVED',
+						 'red-lable': (content.combo ? content.combo.status : content.status) == 'CANCEL',
+						 'red-lable': (content.combo ? content.combo.status : content.status) == 'DELETED',
+						 'red2-lable': (content.combo ? content.combo.status : content.status) == 'REJECTED'}">
+						{{content.combo ? (content.combo.status | statusDashboard) : (content.status | statusDashboard)}}
+					</div>
+				</td>
+				<td *ngIf="pieChart && inputter" class="font-weight-normal text-center">
+					{{(content.combo ? content.combo.timeSlaInputter : content.timeSlaInputter)  | timeSlaMinute}}
+				</td>
+
+				<td *ngIf="pieChart && authoriser" class="font-weight-normal text-center">
+					{{(content.combo ? content.combo.timeSlaAuthorise : content.timeSlaAuthorise)  | timeSlaMinute}}
+				</td>
+			</tr>
+			</tbody>
+		</table>
+
+		<div class="row col-12 font-weight-normal">
+			<div class="text-center col-6">
+				<ngb-pagination [rotate]="true" [maxSize]="5" [collectionSize]="contents.length" [pageSize]="pageSize"
+								[(page)]="page"></ngb-pagination>
+			</div>
+
+			<div class="text-right col-6 mt-2">
+				Hiển thị kết quả: {{calculateTotalPage()}}/{{contents.length}} kết quả
+			</div>
+		</div>
+	</div>
+</div>
+<!--<div class="modal-footer">-->
+<!--	<button type="button" class="btn btn-sm sb-btn-submit mr-2"-->
+<!--			(click)="activeModal.close(true)">{{'buttons.back' | translate}}</button>-->
+<!--</div>-->

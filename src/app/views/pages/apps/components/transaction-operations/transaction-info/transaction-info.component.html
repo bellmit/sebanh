@@ -1,0 +1,58 @@
+<div class="sb-content p-3 mb-3">
+	<!--	<div class="mt-3 mb-3">-->
+	<form [formGroup]="transactionForm">
+		<div class="form-group row">
+			<label class="col-form-label col-md-2 ">Mã giao dịch</label>
+			<div class="col-md-4">
+				<input readonly type="text" class="form-control" [ngClass]="{'sb-readonly': dataFrmDash && authoriser }"
+					   formControlName="transId" id="trans-id">
+			</div>
+
+			<label class="col-form-label col-md-2 ">Độ ưu tiên</label>
+			<div class="col-md-4" [ngClass]="{'sb-readonly': dataFrmDash && authoriser }">
+				<ng-select formControlName="priority"
+						   [placeholder]="'Chọn độ ưu tiên'">
+					<ng-option value="PRIMARY">Thường</ng-option>
+					<ng-option value="HIGH">Cao</ng-option>
+				</ng-select>
+			</div>
+		</div>
+		<hr>
+		<div style="font-weight: bold; font-size: 16px; line-height: 20px;">Tìm kiếm</div>
+
+		<div class="form-group row sb-trans-info">
+			<label class="col-form-label col-md-2">ID KH</label>
+			<div class="col-md-4">
+				<input trimSpace (keydown.enter)="searchCustomerInfo()" type="text"
+					   [ngClass]="{'sb-readonly': dataFrmDash && authoriser }" class="form-control"
+					   formControlName="customerId">
+				<!--				<div class="invalid-feedback" style="display: block!important;"-->
+				<!--					 *ngIf="transactionForm.controls.customerId.invalid && (transactionForm.controls.customerId.touched || transactionForm.controls.customerId.dirty)">-->
+				<!--					<span *ngIf="transactionForm.controls.customerId.errors.required">Trường bắt buộc nhập</span>-->
+				<!--				</div>-->
+			</div>
+
+			<label class="col-form-label col-md-2 ">Số GTTT</label>
+			<div class="col-md-4">
+				<input trimSpace maxlength="35" (keydown.enter)="searchCustomerInfo()" type="text" class="form-control"
+					   (keypress)="checkSpecialChar($event)"
+					   [ngClass]="{'sb-readonly': dataFrmDash && authoriser  }"
+					   formControlName="gttt">
+			</div>
+		</div>
+
+		<div class="form-group row sb-trans-info">
+			<label class="col-form-label col-md-2 "></label>
+			<div class="col-md-4">
+				<button [hidden]="dataFrmDash"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': isLoading || (isLoading$ |async)}"
+						class="btn btn-sm sb-btn-submit" type="button" (click)="searchCustomerInfo()"
+						[disabled]="commonService.isUpdateSMS$ | async"
+				>Tìm kiếm
+				</button>
+			</div>
+
+		</div>
+	</form>
+	<!--	</div>-->
+</div>

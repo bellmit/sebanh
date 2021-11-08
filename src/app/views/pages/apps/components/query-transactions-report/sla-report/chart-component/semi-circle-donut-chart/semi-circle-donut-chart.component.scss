@@ -1,0 +1,30 @@
+.semi-circle-donut {
+	max-height: 150px;
+}
+
+.search-form {
+	padding: 1rem;
+	border-radius: 10px;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.proportion {
+	padding: 0 1rem;
+
+	.proportion-child {
+		border-radius: 10px;
+		background-color: #F2F3F5;
+
+		.proportion-title {
+			font-weight: 700;
+			font-size: 1.5rem;
+		}
+
+		.proportion-number {
+			font-weight: 700;
+			font-size: 3rem;
+			color: #5d78ff;
+		}
+
+	}
+}

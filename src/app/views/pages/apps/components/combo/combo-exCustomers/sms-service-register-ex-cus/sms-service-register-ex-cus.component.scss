@@ -1,0 +1,38 @@
+.sms-register-container {
+	border: 1px solid;
+	border-radius: 10px;
+}
+
+table{
+	border: none;
+}
+
+.table-custom thead {
+	background: #C3CADB 0% 0% no-repeat padding-box;
+	opacity: 1;
+	border: none;
+}
+
+.translate-sms {
+	transform: translateY(4px);
+}
+
+.translate-sms-th {
+	transform: translateY(14px);
+}
+
+.fa-minus-circle {
+	color: red !important;
+}
+
+.ng-select.custom ::ng-deep {
+	border: none !important;
+	outline: 0 !important;
+	background-color: transparent !important;
+}
+
+.ng-select.custom ::ng-deep .ng-select-container {
+	border: none !important;
+	outline: 0 !important;
+	background-color: transparent !important;
+}

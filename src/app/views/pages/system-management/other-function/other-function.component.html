@@ -1,0 +1,10 @@
+<div class="kt-content">
+	<p class="sb-title">Hiển thị thay đổi bản ghi</p>
+
+	<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2">
+		<kt-dynamic-table class="text-left" [data]="data" (selectedObject)="chooseObject($event)"
+						  [configTable]="configTableManageHistory"
+						  [loading]="isLoading">
+		</kt-dynamic-table>
+	</div>
+</div>

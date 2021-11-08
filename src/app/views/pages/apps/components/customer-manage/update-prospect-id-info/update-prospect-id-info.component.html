@@ -1,0 +1,611 @@
+<div class="mt-3 mb-3">
+	<form [formGroup]="prospectForm">
+		<div class="sb-content p-3 mt-3 mb-3">
+			<div class="form-group row pl-3">
+				<label class=" font-weight-bolder">
+					<input type="checkbox" class="regular-checkbox"
+						   (change)="checkedUpdateProspectId($event)"
+						   [checked]="commonService.isUpdateProspectId$ | async"
+						   style="border-radius: 3px;"/>
+					Cập nhật thông tin ID KH vãng lai
+				</label>
+			</div>
+
+			<ng-container *ngIf="commonService.isUpdateProspectId$|async">
+				<div class="sb-content p-2 mt-3 mb-3">
+					<span class="sb-title font-weight-bolder mt-2 mb-4 col-md-4">Thông tin cá nhân</span>
+					<hr/>
+					<span *ngIf="(this.dataCustomerError$| async)" class="col-md-8 text-center" style="color: red;">Duyệt lỗi: {{this.dataCustomerError$| async}}</span>
+
+					<!-- <hr> -->
+					<div class="form-group row mt-3">
+						<!--					<label class="col-form-label col-md-2 ">Mã khách hàng</label>-->
+						<!--					<div class="col-md-4">-->
+						<!--						<input trimFirstLast type="text" class="form-control sb-readonly" formControlName="customerId">-->
+						<!--					</div>-->
+
+						<label class="col-form-label col-md-2 required ">Họ và tên</label>
+						<div class="col-md-4">
+
+							<input trimFirstLast type="text" class="form-control" formControlName="customerName"
+								   maxlength="35"
+								   [readOnly]="isReadonly|async"
+								   [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+								   [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }"
+							>
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.customerName.touched || frm.customerName.dirty || isClicked == true) && frm.customerName.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 required ">Danh xưng</label>
+						<div class="col-md-4">
+							<ng-select [items]="titleList"
+									   [multiple]="false"
+									   formControlName="title"
+									   [readonly]="isReadonly|async"
+									   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+								<ng-template ng-header-tmp>
+									Chọn danh xưng
+								</ng-template>
+							</ng-select>
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.title.touched || frm.title.dirty || isClicked == true) && frm.title.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row mt-3">
+						<label class="col-form-label col-md-2 required ">Giới tính</label>
+						<div class="col-md-4">
+							<ng-select formControlName="sex"
+									   [readonly]="isReadonly|async"
+									   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+								<ng-option value="MALE">Nam</ng-option>
+								<ng-option value="FEMALE">Nữ</ng-option>
+							</ng-select>
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.sex.touched || frm.sex.dirty || isClicked == true) && frm.sex.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 required ">Tình trạng hôn nhân</label>
+						<div class="col-md-4">
+							<ng-select [items]="maritalStatusList"
+									   bindLabel="nameVi"
+									   bindValue="value"
+									   [multiple]="false"
+									   formControlName="maritalStatus"
+									   [readonly]="isReadonly|async"
+									   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+								<ng-template ng-header-tmp>
+									Tình trạng hôn nhân
+								</ng-template>
+							</ng-select>
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.maritalStatus.touched || frm.maritalStatus.dirty || isClicked == true) && frm.maritalStatus.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row mt-3">
+						<label class="col-form-label col-md-2 required ">Ngày sinh</label>
+						<div class="col-md-4">
+							<div class="input-group"
+								 [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+								 [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   style="border: none !important;"
+									   formControlName="birthday"
+									   [readOnly]="isReadonly|async"
+									   [matDatepicker]="picker"
+									   [max]="maxDate"
+									   [min]="minDate"
+									   ktDateEnter>
+								<span class="input-group-append">
+                    		<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+								<img src="assets/media/icons/calendar.svg" (click)="picker.open()">
+								<mat-datepicker #picker color="warn"></mat-datepicker>
+							</div>
+						</span>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+							<span
+								*ngIf="(frm.birthday.touched || frm.birthday.dirty || isClicked == true) && frm.birthday.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 required ">Quốc tịch</label>
+						<div class="col-md-4 ">
+							<div class="w-100 d-inline-flex">
+								<ng-select [items]="countries" style="min-width:100%"
+										   bindLabel="nameGb"
+										   bindValue="countryId"
+										   formControlName="national"
+										   [readonly]="isReadonly|async"
+										   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+									<ng-template ng-option-tmp let-item="item">
+										<div class="form-row">
+											<span>{{item.nameGb}}</span>
+										</div>
+									</ng-template>
+
+									<ng-template ng-label-tmp let-item="item" #nationalLabel>
+										<div class="form-row">
+										<span class="col-sm-11" style="top: 1px;">
+											{{item.nameGb}}
+										</span>
+										</div>
+									</ng-template>
+								</ng-select>
+							</div>
+
+							<div class="under-input-value mt-2">
+								{{frm.national.value}}
+							</div>
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.national.touched || frm.national.dirty || isClicked == true) && frm.national.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="sb-content p-2 mt-3 mb-3" [ngClass]="{'sb-container-readonly': isDisableForm == true}">
+					<span class="sb-title mt-2 mb-4 " (click)="addMoreIdentificationPaperForm()">Giấy tờ tùy thân</span>
+					<hr>
+					<div formArrayName="identification">
+						<div *ngFor="let iden of identificationPaperForm.controls; let i=index">
+							<div [formGroupName]="i">
+								<div class="d-inline-flex mb-3">
+									<span *ngIf="i > 0" class="font-weight-bold mr-2"
+										  style="transform: translateY(20%)">Giấy tờ tùy thân {{i + 1}}</span>
+									<span *ngIf="i > 0" class="text-right ml-2" style="margin-left: 4px"
+										  (click)="removeIdentificationPaperForm(i)">
+							<div class="icon text-right minus"></div>
+							</span>
+								</div>
+
+								<div class="form-group row mt-3">
+									<label class="col-form-label col-md-2 required ">Số GTTT</label>
+									<div class="col-md-4">
+										<div class="w-100 d-inline-flex">
+											<input trimFirstLast type="text" class="form-control" maxlength="35"
+												   (keypress)="commonService.checkSpecialChar($event)"
+												   formControlName="gttt"
+												   style="min-width: 100%"
+												   [readOnly]="isReadonly|async"
+												   [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+												   [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+										</div>
+										<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(iden.get('gttt').touched || iden.get('gttt').dirty || isClicked == true)
+										&& iden.get('gttt').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+									</div>
+
+									<label class="col-form-label col-md-2 required ">Loại GTTT</label>
+									<div class="col-md-4">
+										<ng-select [items]="identificationList"
+												   bindLabel="nameVi"
+												   bindValue="value"
+												   [multiple]="false"
+												   formControlName="idenType"
+												   [readonly]="isReadonly|async"
+												   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+											<ng-template ng-header-tmp>
+												Loại GTTT
+											</ng-template>
+
+											<ng-template ng-label-tmp let-item=item #idenTypeLabel>
+												<span>
+													{{item.nameVi}}
+												</span>
+											</ng-template>
+										</ng-select>
+										<div class="invalid-feedback" style="display: block">
+									<span *ngIf="(iden.get('idenType').touched || iden.get('idenType').dirty || isClicked == true)
+												 && iden.get('idenType').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group row">
+									<label class="col-form-label col-md-2 required">Cơ quan cấp</label>
+									<div class="col-md-4">
+										<input trimFirstLast type="text" class="form-control"
+											   formControlName="organization"
+											   [readOnly]="isReadonly|async"
+											   [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+											   [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+										<div class="invalid-feedback" style="display: block">
+									<span *ngIf="(iden.get('organization').touched || iden.get('organization').dirty || isClicked == true)
+												 && iden.get('organization').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+									</div>
+
+									<label class="col-form-label col-md-2 required">Ngày cấp</label>
+									<div class="col-md-4">
+										<div [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+											 [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }"
+											 class="input-group">
+											<input type="text" class="form-control border-right-0 border"
+												   formControlName="idenTime"
+												   style="border: none !important;"
+												   [matDatepicker]="picker2"
+												   ktDateEnter
+												   [max]="today"
+												   [readOnly]="isReadonly|async">
+											<span class="input-group-append">
+		                    		<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<img src="assets/media/icons/calendar.svg" (click)="picker2.open()">
+										<mat-datepicker #picker2 color="warn"></mat-datepicker>
+									</div>
+										</span>
+										</div>
+										<div class="invalid-feedback" style="display: block">
+									<span *ngIf="(iden.get('idenTime').touched || iden.get('idenTime').dirty || isClicked == true)
+												 && iden.get('idenTime').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+									</div>
+								</div>
+
+
+								<div class="form-group row">
+									<label class="col-form-label col-md-2">Ngày hết hạn</label>
+									<div class="col-md-4">
+										<div class="input-group"
+											 [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+											 [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+											<input type="text" class="form-control py-2 border-right-0 border"
+												   formControlName="idenTimeExpired"
+												   style="border: none !important;"
+												   [matDatepicker]="picker3"
+												   ktDateEnter
+												   [readOnly]="isReadonly|async">
+											<span class="input-group-append">
+		                    		<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<img src="assets/media/icons/calendar.svg" (click)="picker3.open()">
+										<mat-datepicker #picker3 color="warn"></mat-datepicker>
+									</div>
+								</span>
+										</div>
+										<!-- <div class="invalid-feedback" style="display: block">
+											<span
+												*ngIf="((commonService.isExpiredPP$|async) && (i == commonService.indexVisaError$.getValue()))">Quá hạn thị thực
+											</span>
+										</div> -->
+									</div>
+
+									<label class="col-form-label col-md-2 required">Nơi cấp</label>
+									<div class="col-md-4">
+										<input trimFirstLast type="text" class="form-control"
+											   formControlName="idenAdress"
+											   [readOnly]="isReadonly|async"
+											   [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+											   [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+										<div class="invalid-feedback" style="display: block">
+									<span *ngIf="(iden.get('idenAdress').touched || iden.get('idenAdress').dirty || isClicked == true)
+												 && iden.get('idenAdress').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group row">
+									<label class="col-form-label col-md-2 required ">Địa chỉ thường trú</label>
+									<div class="col-md-4">
+										<input trimFirstLast type="text" class="form-control"
+											   formControlName="idenAddress"
+											   [readOnly]="isReadonly|async"
+											   [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+											   [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+										<div class="invalid-feedback" style="display: block">
+											<span *ngIf="(iden.get('idenAddress').touched || iden.get('idenAddress').dirty || isClicked == true)
+												 && iden.get('idenAddress').hasError('required')">Trường bắt buộc nhập</span>
+										</div>
+									</div>
+
+									<label class="col-form-label col-md-2  ">Ngày hiệu lực Visa/thị thực</label>
+									<div class="col-md-4">
+										<div class="input-group"
+											 [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+											 [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+											<input type="text" class="form-control py-2 border-right-0"
+												   style="border: none !important;"
+												   formControlName="idenTimeValue"
+												   ktDateEnter
+												   [matDatepicker]="picker4"
+												   [readOnly]="isReadonly|async">
+											<span class="input-group-append">
+		                    		<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<img src="assets/media/icons/calendar.svg" (click)="picker4.open()">
+										<mat-datepicker #picker4 color="warn"></mat-datepicker>
+									</div>
+								</span>
+
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="d-inline-flex mb-3">
+						<span class="font-weight-bold mr-2"
+							  style="transform: translateY(20%)">Thêm giấy tờ tùy thân</span>
+						<span class="text-right ml-2" style="margin-left: 4px"
+							  (click)="addMoreIdentificationPaperForm()">
+							<div class="icon text-right plus"></div>
+						</span>
+					</div>
+				</div>
+
+				<div class="sb-content p-2 mt-3 mb-3" [ngClass]="{'sb-container-readonly': isDisableForm == true}">
+					<span class="sb-title mt-2 mb-4">Thông tin liên lạc</span>
+					<hr>
+
+					<div formArrayName="contactInfosForm">
+						<div *ngFor="let contact of contactForm.controls; let index=index">
+							<div [formGroupName]="index">
+								<div class="form-group row mt-3">
+									<label class="col-form-label col-md-1 required">Email</label>
+									<!--									<span >-->
+									<div class="text-right col-md-1 m-0 p-0 row">
+										<i class="icon text-center minus pr-2" *ngIf="index > 0"
+										   (click)="removeContactForm(index)">
+										</i>
+
+										<i class="icon text-center plus" *ngIf="index == contactForm.controls.length -1"
+										   (click)="addMoreContactForm()">
+										</i>
+									</div>
+
+									<div class="col-md-4">
+										<input trimFirstLast type="text" class="form-control"
+											   formControlName="email"
+											   [ngbTooltip]="'Email có định dạng …@..., không có ký tự đặc biệt khác dấu.'"
+											   tooltipClass="tooltip-custom"
+											   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+											   [readOnly]="isReadonly|async">
+										<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(contact.get('email').touched || contact.get('email').dirty || isClicked == true)
+										&& contact.get('email').hasError('required')">Trường bắt buộc nhập</span>
+
+											<span
+												*ngIf="(contact.get('email').touched || contact.get('email').dirty || isClicked == true)
+												&& contact.get('email').errors?.pattern">Nhập đúng định dạng email
+											</span>
+										</div>
+									</div>
+
+									<label class="col-form-label col-md-2 required ">Số điện thoại di động</label>
+									<div class="col-md-4">
+										<input trimFirstLast type="text" class="form-control" formControlName="mobile"
+											   blockNonNumber
+											   [ngClass]="{'sb-readonly': (isReadonly|async)}"
+											   [readOnly]="isReadonly|async">
+										<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(contact.get('mobile').touched || contact.get('mobile').dirty || isClicked == true)
+										&& contact.get('mobile').hasError('required')">Trường bắt buộc nhập</span>
+
+											<span
+												*ngIf="(contact.get('mobile').touched || contact.get('mobile').dirty || isClicked == true)
+												&& contact.get('mobile').errors?.pattern">Số điện thoại sai định dạng</span>
+										</div>
+									</div>
+
+
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="form-group row mt-2">
+						<label class="col-form-label col-md-2 required ">Đường/phố</label>
+						<div class="col-md-4">
+					<textarea type="text" class="form-control" formControlName="street"
+							  maxlength="35"
+							  [readOnly]="isReadonly|async"
+							  [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+							  [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }"></textarea>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.street.touched || frm.street.dirty || isClicked == true) && frm.street.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 required ">Tỉnh/thành phố</label>
+						<div class="col-md-4">
+							<ng-select [items]="cityList"
+									   bindLabel="name_gb"
+									   bindValue="cityID"
+									   (change)="getListDistrict()"
+									   [multiple]="false"
+									   formControlName="province"
+									   [readonly]="isReadonly|async"
+									   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+								<ng-template ng-label-tmp let-item="item" #cityLabel>
+									<span>{{item.name_gb}}</span>
+								</ng-template>
+							</ng-select>
+							<div class="under-input-value mt-2">
+								{{frm.province.value}}
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.province.touched || frm.province.dirty || isClicked == true) && frm.province.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 required ">Quận huyện</label>
+						<div class="col-md-4">
+							<ng-select [items]="districtList"
+									   bindLabel="name_gb"
+									   bindValue="districID"
+									   [multiple]="false"
+									   [loading]="isLoadingDistrict$ | async"
+									   formControlName="district"
+									   [readonly]="isReadonly|async"
+									   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+								<ng-template ng-label-tmp let-item="item" #districtLabel>
+									<span>{{item.name_gb}}</span>
+								</ng-template>
+							</ng-select>
+							<div class="under-input-value mt-2">
+								{{frm.district.value}}
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.district.touched || frm.district.dirty || isClicked == true) && frm.district.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.district.touched || frm.district.dirty || isClicked == true) && frm.province.hasError('required')">Bạn phải chọn Tỉnh/ Thành phố</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 ">Quốc gia</label>
+						<div class="col-md-4">
+							<ng-select [items]="countries"
+									   bindLabel="nameGb"
+									   bindValue="countryId"
+									   [multiple]="false"
+									   formControlName="country"
+									   [readonly]="isReadonly|async"
+									   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+								<ng-template ng-header-tmp>
+									Chọn quốc gia
+								</ng-template>
+
+								<ng-template ng-label-tmp let-item="item" #countryLabel>
+									<span>{{item.nameGb}}</span>
+								</ng-template>
+							</ng-select>
+							<!--							<input trimFirstLast type="text" class="form-control" formControlName="country">-->
+							<div class="under-input-value mt-2">
+								{{frm.country.value}}
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">Địa chỉ</label>
+						<div class="col-md-4">
+							<textarea type="text" class="form-control" formControlName="customerAddress"
+									  maxlength="35"
+									  [readOnly]="isReadonly|async"
+									  [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+									  [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }"></textarea>
+						</div>
+
+					</div>
+				</div>
+
+
+				<div class="sb-content p-2 mt-3 mb-3" [ngClass]="{'sb-container-readonly': isDisableForm == true}">
+					<span class="sb-title mt-2 mb-4">Thông tin xếp hạng tín nhiệm</span>
+					<hr>
+
+
+					<div class="form-group row mt-3">
+						<label class="col-form-label col-md-2 ">KH có được XHTN không?</label>
+						<div class="col-md-4">
+							<ng-select formControlName="creditRate" [clearable]="true" [readonly]="isReadonly|async"
+									   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+								<ng-option *ngFor="let value of KH_CO_DUOC_XEP_HANG_TIN_NHIEM_KHONG"
+										   [value]="value">{{value}}</ng-option>
+							</ng-select>
+						</div>
+
+						<label class="col-form-label col-md-2">Tổ chức xếp hạng tín nhiệm</label>
+						<div class="col-md-4">
+
+							<ng-select formControlName="rateAgency" [clearable]="true" [readonly]="isReadonly|async"
+									   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+								<ng-option *ngFor="let value of TO_CHUC_XHTN"
+										   [value]="value">{{value}}</ng-option>
+							</ng-select>
+						</div>
+					</div>
+
+					<div class="form-group row mt-2">
+						<label class="col-form-label col-md-2">Tên tổ chức xếp hạng tín nhiệm khác</label>
+						<div class="col-md-4">
+							<input trimFirstLast type="text" class="form-control" formControlName="otherRateAgency"
+								   [readOnly]="isReadonly|async"
+								   [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+								   [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+						</div>
+
+						<label class="col-form-label col-md-2">Hạng tín nhiệm</label>
+						<div class="col-md-4">
+							<input trimFirstLast type="text" class="form-control" formControlName="creditClass"
+								   [readOnly]="isReadonly|async"
+								   [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+								   [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">Thời hạn xếp hạng</label>
+						<div class="col-md-4">
+							<ng-select formControlName="rateTerm" [clearable]="true" [readonly]="isReadonly|async"
+									   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+								<ng-option *ngFor="let value of THOI_HAN_XEP_HANG"
+										   [value]="value">{{value}}</ng-option>
+							</ng-select>
+						</div>
+
+
+						<label class="col-form-label col-md-2  ">Ngày xếp hạng</label>
+						<div class="col-md-4">
+							<div class="input-group" [ngClass]="{'sb-container-readonly': (isReadonly|async)}"
+								 [ngStyle]="{'background-color': (isReadonly|async) ? '#f5f5f5' : '' }">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   formControlName="ratingDate"
+									   style="border: none !important;"
+									   [matDatepicker]="picker9"
+									   ktDateEnter
+									   [readOnly]="isReadonly|async">
+								<span class="input-group-append">
+		                    		<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<img src="assets/media/icons/calendar.svg" (click)="picker9.open()">
+										<mat-datepicker #picker9 color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row mt-3">
+						<label class="col-form-label col-md-2 "></label>
+						<div class="col-md-4">
+						</div>
+
+						<label class="col-form-label col-md-2 ">Loại xếp hạng</label>
+						<div class="col-md-4">
+							<ng-select formControlName="ratingType" [clearable]="true" [readonly]="isReadonly|async"
+									   [ngClass]="{'sb-container-readonly': (isReadonly|async), 'sb-first-disabled' : (isReadonly|async)}">
+								<ng-option *ngFor="let value of LOAI_XEP_HANG"
+										   [value]="value">{{value}}</ng-option>
+							</ng-select>
+						</div>
+
+					</div>
+				</div>
+
+			</ng-container>
+		</div>
+	</form>
+</div>
+

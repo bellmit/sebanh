@@ -1,0 +1,23 @@
+<div class="sb-content p-3 mt-3 mb-3 table-error-list">
+	<h3>Kết quả duyệt</h3>
+	<table class="table table-borderless table-striped table-hover">
+		<thead>
+		<tr>
+			<th></th>
+			<th class="font-weight-bold text-left" *ngFor="let header of headers">{{header.value}}</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td class="font-weight-bold text-left">Trạng thái</td>
+			<td class="text-left"
+				*ngFor="let header of headers">{{data.hasOwnProperty(header.code) ? data[header.code].status : null}}</td>
+		</tr>
+		<tr>
+			<td class="font-weight-bold text-left">Chi tiết</td>
+			<td class="text-left"
+				*ngFor="let header of headers">{{data.hasOwnProperty(header.code) ? data[header.code].desc : null}}</td>
+		</tr>
+		</tbody>
+	</table>
+</div>

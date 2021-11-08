@@ -1,0 +1,70 @@
+kt-base {
+	opacity: 0;
+	height: 100%;
+
+	.kt-grid--root {
+		height: 100%;
+	}
+
+	.kt-aside__brand .kt-aside__brand-tools .kt-aside__brand-aside-toggler svg {
+		height: 20px !important;
+		width: 20px !important;
+	}
+
+	.notify-content {
+		margin-top: 20px;
+		margin-left: 20px;
+		background: #FFD0D4;
+		height: 36px;
+		border-radius: 6px;
+		line-height: 35px;
+		padding: 0 20px;
+		color: #F05849;
+		width: max-content;
+	}
+
+	.shakeit {
+		transform: translate3d(0, 0, 0);
+		backface-visibility: hidden;
+
+		-moz-animation: cssAnimation 0s ease-in 15s forwards;
+		/* Firefox */
+		-webkit-animation: cssAnimation 0s ease-in 15s forwards;
+		/* Safari and Chrome */
+		-o-animation: cssAnimation 0s ease-in 15s forwards;
+		/* Opera */
+		animation: cssAnimation 0s ease-in 15s forwards, shake 1s cubic-bezier(.36, .07, .19, .97) both;
+		-webkit-animation-fill-mode: forwards;
+		animation-fill-mode: forwards;
+	}
+}
+
+.kt-page--loaded {
+	kt-base {
+		opacity: 1;
+		transition: opacity 1s ease-in-out;
+	}
+}
+
+.container-aside-right {
+	position: relative;
+	background-color: #ffffff;
+	border: 1px solid #ffffff;
+	box-shadow: 0 0 10px 10px #f7f7f9;
+	min-width: 280px;
+}
+
+.container-aside-right-2 {
+	position: relative;
+	background-color: #ffffff;
+	border: 1px solid #ffffff;
+	box-shadow: 0 0 10px 10px #f7f7f9;
+	min-width: 100px;
+}
+
+
+@media only screen and (max-width: 1279px) {
+	.container-aside-right {
+		display: none;
+	}
+}

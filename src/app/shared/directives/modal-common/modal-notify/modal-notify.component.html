@@ -1,0 +1,17 @@
+<div class="modal-header">
+	<h4 class="modal-title">{{'message.common.notify' | translate}}</h4>
+	<button type="button" class="close" style="color: red !important;" aria-label="Close"
+			(click)="activeModal.close('CLOSE MODAL NOTIFY')">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>
+<div class="modal-body">
+	<div class="text-center" style="font-weight: bold">
+		{{content}}
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-sm sb-btn-submit mr-2" (click)="activeModal.close(true)">{{'buttons.ok' | translate}}</button>
+	<button type="button" class="btn btn-sm sb-btn-submit mr-2" (click)="activeModal.close(false)">{{'buttons.cancel' | translate}}</button>
+</div>
+

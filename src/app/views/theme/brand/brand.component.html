@@ -1,0 +1,35 @@
+<!-- begin:: Brand -->
+<div class="brand_container">
+	<div class="kt-aside__brand kt-grid__item" style="margin-left: 0%;"
+		 [ngClass]="htmlClassService.getClasses('brand', true)" id="kt_aside_brand">
+		<div class="kt-aside__brand-logo" style="z-index: 100;">
+			<a href="javascript:;" routerLink="/">
+				<img alt="logo" src="./assets/media/logos/logo-seabank-dark.png" style="width: 100%;height: auto;"/>
+			</a>
+		</div>
+		<div class="kt-aside__brand-tools">
+			<button ktToggle [options]="toggleOptions"
+					class="kt-aside__brand-aside-toggler kt-aside__brand-aside-toggler--left" id="kt_aside_toggler">
+				<span [inlineSVG]="'./assets/media/icons/svg/Navigation/Angle-double-left.svg'"
+					  (click)="toggleChild()"></span>
+				<span [inlineSVG]="'./assets/media/icons/svg/Navigation/Angle-double-right.svg'"
+					  (click)="toggleChild()"></span>
+			</button>
+		</div>
+	</div>
+
+	<ng-container *ngIf="showIden">
+		<div style="margin-top:20px" class="text-center" [hidden]="!layoutConfigService.showVar.getValue()">
+			<img class="image_eKYC m-0 p-0" src="assets/media/logos/img-nhandienkh.png">
+		</div>
+
+		<div class="text-center mt-4" [hidden]="!layoutConfigService.showVar.getValue()">
+			<button class="sb_button_eKYC" (click)="identifyCust()">Nhận diện khách hàng <span><i
+				class="fa fa-arrow-right ml-2" aria-hidden="true"></i></span></button>
+		</div>
+	</ng-container>
+
+	<hr style="width: 100%; color: black" [hidden]="!layoutConfigService.showVar.getValue()">
+</div>
+
+<!-- end:: Brand -->

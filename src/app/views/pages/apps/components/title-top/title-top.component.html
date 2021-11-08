@@ -1,0 +1,9 @@
+<div class="mb-1">
+	<div class="sb-content p-3 mb-3">
+		<span class="parent-title">{{parentTitle}}</span>
+		<span class="dot ml-3 mr-3"></span>
+		<span class="child-title">{{childOne}}</span>
+		<span class="dot ml-3 mr-3" *ngIf="childTwo"></span>
+		<span class="child-title" *ngIf="childTwo">{{childTwo}}</span>
+	</div>
+</div>

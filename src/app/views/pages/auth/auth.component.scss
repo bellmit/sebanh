@@ -1,0 +1,164 @@
+.bg-container {
+	position: relative;
+	background-image: url('assets/media/bg/BG_Full_2.PNG');
+	height: 100vh;
+	background-size: cover;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-repeat: no-repeat;
+	font-family: 'Arial', sans-serif;
+	overflow: hidden;
+}
+
+.bg-login {
+	position: relative;
+	width: 30%;
+	top: 0;
+	left: 10%;
+	height: 72%;
+	border-radius: 3vh;
+	background-color: white;
+	background-size: inherit;
+	background-repeat: no-repeat;
+	-webkit-background-size: inherit;
+	-moz-background-size: inherit;
+	-o-background-size: inherit;
+	font-family: 'Arial', sans-serif;
+	filter: alpha(opacity=0.7);
+}
+
+.logo_seabank {
+	position: relative;
+	height: 5vh !important;
+	width: 100%;
+	margin-top: 10vh !important;
+	margin-bottom: 1.5vh !important;
+}
+
+.logo_seabank img {
+	margin-bottom: 10%;
+	height: 4.5vh;
+}
+.bg-title {
+	position: relative;
+	margin-bottom: 20%;
+}
+
+.seateller_title {
+	position: relative;
+	width: 60%;
+	font-family: "Arial", sans-serif;
+	color: white;
+	margin-left: 0 !important;
+}
+
+.seateller_introduce {
+	position: relative;
+	max-width: 30% !important;
+	font-family: "Arial", sans-serif;
+	color: white;
+	font-weight: normal;
+	margin-left: 0 !important;
+	text-wrap: normal;
+}
+
+.sb-text-footer {
+	color: white;
+
+	& .seateller_title {
+		font-size: 3.5vh !important;;
+		font-weight: bold;
+	}
+
+	.seateller_introduce {
+		font-size: 1.5vh !important;;
+	}
+
+	@media only screen and (max-width: 1024px) {
+		& * {
+			font-size: 1.2vh !important;;
+		}
+	}
+
+	@media only screen and (min-device-width: 480px) and (max-height: 45vw) {
+		top: 42vw !important;
+		height: 3vw !important;
+		& * {
+			font-size: 0.8vw !important;
+		}
+	}
+}
+
+@media only screen and (max-width: 1080px) {
+	.bg-login {
+		position: relative;
+		width: 50%;
+		top: 0;
+		left: 0%;
+		margin: 10px !important;
+		//margin-right: 20px !important;
+		height: 72%;
+		border-radius: 3vh;
+		background-color: white;
+		background-size: inherit;
+		background-repeat: no-repeat;
+	}
+
+	.logo_seabank{
+		//text-align: center !important;
+		display: block;
+		margin-left: 4vh;
+		margin-right: auto;
+		width: 50%;
+	}
+	.logo_seabank img {
+		margin-left: auto;
+		margin-right: auto;
+		margin-bottom: 0.5vh !important;
+		//width: 100%;
+	}
+}
+@media only screen and (max-width: 768px) {
+	.bg-login {
+		position: relative;
+		width: 95%;
+		top: 0;
+		left: 0%;
+		margin: 10px !important;
+		height: 72%;
+		border-radius: 3vh;
+		background-color: white;
+		background-size: inherit;
+		background-repeat: no-repeat;
+	}
+	.seateller_title{
+		display: none;
+	}
+	.seateller_introduce{
+		display: none;
+	}
+	.logo_seabank{
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.logo_seabank img {
+		margin-left: auto;
+		margin-right: auto;
+		margin-bottom: 0.5vh !important;
+	}
+}
+
+@media only screen and (max-width: 600px) and (max-width: 768px) {
+	.logo_seabank{
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.logo_seabank img {
+		margin-left: auto;
+		margin-right: auto;
+		margin-bottom: 0.5vh !important;
+	}
+}

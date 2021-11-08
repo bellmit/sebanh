@@ -1,0 +1,199 @@
+<kt-title-top [parentTitle]="'Trang chủ'" [childOne]="'Truy vấn/In báo cáo'"
+			  [childTwo]="'In sổ phụ/Sao kê tài khoản'"></kt-title-top>
+<div class="m-0 p-0">
+	<div class="p-3 col-12" style="background-color: white; border-radius: 10px">
+		<div class="col-12">
+			<form [formGroup]="searchForm">
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2">Mã giao dịch SeATeller</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control sb-readonly" formControlName="transId">
+					</div>
+
+					<label class="col-form-label col-md-2 required">Độ ưu tiên</label>
+					<div class="col-md-4">
+						<ng-select formControlName="priority" [readonly]="isReadonly|async" [clearable]="false">
+							<ng-option value="PRIMARY">Thường</ng-option>
+							<ng-option value="HIGH">Cao</ng-option>
+						</ng-select>
+					</div>
+				</div>
+				<div class="form-group row mt-3">
+					<!-- <label class="col-form-label col-md-2">Mã khách hàng</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control" formControlName="customerId">
+					</div> -->
+					<label class="col-form-label col-md-2 required ">Mã khách hàng</label>
+			<div class="col-md-4">
+				<input [ngClass]="{'sb-readonly': (isReadonly|async)}"
+					   [readOnly]="isReadonly|async" (blur)="getAccountByCustIdBlur($event?.target?.value); getCustomerInfo($event); onSearch()" type="text"
+					   class="form-control" formControlName="customerId">
+				<div class="invalid-feedback" style="display: block">
+					<span *ngIf="ownerCustomerId$|async">{{ownerCustomerId$|async}}</span>
+				</div>
+				<div class="invalid-feedback" style="display: block">
+					<span *ngIf="(searchForm.controls.customerId.dirty || searchForm.controls.customerId.touched)
+					&& searchForm.controls.customerId.hasError('required')">Trường bắt buộc nhập</span>
+				</div>
+			</div>
+
+					<label class="col-form-label col-md-2 required required">Tài khoản</label>
+					<div class="col-md-4">
+						<ng-select [readonly]="isReadonly|async"
+						 formControlName="account" (change)="getDataAccount($event); onSearch()" [clearable]="false" [loading]="isLoading$|async">
+							<ng-option *ngFor="let acc of (listAcc$|async)" [value]="acc.acct">{{acc.acct}}</ng-option>
+						</ng-select>
+						<div class="invalid-feedback" style="display: block"
+							 *ngIf="searchForm.controls.account.invalid && (searchForm.controls.account.touched || searchForm.controls.account.dirty)">
+								<span
+									*ngIf="searchForm.controls.account.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+				</div>
+				<div class="form-group row mt-3">
+					<label class="col-form-label col-md-2 required">Từ ngày</label>
+					<div class="col-md-4">
+						<div class="input-group">
+							<input type="text" class="form-control py-2 border-right-0 border"
+							(blur)="onSearch()" [readOnly]="isReadonly|async"
+								   style="border: none !important;"
+								   formControlName="fromDate"
+								   [max]="searchForm.get('toDate').value"
+								   ktDateEnter
+								   [matDatepicker]="picker">
+							<span class="input-group-append">
+								<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+									<i class="flaticon2-calendar-1" style="color: red" (click)="picker.open()"></i>
+									<mat-datepicker #picker color="warn"></mat-datepicker>
+								</div>
+							</span>
+						</div>
+						<div class="invalid-feedback" style="display: block"
+							 *ngIf="searchForm.controls.fromDate.invalid && (searchForm.controls.fromDate.touched || searchForm.controls.fromDate.dirty)">
+								<span
+									*ngIf="searchForm.controls.fromDate.hasError('required') ||
+									searchForm.controls.fromDate.hasError('matDatepickerParse')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+
+					<label class="col-form-label col-md-2 required">Đến ngày</label>
+					<div class="col-md-4">
+						<div class="input-group">
+							<input type="text" class="form-control py-2 border-right-0 border"
+							(blur)="onSearch()" [readOnly]="isReadonly|async"
+								   style="border: none !important;"
+								   ktDateEnter
+								   formControlName="toDate"
+								   [max]="today"
+								   [matDatepicker]="picker1">
+							<span class="input-group-append">
+								<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+									<i class="flaticon2-calendar-1" style="color: red" (click)="picker1.open()"></i>
+									<mat-datepicker #picker1 color="warn"></mat-datepicker>
+								</div>
+							</span>
+						</div>
+						<div class="invalid-feedback" style="display: block"
+							 *ngIf="searchForm.controls.toDate.invalid && (searchForm.controls.toDate.touched || searchForm.controls.toDate.dirty)">
+								<span
+									*ngIf="searchForm.controls.toDate.hasError('required') ||
+									searchForm.controls.toDate.hasError('matDatepickerParse')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+				</div>
+				<!-- <div class="form-group row mt-3">
+					<label class="col-form-label col-md-2"></label>
+					<div class="col-md-4">
+						<button 
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (loadingSearch$ | async)}"
+						type="submit" id="dbSearch" class="py-2 btn sb-btn-submit">Truy vấn</button>
+					</div>
+				</div> -->
+			</form>
+		</div>
+		<kt-charge-info [chargeInfoData]="dataCacheRouter?.chargeInfo"
+						[feePolicies]="feePolicies"
+						[parentForm]="searchForm"
+						[businessType]="chargeBusinessType.STATEMENT"
+						[idParent]="frm.transId.value"
+						[isReadOnly]="(APPROVED | async) || (authorisable$ | async)">
+		</kt-charge-info>
+		<!-- (ngModelChange)="autoGrowTextarea($event)" -->
+		<div class="sb-content p-3 mt-3 mb-3 auditForm-css" *ngIf="(authorisable$ |async) || (dataCacheRouter && dataCacheRouter.reason)">
+			<div [formGroup]="searchForm"  class="form-group row">
+				<label class="col-form-label col-md-2"
+					[ngClass]="{'required' : searchForm.controls.reason.hasError('required')}"
+				>Lý do từ chối</label>
+				<div class="col-md-10">
+					<textarea maxlength="200" type="text" class="textarea" formControlName="reason" 
+					id="textarea"
+				
+					style="overflow: hidden;"
+							[ngClass]="{'sb-readonly': (rejected$|async)}"
+							[readOnly]="(!authorisable$ || (rejected$|async))"
+					></textarea>
+					<div class="invalid-feedback" style="display: block">
+							<span
+								*ngIf="(searchForm.controls.reason.touched || searchForm.controls.reason.dirty)
+								&& searchForm.controls.reason.hasError('required')">Trường bắt buộc nhập
+							</span>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- <kt-fee-information [parentForm]="searchForm"></kt-fee-information> -->
+
+		<div class="form-group row sb-content p-3 m-0" *ngIf="APPROVED.getValue() == false">
+			<div class=" col-12 text-right">
+				<button type="button" (click)="printSuggest()"
+				[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': ((isLoading$ | async) || (isLoadingCustomerInfo$| async))}"
+				[disabled]="(isLoading$ | async)"
+						class="btn  btn-sm sb-btn-display mt-2 mr-2">
+					In đơn đề nghị
+				</button>
+				<button type="button" (click)="processDataDisplayForm()"
+				[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': ((isLoading$ | async) || (isLoadingCustomerInfo$| async))}"
+				[disabled]="(isLoading$ | async)"
+						class="btn  btn-sm sb-btn-display mt-2 mr-2">
+					Hiển thị biểu mẫu
+				</button>
+
+				<button *ngIf="(inputtable$ | async) && !dataCacheRouter"
+				type="button" (click)="resetForm()"
+						class="btn btn-sm  sb-btn-remove mt-2 mr-2">
+					Xóa
+				</button>
+				<button *ngIf="(inputtable$ | async) && dataCacheRouter"
+				type="button" (click)="onDelete()"
+						class="btn btn-sm  sb-btn-remove mt-2 mr-2">
+					Xóa
+				</button>
+
+				<button *ngIf="(inputtable$ | async)"
+					(click)="onSubmit()"
+					class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+					[disabled]="((submitLoading$ | async) || (loadingSearch$|async))"
+					[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': ((submitLoading$ | async) || (loadingSearch$|async))}"
+					>
+					Gửi duyệt
+				</button>
+				<button *ngIf="(authorisable$ | async)" [disabled]="!(authorisable$ | async)"
+						(click)="rejectStatement()"
+						class="btn btn-sm  sb-btn-remove mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingRejectStatement$ | async)}">
+					Từ chối
+				</button>
+				<button *ngIf="(authorisable$ | async)" [disabled]="!(authorisable$ | async)"
+						(click)="approveStatement()"
+						class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingApproveStatement$ | async)}">
+					Duyệt
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+

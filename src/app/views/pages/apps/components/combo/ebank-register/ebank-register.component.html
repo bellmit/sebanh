@@ -1,0 +1,232 @@
+<div class="sb-content p-3 mt-3 mb-2">
+	<form [formGroup]="ebankRegisterForm">
+		<label class="sb-title"  
+		[ngClass]="{'sb-container-readonly': isReadonlyLable|async}">
+			<input type="checkbox" formControlName="ebankCheckbox" class="regular-checkbox" 
+			[readOnly]="isReadonly|async"
+				   (change)="onChangeValidate()"
+				   style="border-radius: 3px; top: -3px"/>
+			Đăng ký dịch vụ SeANet
+		</label>
+
+		<!-- <span class="col-md-1" *ngIf="!isShowEbank" (click)="toggleEbank()"
+			  [ngClass]="{'sb-container-readonly': ebankDataFrmDash && authoriserble}">
+				<i class="fa fa-plus-square fa-2x ml-2" aria-hidden="true"></i>
+			</span>
+
+		<span class="col-md-1" *ngIf="isShowEbank" (click)="toggleEbank()"
+			  [ngClass]="{'sb-container-readonly': ebankDataFrmDash && authoriserble}">
+				<i class="fa fa-minus-square fa-2x ml-2" aria-hidden="true"></i>
+			</span> -->
+		<span *ngIf="(commonService.ebankStatus$|async) == 'ERROR'" class="col-md-7 text-center"
+			  style="color: red;">Duyệt lỗi: {{commonService.ebankError$|async}}</span>
+
+
+		<ng-container
+			*ngIf="(isShowEbank || (commonService.isShowEbank$ | async)) && ebankRegisterForm.controls.ebankCheckbox.value">
+			<hr>
+			<div class="p-0">
+				<div class="form-group row">
+					<label class="col-form-label col-md-2 required ">Tài khoản SeANet</label>
+					<div class="col-md-4">
+						<input type="text" class="form-control sb-readonly" formControlName="seaNetId" readonly>
+					</div>
+
+					<label class="col-form-label col-md-2 required">Mã dịch vụ</label>
+					<div class="col-md-4">
+						<ng-select [items]="madichvus$|async"
+								   [readonly]="isReadonly|async"
+								   bindLabel="description"
+								   bindValue="madichvuId"
+								   [multiple]="false"
+								   formControlName="serviceId">
+							<!--							<ng-template ng-header-tmp>-->
+							<!--								Mã dịch vụ-->
+							<!--							</ng-template>-->
+							<ng-template ng-option-tmp let-item="item">
+								<div class="form-row">
+									<span>{{item.description}}</span>
+								</div>
+							</ng-template>
+						</ng-select>
+						<div class="under-input-value mt-2">
+							{{frm.serviceId.value}}
+						</div>
+						<div class="invalid-feedback" style="display: block">
+							<span *ngIf="(frm.serviceId.touched || frm.serviceId.dirty || isClicked == true)
+										 && frm.serviceId.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-form-label col-md-2 required">Tài khoản</label>
+					<div class="col-md-4" *ngIf="(accountInfo | async)">
+						<ng-select
+							[readonly]="isReadonly|async"
+							[clearable]="false"
+							[searchable]="true"
+							[loading]="isLoadingAccountInfo$ | async"
+							formControlName="account"
+							dropdownPosition="bottom">
+							<ng-option value="newTKTT" *ngIf="commonService.isCheckedTKTT$|async">TKTT mới
+							</ng-option>
+							<ng-option *ngFor="let ebank of listEbank"
+									   [value]="ebank.accountID">{{ebank.accountID}}</ng-option>
+							
+						</ng-select>
+
+						<!-- <ng-select [readonly]="isReadonly|async"
+														   (blur)="blurCheckExistSms($event, form, i)"
+														   class="custom"													
+														   [multiple]="false"
+														   formControlName="accountNumber">
+														   <ng-option value="newTKTT" *ngIf="commonService.isCheckedTKTT$|async">TKTT mới
+														</ng-option>
+														<ng-option *ngFor="let acc of (listAccount$|async)"
+																   [value]="acc.accountID">{{acc.accountID}}</ng-option>
+												</ng-select> -->
+						<div class="under-input-value mt-2">
+							{{frm.account.value}}
+						</div>
+						<div class="invalid-feedback" style="display: block">
+							<span *ngIf="(frm.account.touched || frm.account.dirty || isClicked == true)
+										 && frm.account.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+
+					</div>
+
+					<div class="col-md-4" *ngIf="!(accountInfo | async)">
+						<ng-select formControlName="account" [readonly]="isReadonly|async" [clearable]="false">
+							<ng-option [value]="'newTKTT'">TKTT mới</ng-option>
+						</ng-select>
+						<div class="invalid-feedback" style="display: block">
+							<span *ngIf="(frm.account.touched || frm.account.dirty || isClicked == true)
+										 && frm.account.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+
+
+					<label class="col-form-label col-md-2 required">Loại mật khẩu</label>
+					<div class="col-md-4">
+						<ng-select formControlName="passwordType" [readonly]="isReadonly|async">
+							<ng-option value="SMS">SMS</ng-option>
+							<ng-option value="PASSWORD">PASSWORD</ng-option>
+							<ng-option value="TOKEN">TOKEN</ng-option>
+						</ng-select>
+						<div class="invalid-feedback" style="display: block">
+							<span *ngIf="(frm.passwordType.touched || frm.passwordType.dirty || isClicked == true)
+										 && frm.passwordType.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+				</div>
+
+
+				<div class="form-group row">
+					<label class="col-form-label col-md-2 required">Gói dịch vụ</label>
+					<div class="col-md-4">
+						<!--						<ng-select formControlName="packageService">-->
+						<!--							<ng-option value="SUPPER">Supper</ng-option>-->
+						<!--							<ng-option value="SUPPER2">Supper 2</ng-option>-->
+						<!--						</ng-select>-->
+						<ng-select [items]="servicePackages$|async"
+								   [readonly]="isReadonly|async"
+								   bindLabel="description"
+								   bindValue="servicePackId"
+								   [multiple]="false"
+								   formControlName="packageService">
+							<ng-template ng-header-tmp>
+								Gói dịch vụ
+							</ng-template>
+							<ng-template ng-option-tmp let-item="item">
+								<div class="form-row">
+									<span>{{item.description}}</span>
+								</div>
+							</ng-template>
+						</ng-select>
+
+						<div class="under-input-value mt-2">
+							{{frm.packageService.value}}
+						</div>
+						<div class="invalid-feedback" style="display: block">
+							<span *ngIf="(frm.packageService.touched || frm.packageService.dirty || isClicked == true)
+										 && frm.packageService.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+
+					</div>
+
+					<label class="col-form-label col-md-2 required">Hạn mức chuyển tiền</label>
+					<div class="col-md-4">
+						<!--						<input type="text" class="form-control" formControlName="limit" inputCurrency-->
+						<!--							   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}" >-->
+						<ng-select
+							[readonly]="isReadonly|async"
+							bindLabel="transLimitId"
+							bindValue="transLimitId"
+							[items]="limitList$|async"
+							formControlName="limit">
+							<ng-template ng-label-tmp let-item="item" let-index="index">
+								<span>
+									{{item.transLimitId}}
+								</span>
+							</ng-template>
+							<ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+								<span>
+								 {{item.transLimitId}}
+								</span>
+							</ng-template>
+							<ng-template ng-notfound-tmp>
+								Không tìm thấy
+							</ng-template>
+						</ng-select>
+
+						<div class="invalid-feedback" style="display: block">
+							<span *ngIf="(frm.limit.touched || frm.limit.dirty || isClicked == true)
+										 && frm.limit.hasError('required')">Trường bắt buộc nhập</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-form-label col-md-2">Promotion ID</label>
+					<div class="col-md-4">
+						<ng-select [items]="promotionList$|async"
+								   [readonly]="isReadonly|async"
+								   bindLabel="description"
+								   bindValue="promotionId"
+								   [multiple]="false"
+								   formControlName="promotionId">
+							<ng-template ng-header-tmp>
+								Promotion ID
+							</ng-template>
+							<ng-template ng-header-tmp let-item="item">
+								{{item.description}}
+							</ng-template>
+						</ng-select>
+						<div class="under-input-value mt-2">
+							{{frm.promotionId.value}}
+						</div>
+					</div>
+
+					<label class="col-form-label col-md-2 ">TranSeanet Pro</label>
+					<div class="col-md-4">
+						<ng-select [items]="promotionList$|async"
+								   [readonly]="isReadonly|async"
+								   bindLabel="description"
+								   bindValue="promotionId"
+								   [multiple]="false"
+								   formControlName="transSeANetPro">
+							<ng-template ng-header-tmp>
+								TranSeanet Pro
+							</ng-template>
+							<ng-template ng-header-tmp let-item="item">
+								{{item.description}}
+							</ng-template>
+						</ng-select>
+					</div>
+				</div>
+			</div>
+		</ng-container>
+	</form>
+
+</div>

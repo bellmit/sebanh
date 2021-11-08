@@ -1,0 +1,104 @@
+<div class="col-sm-12 offset-sm-0 col-md-8 offset-md-2">
+	<p class="sb-title">Khai báo độ tương đồng core AI</p>
+
+	<form [formGroup]="inputForm">
+
+		<div class="form-group row">
+			<label class="col-12 sb-label">Loại AI</label>
+			<div class="col-12">
+				<div class="sb-select-group">
+					<ng-select  class="sb-input"
+							   [items]="AiTypes"
+							   [searchable]="false"
+							   #typeAi>
+					</ng-select>
+					<div class="sb-button-append" (click)="typeAi.open()">
+												<span *ngIf="!(isLoadingAiType | async)"><i
+													class="kt-icon-xl fa fa-caret-down"></i></span>
+						<button class="btn" type="button"
+								[ngClass]="{'kt-spinner kt-spinner--sb': (isLoadingAiType | async)}">
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-6 p-0 m-0">
+				<label class="col-12 sb-label">Độ tương đồng hiện tại</label>
+				<div class="col-12 row">
+					<div class=" col-11 text-center">
+						<input type="text" readonly class="form-control sb-input">
+					</div>
+					<div class="col-1 pt-2 pl-0">
+						<span>%</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-6 p-0 m-0">
+				<label class="col-12 sb-label">Độ tương đồng mới</label>
+				<div class="col-12 row">
+					<div class=" col-11 text-center">
+						<input type="text" class="form-control sb-input">
+					</div>
+					<div class="col-1 pt-2 pl-0">
+						<span>%</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label class="col-12 sb-label">Trạng thái sử dụng</label>
+			<div class="col-12">
+				<div class="sb-select-group">
+					<ng-select  class="sb-input"
+							   [items]="statusUsing"
+							   [searchable]="false"
+							   #status>
+					</ng-select>
+					<div class="sb-button-append" (click)="status.open()">
+						<span><i class="kt-icon-xl fa fa-caret-down"></i></span>
+						<button class="btn" type="button">
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-12 p-0 m-0">
+				<label class="col-12 sb-label">Ngày hiệu lực</label>
+				<div class="col-12 input-group">
+					<input class="form-control sb-input sb-no-radius-right" formControlName="fromDate"
+						   [matDatepicker]="picker"
+						   (click)="picker.open()">
+					<div class="input-group-prepend" (click)="picker.open()">
+				<span class="input-group-text">
+					<i class="flaticon2-calendar-1" style="color: red"></i>
+				</span>
+						<mat-datepicker #picker color="warn"></mat-datepicker>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label class="col-12 sb-label">Ghi chú</label>
+			<div class=" col-12 text-left">
+				<input type="text" class="form-control sb-input">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-12 text-right">
+				<button type="submit" class="btn btn-sm sb-button-danger mt-2 mb-4">
+					Lưu thay đổi
+				</button>
+			</div>
+		</div>
+	</form>
+
+
+</div>

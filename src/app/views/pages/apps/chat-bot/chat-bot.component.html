@@ -1,0 +1,12 @@
+<div id="chatbot-chat" [hidden]="hiddenChatBot" *ngIf="chatBotLink">
+	<span style="vertical-align: bottom; width: 1000px; height: 0;">
+		<iframe [src]="safeChatBotLink" width="1000px" height="1000px"
+				allowfullscreen id="iframe-chatbot"
+				style="padding: 0; position: fixed; z-index: 1000000; top:auto; width: 380px; height: 540px; bottom: 100px; right: 4px; border: none"></iframe>
+	</span>
+</div>
+<div class="trigger"
+	 style="padding: 0; position: fixed; z-index: 1000000; top:auto; bottom: 30px; right: 60px">
+	<img src="assets/media/chatbot/botAvatar.png" (click)="triggerChatBot()"
+		 style="width: auto; height: 60px; cursor: pointer" alt="chatbot-avatar">
+</div>

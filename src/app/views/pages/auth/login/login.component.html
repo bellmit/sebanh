@@ -1,0 +1,79 @@
+<div class="sb-login-custom-form">
+	<div class="sb-text-container">
+		<div class="sb-text__title">
+			{{'AUTH.LOGIN.TITLE' | translate}}
+		</div>
+
+		<div class="sb-text__title_login">
+			{{'AUTH.LOGIN.DESCRIPTION' | translate}}
+		</div>
+	</div>
+
+	<div class="form-group">
+		<form class="kt-form h-100" [formGroup]="loginForm" autocomplete="off" >
+			<div class="form-group w-100 sb_login_form">
+				<label class="sb-label__text w-75">{{'AUTH.LOGIN.USERNAME' | translate}}</label>
+				<input
+					class="input_login w-75"
+					id="username"
+					name="new-password" type="text"
+					placeholder="Tên đăng nhập"
+					autocomplete="new-password"
+					formControlName="username"
+					autofocus/>
+				<img *ngIf="!loginForm.controls.username.hasError('required')" src="assets/media/logos/logo_xoa.png"
+					 (click)="clearUser()"
+					 class="img_icon_delete">
+			</div>
+
+
+			<div class="form-group w-100 m-0">
+				<label class="sb-label__text w-75">{{'AUTH.LOGIN.PASSWORD' | translate}}</label>
+				<input #eye style="position: relative"
+					   class="input_login w-75"
+					   name="new-password" type="password"
+					   formControlName="password"
+					   autocomplete="new-password"
+					   placeholder="Mật khẩu"/>
+				<img *ngIf="!loginForm.controls.password.hasError('required')" src="assets/media/logos/logo_xoa.png"
+					 (click)="clearPassword()"
+					 class="img_icon_delete">
+
+				<i *ngIf="!loginForm.controls.password.hasError('required') && eye.type=='text' && loginForm.controls.password.value"
+				   class="fa fa-eye text-dark img_icon_eye"
+				   (click)="eye.type='password'"></i>
+				<i *ngIf="!loginForm.controls.password.hasError('required') && eye.type=='password' && loginForm.controls.password.value"
+				   class="fa fa-eye-slash text-dark img_icon_eye"
+				   (click)="eye.type='text'"></i>
+			</div>
+
+			<div class="row form-group sb-checkbox__login w-75">
+				<input class="check_box_login m-0" type="checkbox" (change)="rememberUser()"/>
+				<span class="sb_text_save_info_login m-0 p-0">{{'AUTH.LOGIN.REMEMBER' | translate}}</span>
+			</div>
+
+
+			<!--begin::Action-->
+			<div class="form-group text-center m-0">
+				<button (click)="submit()"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark': (isLoading$ | async)}"
+						[disabled]="(isLoading$ | async) == true"
+						id="kt_login_signin_submit"
+						class="btn sb_btn_login">{{
+					'AUTH.LOGIN.BUTTON' | translate }}
+				</button>
+			</div>
+			<!--end::Action-->
+		</form>
+
+		<div class="form-group text-center m-0">
+			<img src="assets/media/bg/mock-image.PNG" class="w-75 image-ads">
+		</div>
+		<div class="d-flex justify-content-center copyright">
+			<span class="copyrights p-0 m-0"><i class="fas fa-copyright"></i> 2020 SEABANK. All rights reserved.</span>
+		</div>
+	</div>
+</div>
+
+
+

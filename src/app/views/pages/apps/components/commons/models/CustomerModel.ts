@@ -1,0 +1,36 @@
+export class CustomerModel {
+	customerID?: string;
+	responseCode?: string;
+	shortName?: string;
+	customerType?: string;
+	dateOfBirth?: string;
+	nationality?: string;
+	gender?: string;
+	legalDocName?: string;
+	legalID?: string;
+	legalIssDate?: string;
+	legalIssAuth?: string;
+	permanentAddress?: string;
+	currentAddress?: string;
+	phone?: string;
+	sms?: string;
+	email?: string;
+	taxID?: string;
+	employmentStatus?: string;
+	subIndustry?: string;
+	occupation?: string;
+	salary?: string;
+	maritalStatus?: string;
+	resident?: string;
+	addPermanentAddress?: string;
+	addCurrentAddress?: string;
+	addShortName?: string;
+	customerStatus?: string;
+	province?: string;
+	seabDistrict1?: string;
+	sms2?: string;
+	customerClass?: string;
+	accOfficer?: string;
+	town?:string;
+	stress?: string;
+}

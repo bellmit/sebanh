@@ -1,0 +1,568 @@
+<div class="container" *ngIf="!(authoriser$|async)">
+	<div class="form-group row text-center">
+		<div class="col-12" *ngIf="coreAiService.faceScan$|async">
+			<img [src]="coreAiService.faceScan$ | async" style="height: 150px; border-radius: 20px">
+		</div>
+
+		<div class="col-12" *ngIf="(signatureService?.gtttUrlModel$ | async)?.pictureFace != null"
+			 [hidden]="coreAiService.faceScan$|async">
+			<img [src]="(signatureService.gtttUrlModel$ | async).pictureFace"
+				 style="height: 150px; border-radius: 20px">
+		</div>
+
+		<div class="font-weight-bold col-12 mt-2 mb-2">
+			<button class="btn btn-sm sb-btn-submit w-100 text-center" style="max-height: 32px; max-width: 200px"
+					*ngIf="!isShowIdentifyButton"
+					(click)="openModalCaptureFace()">
+				Chụp ảnh khuôn mặt
+			</button>
+		</div>
+	</div>
+	<hr class="w-75">
+	<ng-container>
+		<div class="form-group row justify-content-center">
+			<label class=" font-weight-bolder">
+				<input type="checkbox" class="regular-checkbox"
+					   (change)="checkPassport($event)"
+					   [checked]="checkPassport$"
+					   style="border-radius: 3px;"/>
+				Hộ chiếu
+			</label>
+		</div>
+
+		<div class="form-group row">
+			<label class="sb-label required col-12"
+				   [hidden]="hiddenQlspdv((signatureService.gtttUrlModel$ | async)?.cardFront)">Chọn file upload GTTT
+				mặt trước</label>
+			<div class="col-12">
+				<div class="form-group" [hidden]="hiddenQlspdv((signatureService.gtttUrlModel$ | async)?.cardFront)">
+					<input type="file" name="image" (change)="fileProgress($event, 'cardFront')"/>
+				</div>
+
+				<div class="form-group row text-center">
+					<div class="col-12" *ngIf="(coreAiService?.cardFrontScan$ | async) != null">
+						<img [src]="_sanitizer.bypassSecurityTrustResourceUrl(coreAiService.cardFrontScan$ | async)"
+							 style="width: 230px">
+					</div>
+
+					<div class="col-12"
+						 *ngIf="(signatureService.gtttUrlModel$|async)?.cardFront && !(coreAiService?.cardFrontScan$ | async)">
+						<img [src]="(signatureService.gtttUrlModel$|async)?.cardFront" style="width: 230px">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group row" *ngIf="!checkPassport$">
+			<label class="sb-label col-12 required"
+				   [hidden]="hiddenQlspdv((signatureService.gtttUrlModel$ | async)?.cardBack)">Chọn file upload GTTT mặt
+				sau</label>
+			<div class="col-12">
+				<div class="form-group" [hidden]="hiddenQlspdv((signatureService.gtttUrlModel$ | async)?.cardBack)">
+					<input type="file" name="image" (change)="fileProgress($event, 'cardBack')"/>
+				</div>
+
+				<div class="form-group row text-center">
+					<div class="col-12" *ngIf="coreAiService?.cardBackScan$ | async">
+						<img [src]="_sanitizer.bypassSecurityTrustResourceUrl(coreAiService?.cardBackScan$ | async)"
+							 style="width: 230px">
+					</div>
+
+					<div class="col-12"
+						 *ngIf="(signatureService.gtttUrlModel$ | async)?.cardBack && !(coreAiService?.cardBackScan$ | async)">
+						<img [src]="(signatureService.gtttUrlModel$ | async)?.cardBack" style="width: 230px">
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="form-group row text-center mt-2 mb-2" *ngIf="(coreAiService.cardFrontScan$ | async)">
+			<div class="col-12">
+				<div class="font-weight-bold col-12">GTTT scan</div>
+			</div>
+		</div>
+
+		<div class="form-group row text-center"
+			 [hidden]="hiddenQlspdv((signatureService.gtttUrlModel$ | async)?.cardFront)">
+			<div class="col-12 ">
+				<button class="btn btn-sm sb-btn-save-identify w-100 text-center"
+						style="max-height: 32px; max-width: 200px"
+						(click)="openModalScanGTTT()">
+					Scan GTTT
+				</button>
+			</div>
+		</div>
+
+		<div class="form-group row text-center" *ngIf="isShowIdentifyButton">
+			<div class="col-12 ">
+				<button [disabled]="!checkNhanDien"
+						(click)="captureIdentification()"
+						class="btn btn-sm sb-btn-submit w-100 text-center"
+						style="max-height: 32px; max-width: 200px"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}"
+				>Nhận diện GTTT
+				</button>
+			</div>
+		</div>
+	</ng-container>
+
+	<div class="form-group row text-center">
+
+		<div class="col-11 row grid-finger-image">
+			<div class="frame-finger-image">
+				<span class="sb-cursor-pointer clear-button-finger-image" (click)="removeFingerLeft()"
+					  *ngIf="(coreAiService.fingerLeftScan$ | async)
+					  || (signatureService.gtttUrlModel$| async)?.fingerLeft && !(coreAiService.fingerLeftScan$ | async)">x</span>
+
+				<img style="border: none" class="image-preview" *ngIf="coreAiService.fingerLeftScan$ | async "
+					 [src]="coreAiService.fingerLeftScan$ | async"/>
+				<img style="border: none" class="image-preview"
+					 *ngIf="(signatureService.gtttUrlModel$| async)?.fingerLeft && !(coreAiService.fingerLeftScan$ | async)"
+					 [src]="(signatureService.gtttUrlModel$| async)?.fingerLeft"/>
+			</div>
+
+			<div class="frame-finger-image">
+				<span class="sb-cursor-pointer clear-button-finger-image" (click)="removeFingerRight()"
+					  *ngIf="(coreAiService.fingerRightScan$ | async) || (signatureService.gtttUrlModel$| async)?.fingerRight  && !(coreAiService.fingerRightScan$ | async)">x</span>
+
+				<img style="border: none" class="image-preview" *ngIf="coreAiService.fingerRightScan$ | async"
+					 [src]="coreAiService.fingerRightScan$ | async"/>
+				<img style="border: none" class="image-preview"
+					 *ngIf="(signatureService.gtttUrlModel$| async)?.fingerRight  && !(coreAiService.fingerRightScan$ | async)"
+					 [src]="(signatureService.gtttUrlModel$| async)?.fingerRight"/>
+			</div>
+		</div>
+
+		<div class="col-12 row p-2 border-0">
+			<div class="col-6">
+				<span class="text-center">Mẫu vân tay 1</span>
+			</div>
+
+			<div class="col-6">
+				<span class="text-center">Mẫu vân tay 2</span>
+			</div>
+		</div>
+
+		<div class="col-12 row p-0">
+			<div class="col-6">
+				<button class='btn btn-sm sb-btn-blue-submit sb-cursor-pointer'
+						(click)="getLeftFingerPrint()">Lấy vân tay trái
+				</button>
+			</div>
+
+			<div class="col-6">
+				<button class='btn btn-sm sb-btn-blue-submit sb-cursor-pointer' style="padding-left: 10px !important;"
+						(click)="getRightFingerPrint()">Lấy vân tay phải
+				</button>
+			</div>
+		</div>
+
+	</div>	
+	<div class="form-group row text-center" *ngIf="isShowIdentifyButton">
+		<div class="col-12 ">
+
+			<button [disabled]="!checkNhanDienVantay"
+					(click)="captureFingerPrint()"
+					class="btn btn-sm sb-btn-submit w-100 text-center"
+					style="max-height: 32px; max-width: 200px"
+					[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingFinger$ | async)}"
+			>Nhận diện vân tay
+			</button>
+		</div>
+	</div>
+
+	<!--chu ky KH-->
+	<div class="form-group row text-center">
+		<div class="col-11 row grid-finger-image">
+			<ng-container *ngFor="let s of (signatureService.gtttUrlModel$|async)?.signatures">
+				<div class="frame-finger-image" *ngIf="!s.co_holder">
+					<img style="border: none" class="image-preview" [src]="s.link"
+						 [alt]="s.title"/>
+				</div>
+			</ng-container>
+			<!--div class="frame-finger-image">
+				<img style="border: none" class="image-preview"
+					 *ngIf="(signatureService.gtttUrlModel$| async)?.signature1"
+					 [src]="(signatureService.gtttUrlModel$| async)?.signature1"/>
+			</div>
+
+			<div class="frame-finger-image">
+				<img style="border: none" class="image-preview"
+					 *ngIf="(signatureService.gtttUrlModel$| async)?.signature2"
+					 [src]="(signatureService.gtttUrlModel$| async)?.signature2"/>
+
+			</div-->
+		</div>
+
+		<div class="col-12 row p-2 border-0">
+			<div class="col-6">
+				<span class="text-center">Mẫu chữ ký 1</span>
+			</div>
+
+			<div class="col-6">
+				<span class="text-center">Mẫu chữ ký 2</span>
+			</div>
+		</div>
+	</div>
+
+	<!--danh sach file chu ky combo-->
+	<ng-container>
+		<div class="form-group row">
+			<div class="col-12 mb-2">
+				<button class="btn btn-sm sb-btn-blue-submit mt-2" (click)="openModalSignature()">
+					Scan đơn đăng ký
+				</button>
+			</div>
+
+			<div class="col-12 mb-2">
+				<input id="file" type="file" accept=".png, .jpg, .pdf, .jpeg" class="form-control" #fileUpload
+					   (change)="onSelectFile($event)" (click)="reset()">
+			</div>
+			<div class="col-12 mb-2">
+				<table class="sb-content sb-custom-table table table-striped" style="overflow-x:auto;">
+					<thead class="text-left" style="background-color: #c3cadb">
+					<tr>
+						<td class="font-weight-bold text-left">STT</td>
+						<td class="font-weight-bold text-left">Tên file</td>
+						<td class="font-weight-bold text-left">Chứa chữ ký</td>
+						<td class="font-weight-bold text-left"></td>
+					</tr>
+					</thead>
+					<tbody>
+					<tr *ngFor="let file of (signatureService.signatureFiles$|async); index as i">
+						<td>{{i + 1}}</td>
+						<td><span [ngbTooltip]="file.fileName"
+								  style="cursor: pointer"
+								  (click)="viewModalTemplate(file)"
+								  placement="bottom-right">{{file.fileName | dotdotdot: 10}}</span></td>
+						<td class="text-center"><label class=" font-weight-bolder">
+							<input type="checkbox" class="regular-checkbox"
+								   (change)="checkSignature($event, file)"
+								   [checked]="file.isSignature"
+								   style="border-radius: 3px;"/>
+						</label></td>
+						<td class="text-center"><span (click)="removeFile(file, i)" style="cursor: pointer"
+													  ngbTooltip="Xoá file"><i
+							class="fas fa-trash"></i></span></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="col-12 mb-2">
+				<div class="font-weight-bolder text-left">So sánh chữ ký mẫu</div>
+				<div class="form-group row">
+					<div class="col-7 text-left">Độ tương đồng</div>
+					<div class="col-5 text-right"
+						 style="color: #1580FC">{{(signatureService.verifySignature$|async)?.similarity | number}} %
+					</div>
+				</div>
+				<div class="form-group row" hidden>
+					<div class="col-7 text-left">Độ tự tin</div>
+					<div class="col-5 text-right"
+						 style="color: #63D327">{{(signatureService.verifySignature$|async)?.confidence | number}} %
+					</div>
+				</div>
+				<div class="form-group row justify-content-center">
+					<button class="btn btn-sm sb-btn-submit mt-2"
+							[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingVerifySig$ | async)}"
+							(click)="verifySignature()">So sánh chữ ký mẫu
+					</button>
+				</div>
+			</div>
+		</div>
+	</ng-container>
+	<!--ket thuc danh sach file chu ky combo-->
+
+	<!--	danh sach file dinh kem-->
+	<ng-container *ngIf="false">
+		<div class="form-group row">
+			<div class="col-12 mb-2">
+				<button class="btn btn-sm sb-btn-blue-submit mt-2" ngbTooltip="Đang phát triển">
+					Upload file đính kèm
+				</button>
+			</div>
+
+			<div class="col-12 mb-2">
+				<!--				<input id="files" type="file" multiple class="form-control">-->
+			</div>
+			<div class="col-12 mb-2">
+				<table class="sb-content sb-custom-table table table-striped" style="overflow-x:auto;">
+					<thead class="text-left" style="background-color: #c3cadb">
+					<tr>
+						<td class="font-weight-bold text-left">STT</td>
+						<td class="font-weight-bold text-left">Tên file</td>
+						<td class="font-weight-bold text-left"></td>
+					</tr>
+					</thead>
+					<tbody>
+					<!--
+										<tr *ngFor="let file of (signatureService.signatureFiles$|async); index as i">
+											<td>{{i + 1}}</td>
+											<td><span [ngbTooltip]="file.fileName"
+													  placement="bottom-right">{{file.fileName | dotdotdot: 10}}</span></td>
+											<td class="text-center"><label class=" font-weight-bolder">
+												<input type="checkbox" class="regular-checkbox"
+													   (change)="checkSignature($event, file)"
+													   [checked]="file.isSignature"
+													   style="border-radius: 3px;"/>
+											</label></td>
+											<td class="text-center"><span (click)="removeFile(i)" style="cursor: pointer"
+																		  ngbTooltip="Xoá file"><i
+												class="fas fa-trash"></i></span></td>
+										</tr>
+										-->
+					</tbody>
+				</table>
+			</div>
+
+			<!-- <div class="col-12">
+				<button class="btn btn-sm sb-btn-submit w-50"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isUploading$ | async)}"
+						(click)="uploadFileToMino()">Upload
+				</button>
+			</div> -->
+		</div>
+	</ng-container>
+	<!--	ket thuc danh sach file dinh kem-->
+</div>
+<div class="container" *ngIf="authoriser$|async">
+	<div class="form-group row text-center">
+		<div class="col-12" *ngIf="coreAiService.faceScan$|async">
+			<img [src]="coreAiService.faceScan$ | async" style="height: 150px; border-radius: 20px">
+		</div>
+
+		<div class="col-12" *ngIf="(signatureService?.gtttUrlModel$ | async)?.pictureFace != null"
+			 [hidden]="coreAiService.faceScan$|async">
+			<img [src]="(signatureService.gtttUrlModel$ | async).pictureFace"
+				 style="height: 150px; border-radius: 20px">
+		</div>
+
+		<!--		<div class="font-weight-bold col-12 mt-2 mb-2">-->
+		<!--			<button class="btn btn-sm sb-btn-submit w-100 text-center" style="max-height: 32px; max-width: 200px">-->
+		<!--				Lưu khuôn mặt-->
+		<!--			</button>-->
+		<!--		</div>-->
+	</div>
+	<hr class="w-75">
+	<ng-container>
+		<div class="form-group row justify-content-center">
+			<label class=" font-weight-bolder">
+				<input type="checkbox" class="regular-checkbox"
+					   (change)="checkPassport($event)"
+					   [checked]="checkPassport$"
+					   [attr.disabled]="(authoriser$|async) ? true : null"
+					   style="border-radius: 3px;"/>
+				Hộ chiếu
+			</label>
+		</div>
+
+		<div class="form-group row">
+			<div class="col-12">
+				<div class="form-group row text-center">
+					<div class="col-12" *ngIf="(coreAiService?.cardFrontScan$ | async) != null">
+						<img [src]="_sanitizer.bypassSecurityTrustResourceUrl(coreAiService.cardFrontScan$ | async)"
+							 style="width: 230px">
+					</div>
+
+					<div class="col-12"
+						 *ngIf="(signatureService.gtttUrlModel$|async)?.cardFront && !(coreAiService?.cardFrontScan$ | async)">
+						<img [src]="(signatureService.gtttUrlModel$|async)?.cardFront" style="width: 230px">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group row" *ngIf="!checkPassport$">
+			<div class="col-12">
+
+				<div class="form-group row text-center">
+					<div class="col-12" *ngIf="coreAiService?.cardBackScan$ | async">
+						<img [src]="_sanitizer.bypassSecurityTrustResourceUrl(coreAiService?.cardBackScan$ | async)"
+							 style="width: 230px">
+					</div>
+
+					<div class="col-12"
+						 *ngIf="(signatureService.gtttUrlModel$ | async)?.cardBack && !(coreAiService?.cardBackScan$ | async)">
+						<img [src]="(signatureService.gtttUrlModel$ | async)?.cardBack" style="width: 230px">
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="form-group row text-center mt-2 mb-2" *ngIf="(coreAiService.cardFrontScan$ | async)">
+			<div class="col-12">
+				<div class="font-weight-bold col-12">GTTT scan</div>
+			</div>
+		</div>
+	</ng-container>
+
+	<div class="form-group row text-center">
+
+		<div class="col-11 row grid-finger-image">
+			<div class="frame-finger-image">
+				<span class="sb-cursor-pointer clear-button-finger-image" (click)="removeFingerLeft()"
+					  *ngIf="(coreAiService.fingerLeftScan$ | async)
+					  || (signatureService.gtttUrlModel$| async)?.fingerLeft && !(coreAiService.fingerLeftScan$ | async)">x</span>
+
+				<img style="border: none" class="image-preview" *ngIf="coreAiService.fingerLeftScan$ | async "
+					 [src]="coreAiService.fingerLeftScan$ | async"/>
+				<img style="border: none" class="image-preview"
+					 *ngIf="(signatureService.gtttUrlModel$| async)?.fingerLeft && !(coreAiService.fingerLeftScan$ | async)"
+					 [src]="(signatureService.gtttUrlModel$| async)?.fingerLeft"/>
+			</div>
+
+			<div class="frame-finger-image">
+				<span class="sb-cursor-pointer clear-button-finger-image" (click)="removeFingerRight()"
+					  *ngIf="(coreAiService.fingerRightScan$ | async) || (signatureService.gtttUrlModel$| async)?.fingerRight  && !(coreAiService.fingerRightScan$ | async)">x</span>
+
+				<img style="border: none" class="image-preview" *ngIf="coreAiService.fingerRightScan$ | async"
+					 [src]="coreAiService.fingerRightScan$ | async"/>
+				<img style="border: none" class="image-preview"
+					 *ngIf="(signatureService.gtttUrlModel$| async)?.fingerRight  && !(coreAiService.fingerRightScan$ | async)"
+					 [src]="(signatureService.gtttUrlModel$| async)?.fingerRight"/>
+			</div>
+		</div>
+
+		<div class="col-12 row p-2 border-0">
+			<div class="col-6">
+				<span class="text-center">Mẫu vân tay 1</span>
+			</div>
+
+			<div class="col-6">
+				<span class="text-center">Mẫu vân tay 2</span>
+			</div>
+		</div>
+	</div>
+	<!--chu ky KH-->
+	<div class="form-group row text-center">
+		<div class="col-11 row grid-finger-image">
+			<div class="frame-finger-image">
+				<img style="border: none" class="image-preview"
+					 *ngIf="(signatureService.gtttUrlModel$| async)?.signature1"
+					 [src]="(signatureService.gtttUrlModel$| async)?.signature1"/>
+			</div>
+
+			<div class="frame-finger-image">
+				<img style="border: none" class="image-preview"
+					 *ngIf="(signatureService.gtttUrlModel$| async)?.signature2"
+					 [src]="(signatureService.gtttUrlModel$| async)?.signature2"/>
+
+			</div>
+		</div>
+
+		<div class="col-12 row p-2 border-0">
+			<div class="col-6">
+				<span class="text-center">Mẫu chữ ký 1</span>
+			</div>
+
+			<div class="col-6">
+				<span class="text-center">Mẫu chữ ký 2</span>
+			</div>
+		</div>
+	</div>
+
+	<!--danh sach file chu ky combo-->
+	<ng-container>
+		<div class="form-group row">
+			<div class="col-12 mb-2">
+				<table class="sb-content sb-custom-table table table-striped" style="overflow-x:auto;">
+					<thead class="text-left" style="background-color: #c3cadb">
+					<tr>
+						<td class="font-weight-bold text-left">STT</td>
+						<td class="font-weight-bold text-left">Tên file</td>
+						<td class="font-weight-bold text-left">Chứa chữ ký</td>
+						<!--						<td class="font-weight-bold text-left"></td>-->
+					</tr>
+					</thead>
+					<tbody>
+					<tr *ngFor="let file of (signatureService.signatureFiles$|async); index as i">
+						<td>{{i + 1}}</td>
+						<td><span [ngbTooltip]="file.fileName"
+								  style="cursor: pointer"
+								  (click)="viewModalTemplate(file)"
+								  placement="bottom-right">{{file.fileName | dotdotdot: 10}}</span></td>
+						<td class="text-center"><label class=" font-weight-bolder">
+							<input type="checkbox" class="regular-checkbox"
+								   disabled
+								   [checked]="file.isSignature"
+								   style="border-radius: 3px;"/>
+						</label></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-12 mb-2">
+				<div class="font-weight-bolder text-left">So sánh chữ ký mẫu</div>
+				<div class="form-group row">
+					<div class="col-7 text-left">Độ tương đồng</div>
+					<div class="col-5 text-right"
+						 style="color: #1580FC">{{(signatureService.verifySignature$|async)?.similarity | number}} %
+					</div>
+				</div>
+				<div class="form-group row" hidden>
+					<div class="col-7 text-left">Độ tự tin</div>
+					<div class="col-5 text-right"
+						 style="color: #63D327">{{(signatureService.verifySignature$|async)?.confidence | number}} %
+					</div>
+				</div>
+			</div>
+		</div>
+	</ng-container>
+	<!--ket thuc danh sach file chu ky combo-->
+
+	<!--	danh sach file dinh kem-->
+	<ng-container *ngIf="false">
+		<div class="form-group row">
+			<div class="col-12 mb-2">
+				Danh sach file dinh kem
+			</div>
+
+			<div class="col-12 mb-2">
+				<table class="sb-content sb-custom-table table table-striped" style="overflow-x:auto;">
+					<thead class="text-left" style="background-color: #c3cadb">
+					<tr>
+						<td class="font-weight-bold text-left">STT</td>
+						<td class="font-weight-bold text-left">Tên file</td>
+						<td class="font-weight-bold text-left"></td>
+					</tr>
+					</thead>
+					<tbody>
+					<!--
+										<tr *ngFor="let file of (signatureService.signatureFiles$|async); index as i">
+											<td>{{i + 1}}</td>
+											<td><span [ngbTooltip]="file.fileName"
+													  placement="bottom-right">{{file.fileName | dotdotdot: 10}}</span></td>
+											<td class="text-center"><label class=" font-weight-bolder">
+												<input type="checkbox" class="regular-checkbox"
+													   (change)="checkSignature($event, file)"
+													   [checked]="file.isSignature"
+													   style="border-radius: 3px;"/>
+											</label></td>
+											<td class="text-center"><span (click)="removeFile(i)" style="cursor: pointer"
+																		  ngbTooltip="Xoá file"><i
+												class="fas fa-trash"></i></span></td>
+										</tr>
+										-->
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</ng-container>
+	<!--	ket thuc danh sach file dinh kem-->
+</div>
+
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+	<span class="close-btn mr-5" (click)="closeModal()" ngbTooltip="Đóng"><i class="fa fa-times"></i></span>
+	<span class="close-btn ml-5" (click)="rotateImg()" ngbTooltip="Xoay ảnh"><i class="fa fa-undo"></i></span>
+	<!--	<div id="img-container">-->
+	<img *ngIf="imgSrc" style="cursor: pointer" class="modal-content" id="img01" [src]="imgSrc">
+	<img *ngIf="imgData" style="cursor: pointer" class="modal-content" id="img02"
+		 [src]="_sanitizer.bypassSecurityTrustResourceUrl(imgData)">
+	<!--	</div>-->
+	<!--	<div id="caption"></div>-->
+</div>

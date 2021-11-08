@@ -1,0 +1,5 @@
+<ng-container>
+	<div class="invalid-feedback diff-feedback" *ngIf="valueDiff?.length > 0 || valueDiff">
+		<span>Thông tin cũ: <span class="font-weight-bolder" *ngIf="valueDiff?.length > 0">{{valueDiff}}</span></span>
+	</div>
+</ng-container>

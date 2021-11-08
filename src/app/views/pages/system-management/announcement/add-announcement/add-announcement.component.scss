@@ -1,0 +1,16 @@
+.sb-text-area{
+	height: 100px;
+	width:100%;
+	border-color: #d61817;
+	border-radius: 10px
+}
+
+.sb-text-area:focus{
+	outline: none !important;
+	border-color: #d61817;
+}
+
+.size-icon{
+	height: 10px;
+	width: 10px;
+}

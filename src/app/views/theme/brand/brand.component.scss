@@ -1,0 +1,25 @@
+.brand_container {
+	position: relative;
+}
+.image_eKYC {
+	position: relative;
+	border-radius: 10px;
+	z-index: 2;
+}
+
+.sb_button_eKYC {
+	//background-color: #d61817;
+	//color: white;
+	background-color: #FFFFFF;
+	color: #33343D;
+	font-family: "Arial", sans-serif;
+	font-size: 14px;
+	width: 215px;
+	height: 35px;
+	border-radius: 20px;
+	border: none;
+}
+
+.sb_button_eKYC:hover {
+	color: black;
+}

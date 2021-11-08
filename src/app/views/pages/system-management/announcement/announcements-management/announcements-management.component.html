@@ -1,0 +1,69 @@
+<div class="pt-5 col-12">
+	<!--	search input-->
+	<div class="form-group col-9 row">
+		<label class="col-12 sb-label">Nội dung thông báo</label>
+		<div class=" col-12 text-center">
+			<input (keyup)="search()" [(ngModel)]="searchField" type="text" class="form-control sb-input">
+		</div>
+	</div>
+
+	<!--	newDateExpire option-->
+	<div class="form-group col-9 row">
+		<div class="col-6 p-0 m-0">
+			<label class="col-12 sb-label">Ngày bắt đầu</label>
+			<div class="col-12 input-group">
+				<input class="form-control sb-input sb-no-radius-right"
+					   [matDatepicker]="picker"
+					   (click)="picker.open()">
+				<div class="input-group-prepend" (click)="picker.open()">
+									<span class="input-group-text">
+										<i class="flaticon2-calendar-1" style="color: red"></i>
+									</span>
+					<mat-datepicker #picker color="warn"></mat-datepicker>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-6 p-0 m-0">
+			<label class="col-12 sb-label">Ngày kết thúc</label>
+			<div class="col-12 input-group">
+				<input class="form-control sb-input sb-no-radius-right"
+					   [matDatepicker]="picker2"
+					   (click)="picker2.open()">
+				<!--					   [placeholder]="'account.title.from_date' | translate">-->
+				<div class="input-group-prepend" (click)="picker2.open()">
+				<span class="input-group-text">
+					<i class="flaticon2-calendar-1" style="color: red"></i>
+				</span>
+					<mat-datepicker #picker2 color="warn"></mat-datepicker>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--	search-->
+	<div class="col-9 pt-1  text-right mr-5" style="padding-right: 25px">
+		<div class="kt-align-right">
+			<button type="submit" class="btn btn-sm sb-button-danger ">Tìm kiếm</button>
+		</div>
+	</div>
+
+	<!--	table-->
+	<div class="p-0 col-12" style="background-color: white; border-radius: 10px">
+		<h5 class="pt-2 pb-1">Thông tin User</h5>
+		<kt-dynamic-table class="text-left" [data]="fakeData"
+						  [configTable]="configTableAnnouncement"
+						  [loading]="isLoading$ | async">
+		</kt-dynamic-table>
+	</div>
+
+	<!-- Button -->
+	<div class="col-12 pt-3 pr-0 text-right mr-0">
+		<div class="kt-align-right pb-5 text-right mr-0">
+			<button class="btn btn-sm sb-button-danger mr-2" (click)="addAnnouncement()">Thêm</button>
+			<button type="submit" class="btn btn-sm sb-button-danger mr-2">Upload lô</button>
+			<button type="submit" class="btn btn-sm sb-button-danger mr-2">Copy</button>
+			<button type="submit" class="btn btn-sm sb-button-danger">Xóa</button>
+		</div>
+	</div>
+</div>

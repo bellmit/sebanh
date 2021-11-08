@@ -1,0 +1,152 @@
+<form [formGroup]="signatureForm">
+	<div class="sb-content p-3 mt-3 mb-3">
+		<div class="form-group row pl-3">
+			<label class=" font-weight-bolder">
+				<input type="checkbox" class="regular-checkbox"
+					   (change)="onchangeUpdate($event)"
+					   [checked]="(_commonService.isUpdateSignature$ | async)"
+					   [attr.disabled]="disabledField ? disabledField : null"
+					   style="border-radius: 3px;"/>
+				Cập nhật chữ kí mẫu
+			</label>
+		</div>
+
+		<ng-container *ngIf="(isShowSignature)">
+			<hr/>
+			<!-- Hinh anh chu ky -->
+			<div class="p-3">
+				<span class="font-weight-bolder col-form-label">Chữ ký mẫu hiện tại</span>
+				<div class="row col-12 col-md-12 p-3 sb-content mt-3 justify-content-center">
+					<ng-container *ngFor="let s of (_signatureService.gtttUrlModel$|async).signatures">
+						<div class="col-md-3 col-6 text-center" *ngIf="!s.co_holder">
+							<div class="form-group row justify-content-center">
+								<div class="frame-img">
+									<img class="signature-img mb-2"
+										 [src]="s.link"
+										 [alt]="s.title">
+								</div>
+							</div>
+							<span class="col-form-label">{{s.title}}</span>
+							<br>
+							<span
+								class="col-form-label">{{s.co_holder ? 'Chữ ký đồng chủ sỡ hữu' : 'Chữ ký chủ tài khoản'}}</span>
+						</div>
+					</ng-container>
+					<div class="col-md-3 col-6 text-center"
+						 *ngIf="(_signatureService.gtttUrlModel$|async).signatures.length < 1">
+						<div class="form-group row justify-content-center">
+							<div class="frame-img">
+								<img class="signature-img mb-2" src="assets/media/logos/nodata.png" alt="no signature">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Hinh anh chu ky moi cat-->
+			<div class="p-3">
+				<span class="font-weight-bolder col-form-label">Chữ ký mẫu mới</span>
+				<div class="row col-12 col-md-12 p-3 sb-content mt-3">
+					<div class="col-md-3 col-6 text-center"
+						 *ngFor="let s of (_signatureService.verifySignature$|async)?.signatures">
+						<div class="form-group row justify-content-center">
+							<div class="frame-img">
+								<img class="signature-img mb-2"
+									 [src]="s"
+									 alt="signature1">
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3 col-6 text-center"
+						 *ngIf="(_signatureService.verifySignature$|async)?.signatures.length < 1">
+						<div class="form-group row justify-content-center">
+							<div class="frame-img">
+								<img class="signature-img mb-2" src="assets/media/logos/nodata.png" alt="no signature">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<hr/>
+			<!--phan upload chu ky-->
+			<div class="p-3">
+				<span class="font-weight-bolder col-form-label">Upload file</span>
+				<div class="form-group row">
+					<div class="col-12 col-md-6">
+						<table class="sb-content sb-custom-table table table-striped" style="overflow-x:auto;">
+							<thead class="text-left" style="background-color: #c3cadb">
+							<tr>
+								<th class="font-weight-bold text-left">STT</th>
+								<th class="font-weight-bold text-left">Tên file</th>
+								<th class="font-weight-bold text-left">Chứa chữ ký</th>
+								<th></th>
+							</tr>
+							</thead>
+							<tbody>
+							<tr *ngFor="let file of (_signatureService.signatureFiles$|async); index as i">
+								<td>{{i + 1}}</td>
+								<td><span [ngbTooltip]="file.fileName"
+										  placement="bottom-right">{{file.fileName | dotdotdot: 10}}</span></td>
+								<td class="text-center"><label class=" font-weight-bolder">
+									<input type="checkbox" class="regular-checkbox"
+										   (change)="checkSignature($event, file)"
+										   [checked]="file.isSignature"
+										   [attr.disabled]="disabledField ? disabledField : null"
+										   style="border-radius: 3px;"/>
+								</label></td>
+								<td class="text-center"><span (click)="removeFile(file, i)" style="cursor: pointer"
+															  ngbTooltip="Xoá file"><i
+									class="fas fa-trash"></i></span></td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="col-12 col-md-6">
+					<textarea class="col-12 sb-text-area-fee" style="resize: none"
+							  formControlName="description"
+							  [readOnly]="disabledField"
+							  placeholder="Mô tả...">
+					</textarea>
+					</div>
+				</div>
+				<div class="form-group row">
+					<div class="col-4 col-md-2">
+						<button class="btn btn-sm sb-btn-submit mt-2" type="button"
+								(click)="openModalCaptureSignature()" [disabled]="disabledField">
+							Scan chữ ký mẫu
+						</button>
+					</div>
+					<div class="col-8 col-md-4">
+						<input id="file" type="file" accept=".pdf, .png, .jpg, .jpeg" class="form-control" #fileElement
+							   [disabled]="disabledField"
+							   (change)="onSelectFile($event)" (click)="resetFileName()">
+					</div>
+					<div class="col-12 col-md-4 p-3 ml-2 sb-content">
+						<div class="font-weight-bolder text-left">So sánh chữ ký mẫu</div>
+						<div class="form-group row">
+							<div class="col-7 text-left">Độ tương đồng</div>
+							<div class="col-5 text-right"
+								 style="color: #1580FC">{{(_signatureService.verifySignature$|async)?.similarity | number}}
+								%
+							</div>
+						</div>
+						<div class="form-group row" hidden>
+							<div class="col-7 text-left">Độ tự tin</div>
+							<div class="col-5 text-right"
+								 style="color: #63D327">{{(_signatureService.verifySignature$|async)?.confidence | number}}
+								%
+							</div>
+						</div>
+						<div class="form-group row justify-content-center">
+							<button (click)="verifySignature()" type="button" class="btn btn-sm sb-btn-submit mt-2"
+									[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+								So
+								sánh chữ ký mẫu
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</ng-container>
+	</div>
+</form>

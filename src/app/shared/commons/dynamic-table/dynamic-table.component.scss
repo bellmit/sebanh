@@ -1,0 +1,139 @@
+.row-even {
+	background-color: #e2e5ec;
+}
+.row-old {
+	background-color:  #f5f8fa;
+}
+
+.curs-move-over:hover {
+	cursor: pointer;
+}
+
+.blue-text {
+	color: #5d78ff;
+}
+
+.gray-lable {
+	margin: 2px;
+	padding: 3px;
+	max-height: 25px;
+	max-width: 70px;
+	border-radius: 20px !important;
+	background-color: #CDC9C9;
+	text-align: center;
+}
+
+.green-lable {
+	color: green;
+	margin: 2px;
+	padding: 3px;
+	max-height: 25px;
+	max-width: 70px;
+	border-radius: 20px !important;
+	background-color: #C1FFC1;
+	text-align: center;
+}
+
+.red-lable {
+	color: red;
+	margin: 2px;
+	padding: 3px;
+	max-height: 25px;
+	max-width: 70px;
+	border-radius: 20px !important;
+	background-color: #FFC1C1;
+	text-align: center;
+}
+
+.table-content-class {
+	overflow-y: hidden; // disable vertical scroll
+	overflow-x: auto; // use auto; or scroll; to allow horizontal scrolling;
+	scrollbar-width: thin;
+}
+
+
+//Start for green check-box
+.custom-control-label:before {
+	background-color: white;
+}
+
+.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+	background-color: green;
+}
+
+.custom-control-label::before,
+.custom-control-label::after {
+	//top: .8rem;
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+//End for green check-box
+.sb-custom-table {
+	border: 1px solid #ebedf2;
+	margin-bottom: 0;
+}
+
+.no-border {
+	border: 0;
+}
+
+.text-red-highlight {
+	color: #d61817 !important;
+	font-weight: bold !important;
+	cursor: pointer !important;
+}
+
+.mat-table {
+	overflow-x: scroll;
+}
+
+
+.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background, .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+	width: 18px;
+	height: 18px;
+	background-color: green;
+}
+
+
+.example-container.mat-elevation-z8 {
+	overflow-x: auto;
+}
+.example-container .mat-table.mat-table {
+	min-width: 700px;
+}
+
+.mat-header-row { //THIS MAKES THE HEADER STICKY
+
+	top: 0;
+	z-index: 1;
+	background-color: inherit;
+}
+
+
+
+.page-link{
+	border-radius: 50% !important;
+	//padding: 7px;
+	height: 30px;
+	width: 30px;
+	padding-top: 4.8px !important;
+	font-size: 14px !important;
+}
+li .page-item .disabled{
+	border-radius: 50%;
+	//padding: 20px;
+
+	//background-color: red;
+	//padding-top: 6px !important;
+}
+
+ngb-pagination li {
+	padding: 3px;
+
+}
+ngb-pagination .page-item.active .page-link {
+	background-color: #d61817;
+	border-color: #d61817;
+}
+

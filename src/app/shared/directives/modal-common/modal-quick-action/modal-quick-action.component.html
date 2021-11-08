@@ -1,0 +1,109 @@
+<div class="modal-header">
+	<h4 class="modal-title w-100 text-left" *ngIf="(action$|async) == null">Cài đặt màn hình nhanh</h4>
+	<h4 class="modal-title w-100 text-left" *ngIf="(action$|async) == ACTION_ADD && !(confirm$|async)">Tạo mới thông tin
+		màn hình nhanh</h4>
+	<h4 class="modal-title w-100 text-left" *ngIf="(action$|async) == ACTION_EDIT">Sửa thông tin màn hình nhanh</h4>
+	<h4 class="modal-title w-100 text-left" *ngIf="((action$|async) == ACTION_ADD && (confirm$|async))">Bạn có chắc muốn
+		sửa?</h4>
+	<h4 class="modal-title w-100 text-left" *ngIf="((action$|async) == ACTION_ADD && (success$|async))">Đã sửa đổi thông
+		tin chi tiết màn hình nhanh thành công</h4>
+	<h4 class="modal-title w-100 text-center" *ngIf="((action$|async) == ACTION_DELETE && !(success$|async))">Bạn có
+		chắc muốn xoá?</h4>
+	<h4 class="modal-title w-100 text-center" *ngIf="((action$|async) == ACTION_DELETE && (success$|async))">Đã xoá
+		thông tin màn hình nhanh thành công</h4>
+	<button class="fix-close" *ngIf="!(confirm$|async)"
+			(click)="activeModal.close(false)">
+		<span class="material-icons">close</span>
+	</button>
+</div>
+<div class="modal-body" *ngIf="!(confirm$|async)">
+	<div *ngIf="(action$|async) == null then setup"></div>
+	<div *ngIf="((action$|async) == ACTION_ADD || (action$|async) == ACTION_EDIT) then add"></div>
+</div>
+<div class="modal-footer">
+	<div *ngIf="(!(success$|async) && (confirm$|async)) then confirmButton"></div>
+	<div *ngIf="!(confirm$|async) then submitButton"></div>
+	<div *ngIf="(success$|async) then dongY"></div>
+</div>
+<!--begin: template for body-->
+<ng-template #setup>
+	<table class="table table-borderless">
+		<tbody>
+		<ng-container *ngFor="let quick of (quickActionSetup$|async); index as i">
+			<tr>
+				<td style="width: 80%">
+					<span class="font-weight-bold">0{{i + 1}}. {{quick.tooltip}}</span>
+					<br>
+					<span>{{quick.title}}</span>
+				</td>
+				<td class="text-center">
+					<span class="mr-3 sb-cursor-pointer" (click)="editInfoAction(quick, i)" ngbTooltip="Chỉnh sửa"
+						  placement="left-top"><img src="./assets/media/icons/svg/Action/action-edit.svg"></span>
+					<span (click)="handleDeleteItem(quick, i)" ngbTooltip="Xoá" placement="left-top"
+						  class="sb-cursor-pointer"><img
+						src="./assets/media/icons/svg/Action/action-delete.svg" alt=""></span>
+				</td>
+			</tr>
+		</ng-container>
+		<tr *ngIf="(quickActionSetup$|async).length < 4">
+			<td class="text-center" colspan="2">
+				<span (click)="addQuickAction()" class="sb-cursor-pointer" ngbTooltip="Thêm mới" placement="left-top"><i
+					class="fas fa-plus-square fa-2x"
+					style="color: #d61817!important; opacity: 1!important;"></i></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+</ng-template>
+
+<ng-template #add>
+	<form [formGroup]="setupForm">
+		<div class="form-group">
+			<label for="tooltip" class="col-form-label">Tên gợi nhớ</label>
+			<input type="text" id="tooltip" class="form-control" formControlName="tooltip"
+				   placeholder="Nhập tên gợi nhớ cho tính năng" trimFirstLast>
+			<div class="invalid-feedback" style="display: block"
+				 *ngIf="setupForm.get('tooltip').invalid && (setupForm.get('tooltip').dirty || setupForm.get('tooltip').touched)">
+				<span *ngIf="setupForm.get('tooltip').hasError('required')">Trường bắt buộc nhập</span>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="menu" class="col-form-label">Nghiệp vụ</label>
+			<ng-select formControlName="menu" id="menu" placeholder="Chọn nghiệp vụ tương ứng">
+				<ng-option *ngFor="let item of menuList" [value]="item.page">{{item.title}} {{item.parent}}</ng-option>
+			</ng-select>
+			<div class="invalid-feedback" style="display: block"
+				 *ngIf="setupForm.get('menu').invalid && (setupForm.get('menu').dirty || setupForm.get('menu').touched)">
+				<span *ngIf="setupForm.get('menu').hasError('required')">Trường bắt buộc nhập</span>
+			</div>
+		</div>
+	</form>
+</ng-template>
+<!--end: template for body-->
+<!--begin: template for button-->
+<ng-template #confirmButton>
+	<div class="w-100">
+		<button type="button" class="btn text-center sb-btn-remove mr-2"
+				(click)="onNotConfirm()">{{'buttons.cancel' | translate}}</button>
+		<button type="button" class="btn text-center sb-btn-submit"
+				(click)="onConfirm()">Có
+		</button>
+	</div>
+</ng-template>
+
+<ng-template #submitButton>
+	<div class="w-100">
+		<button type="button" class="btn text-center sb-btn-remove mr-2"
+				(click)="onCancel()">{{'buttons.cancel' | translate}}</button>
+		<button type="button" class="btn text-center sb-btn-submit"
+				[disabled]="setupForm.invalid && ((action$|async) == ACTION_ADD || (action$|async) == ACTION_EDIT)"
+				(click)="onSubmit()">{{'buttons.ok' | translate}}</button>
+	</div>
+</ng-template>
+
+<ng-template #dongY>
+	<div class="w-100">
+		<button type="button" class="btn text-center sb-btn-submit" (click)="activeModal.close(false)">Đồng ý</button>
+	</div>
+</ng-template>
+<!--end: template for button-->

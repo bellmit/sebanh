@@ -1,0 +1,118 @@
+<div class="sla-content">
+	<div class="form-group row">
+		<div class="col-12 col-lg-4">
+			<form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
+				<div class="search-form-history">
+					<div class="form-group row">
+						<h5 class="col-12 sb-title">Điều kiện lọc báo cáo</h5>
+					</div>
+					<div class="form-group row" *ngIf="isShowArea$|async">
+						<label class="col-form-label col-3">Khu vực</label>
+						<div class="col-9">
+							<ng-select formControlName="area" [clearable]="false">
+								<ng-option *ngFor="let area of areas" [value]="area.code">{{area.value}}</ng-option>
+							</ng-select>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-3">CN/PGD</label>
+						<div class="col-9">
+							<ng-select formControlName="branch" [readonly]="!(isShowArea$|async)" [clearable]="false">
+								<ng-option *ngFor="let branch of (branchs|async)"
+										   [value]="branch.code">{{branch.value}}</ng-option>
+							</ng-select>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-3 ">User</label>
+						<div class="col-9">
+							<input type="text" class="form-control" placeholder="Nhập" formControlName="user">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-3">Từ ngày</label>
+						<div class="col-9">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   style="border: none !important;"
+									   formControlName="fromDate"
+									   [matDatepicker]="picker"
+									   [max]="searchForm.controls.toDate.value"
+									   readonly
+									   (click)="picker.open()">
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="flaticon2-calendar-1" style="color: red" (click)="picker.open()"></i>
+										<mat-datepicker #picker color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-3">Đến ngày</label>
+						<div class="col-9">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   style="border: none !important;"
+									   formControlName="toDate"
+									   [matDatepicker]="picker2"
+									   [max]="toDay"
+									   readonly
+									   (click)="picker2.open()">
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="flaticon2-calendar-1" style="color: red" (click)="picker2.open()"></i>
+										<mat-datepicker #picker2 color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-3">Nghiệp vụ</label>
+						<div class="col-9">
+							<ng-select formControlName="business" [clearable]="false">
+								<ng-option value="ALL">Tất cả</ng-option>
+								<ng-option *ngFor="let b of business"
+										   [value]="b.code">{{b.value}}</ng-option>
+							</ng-select>
+						</div>
+					</div>
+					<div class="form-group row justify-content-center">
+						<button class="btn sb-btn-remove mr-2" type="button" (click)="onCancel()">Huỷ</button>
+						<button class="btn sb-btn-submit mr-2" type="submit" [disabled]="processing$|async"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (processing$ | async)}">
+							Thực hiện
+						</button>
+						<button class="btn sb-button-danger" type="button" [disabled]="processing$|async"
+								>
+							Xem chi tiết SLA
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="col-12 col-lg-4">
+			<kt-circle-chart [idInput]="'business-chart'" [title]="'Báo cáo theo nghiệp vụ'"
+							 [values]="business" [serierBusiness]="seriesBusiness$|async"
+							 #businessChart></kt-circle-chart>
+		</div>
+		<div class="col-12 col-lg-4">
+			<kt-circle-chart [idInput]="'sla-chart'" [title]="'Báo cáo tình trạng SLA'"
+							 [values]="statusSLA" [serierBusiness]="seriesSla$|async" #slaCircleChart></kt-circle-chart>
+		</div>
+	</div>
+	<div class="form-group row">
+		<div class="col-12 col-lg-6">
+			<kt-stacked-bar-chart [idInput]="'sla-history-co-code'" [title]="titleSLAChart"
+								  [categories]="categories$|async"
+								  [series]="seriesSlaBranch$|async" #slaBranchChart></kt-stacked-bar-chart>
+		</div>
+		<div class="col-12 col-lg-6">
+			<kt-stacked-column-chart [idInput]="'sla-history-business'"
+									 [categories]="categoriesBusiness$|async"
+									 [series]="seriesSlaBusiness$|async" #slaBusinessChart></kt-stacked-column-chart>
+		</div>
+	</div>
+</div>

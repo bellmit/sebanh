@@ -1,0 +1,1475 @@
+<div class="kt-content">
+	<kt-title-top [parentTitle]="parentName" [childOne]="childOne" [childTwo]="childTwo"
+				  *ngIf="!viewData"></kt-title-top>
+
+	<!--	<div class="col-12">-->
+	<kt-transaction-info [isLoading]="isLoadingAccountInfo$ | async"
+						 [inputter]="inputtable$ | async"
+						 [authoriser]="authorisable$ | async"
+						 [dataFrmDash]="dataCacheRouter"
+						 (onSearch)="getAccountInfo(null, null); getCustomerInfo()"
+						 [parentForm]="parentForm"
+						 [ngClass]="{'sb-container-readonly': (dataCacheRouter && (authorisable$ | async) || STATUS_APPROVED  || viewData)}"
+	></kt-transaction-info>
+	<div *ngIf="(isSearched || dataCacheRouter)">
+		<form [formGroup]="parentForm">
+			<!--danh sách tài khoản đang hoạt động-->
+			<div class="sb-content"
+				 [ngClass]="{'sb-container-readonly': (dataCacheRouter && (authorisable$ | async) || STATUS_APPROVED  || viewData)}">
+				<h4 class="font-weight-bold mt-2 mb-4 ml-2">Danh sách tài khoản đang hoạt động</h4>
+				<hr>
+				<table class="sb-content sb-custom-table table table-striped" style="overflow-x:auto;"
+					   [ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async)  || viewData}"
+				>
+					<thead class="text-left" style="background-color: #c3cadb">
+					<tr>
+						<td></td>
+						<td class="font-weight-bold">STT</td>
+						<td class="font-weight-bold">Số tài khoản</td>
+						<td class="font-weight-bold">Tên tài khoản</td>
+						<td class="font-weight-bold">Tổng số dư</td>
+						<td class="font-weight-bold">Số dư khả dụng</td>
+						<td class="font-weight-bold">Số dư bị phong tỏa</td>
+						<td class="font-weight-bold">Lãi dự chi</td>
+						<td class="font-weight-bold">Chi nhánh</td>
+					</tr>
+					</thead>
+
+					<tbody *ngIf="!(isLoadingAccountInfo$ | async)">
+					<tr *ngFor="let account of (accountInfo$ | async); let i = index">
+						<td>
+							<div class="form-group w-75 translateY">
+								<!--							<mat-radio-group>-->
+								<mat-radio-button class="btn-radio-green-checked"
+												  (change)="onChangeAccount($event,account, i)"
+												  [checked]="(i == checkedValue) || (account?.acct == this.dataCacheRouter?.accountNumber)">
+								</mat-radio-button>
+							</div>
+						</td>
+						<td>{{i + 1}}</td>
+						<td>{{account.legacy}}</td>
+						<td>{{account.acctName}}</td>
+						<td style="color: red !important;"
+							class="font-weight-bold">{{(account.onlineBal ? account.onlineBal.trim() : 0 | number)}} {{account.currency}}
+						</td>
+						<td style="color: blue !important;"
+							class="font-weight-bold">{{(account.workingBalance ? account.workingBalance.trim() : 0 | number)}}
+							{{account.currency}}
+						</td>
+						<!--					<td>{{account.clearedBal}} VND</td>-->
+						<td>{{(account.lockedAmt || 0) |number}} {{account.currency}}</td>
+						<!--					<td>{{account.totalInterest}} VND</td>-->
+						<td>{{(account.interest || 0) |number}} %</td>
+						<td>{{account.coCode}}</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<ng-container
+				*ngIf="(selectedObject$ | async) && (dataCacheRouter?.actionT24 != 'RESTORE_CLOSED_ACCOUNT') || checkedValue">
+				<div class="form-group row m-2">
+					<label class=" font-weight-bolder">
+						<input type="checkbox" class="regular-checkbox"
+							   [(ngModel)]="isUpdateAccount"
+							   [checked]="isUpdateAccount"
+							   [ngModelOptions]="{standalone: true}"
+							   [disabled]="dataCacheRouter && (authorisable$ | async)"
+							   (change)="onUpdateAccount($event); changeCheckBox()"
+							   style="border-radius: 3px;"/>
+						Cập nhật thông tin
+					</label>
+				</div>
+
+				<!--				Cập nhật thông tin-->
+				<div class="sb-content p-3 mt-3 mb-3" *ngIf="isUpdateAccount">
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 pl-3 ">Loại tiền</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control sb-readonly" formControlName="currency" readonly>
+						</div>
+
+						<label class="col-form-label col-md-2 pl-3">Tên tài khoản</label>
+						<div class="col-md-4">
+							<input trimFirstLast type="text" class="form-control" formControlName="accountName"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   [ngClass]="{'sb-readonly': (approved$|async) || (authorisable$ | async)  || viewData}">
+							<!-- <div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.accountName.touched || frm.accountName.dirty) && frm.accountName.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div> -->
+						</div>
+					</div>
+
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 pl-3">Tên rút gọn</label>
+						<div class="col-md-4">
+							<input trimFirstLast type="text" class="form-control" formControlName="shortName"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   [ngClass]="{'sb-readonly': (approved$|async) || (authorisable$ | async)  || viewData}">
+						</div>
+					</div>
+
+
+					<div formArrayName="relates">
+						<div *ngFor="let relate of relates.controls; let i = index;">
+							<div [formGroupName]="i">
+								<div class="d-inline-flex mb-3">
+									<span *ngIf="i > 0" class="font-weight-bold mr-2"
+										  style="transform: translateY(20%)">Mối quan hệ {{i + 1}}</span>
+									<span *ngIf="i > 0" class="text-right ml-2" style="margin-left: 4px"
+										  (click)="removeRelate(i)">
+									<div class="icon text-right minus"></div>
+									</span>
+								</div>
+								<div class="form-group row">
+									<label class="col-form-label col-md-2 ">Mối quan hệ</label>
+									<div class="col-md-4">
+										<div class="d-inline-flex w-100">
+											<ng-select [items]="relateList$|async" style="min-width: 100%"
+													   [readonly]="(authorisable$|async) || (approved$|async) || viewData"
+													   bindLabel="description"
+													   bindValue="relationId"
+													   [multiple]="false"
+													   formControlName="relationCustomer">
+											</ng-select>
+											<ng-template ng-header-tmp>
+												Mối quan hệ
+											</ng-template>
+											<ng-template ng-header-tmp let-item="item">
+												{{item.description}}
+											</ng-template>
+										</div>
+										<div class="under-input-value mt-2">
+											{{relate.get('relationCustomer').value}}
+										</div>
+									</div>
+
+									<!--									<label class="col-form-label col-md-2 ">ID KH quan hệ</label>-->
+									<!--									<div class="col-md-4">-->
+									<!--										<ng-select formControlName="idRelate">-->
+									<!--											<ng-option value="12">123</ng-option>-->
+									<!--											<ng-option value="23">234</ng-option>-->
+									<!--										</ng-select>-->
+									<!--									</div>-->
+
+									<label class="col-form-label col-md-2 pl-3">ID KH quan hệ</label>
+									<div class="col-md-4">
+										<input trimFirstLast type="text" class="form-control" formControlName="idRelate"
+											   [readOnly]="(authorisable$|async) || (approved$|async)"
+											   [ngClass]="{'sb-readonly': (approved$|async) || (authorisable$|async) || viewData}">
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="d-inline-flex mb-3" *ngIf="!(authorisable$ | async)">
+								<span class="font-weight-bold mr-2"
+									  style="transform: translateY(20%)">Thêm mối quan hệ</span>
+							<span class="text-right ml-2" style="margin-left: 4px" (click)="addRelate()">
+							<div class="icon text-right plus"></div>
+						</span>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<!--						<label class="col-form-label col-md-2 pl-3">Sale Type</label>-->
+						<!--						<div class="col-md-4" [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async)}">-->
+						<!--							<input type="text" class="form-control" formControlName="salesType"-->
+						<!--								   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async)}">-->
+						<!--&lt;!&ndash;							<ng-select formControlName="salesType" [placeholder]="'Chọn sale type'">&ndash;&gt;-->
+						<!--&lt;!&ndash;								<ng-option value="1">1</ng-option>&ndash;&gt;-->
+						<!--&lt;!&ndash;								<ng-option value="2">2</ng-option>&ndash;&gt;-->
+						<!--&lt;!&ndash;							</ng-select>&ndash;&gt;-->
+						<!--						</div>-->
+
+
+						<label class="col-form-label col-md-2">Sale Type</label>
+						<div class="col-md-4">
+							<ng-select [items]="saleList"
+									   [readonly]="(authorisable$|async) || (approved$|async) || viewData"
+									   bindLabel="name"
+									   bindValue="saleId"
+									   [multiple]="false"
+									   formControlName="salesType"
+									   [ngbTooltip]="'Chỉ được phép chỉnh sửa nếu được phân quyền'"
+									   tooltipClass="tooltip-custom">
+								>
+								<ng-template ng-header-tmp>
+									Sale Type
+								</ng-template>
+
+								<ng-template ng-header-tmp let-item="item">
+									{{item.name}}
+								</ng-template>
+							</ng-select>
+
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.salesType.touched || frm.salesType.dirty)
+							 && frm.salesType.hasError('required')">Trường bắt buộc nhập
+						</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 pl-3">Sale ID</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="salesId"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   [ngClass]="{'sb-readonly': (approved$|async) || (authorisable$ | async)  || viewData}">
+							<!--							<ng-select formControlName="salesId" [placeholder]="'Chọn sale ID'">-->
+							<!--								<ng-option value="1">1</ng-option>-->
+							<!--								<ng-option value="2">2</ng-option>-->
+							<!--							</ng-select>-->
+						</div>
+					</div>
+
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">Broker Type</label>
+						<div class="col-md-4">
+							<ng-select [items]="brokerTypeList"
+									   bindLabel="name"
+									   bindValue="brokerId"
+									   [readonly]="(authorisable$|async) || (approved$|async)"
+									   [multiple]="false"
+									   formControlName="brokerType"
+									   [ngbTooltip]="'Chỉ được phép chỉnh sửa nếu được phân quyền'"
+									   tooltipClass="tooltip-custom">>
+								<ng-template ng-header-tmp>
+									Broker Type
+								</ng-template>
+								<ng-template ng-header-tmp let-item="item">
+									{{item.name}}
+								</ng-template>
+							</ng-select>
+							<div class="invalid-feedback" style="display: block">
+						<span
+							*ngIf="(frm.brokerType.touched || frm.brokerType.dirty)
+							 && frm.brokerType.hasError('required')">Trường bắt buộc nhập
+						</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 pl-3">Broker ID</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="brokerId"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   [ngClass]="{'sb-readonly': (approved$|async) || (authorisable$ | async)  || viewData}">
+						</div>
+					</div>
+					<br/>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 pl-3">Loại TK số đẹp</label>
+						<!-- <div class="col-md-4">
+							<input type="text" class="form-control sb-readonly" formControlName="vipType"
+								   [readOnly]="(authorisable$|async) || (approved$|async)">
+						</div> -->
+						<div class="col-md-4">
+
+							<ng-select [readonly]="true" formControlName="vipType">
+								<ng-option *ngFor="let type of vipTypeAccounts"
+										   [value]="type.id">{{type.value}}</ng-option>
+							</ng-select>
+
+						</div>
+
+						<!-- <label class="col-form-label col-md-2 pl-3">Chính sách TK số đẹp</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control sb-readonly" formControlName="additionValue"
+								   [readOnly]="true">
+						</div> -->
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 pl-3">Hạng tài khoản số đẹp</label>
+						<div class="col-md-4">
+							<ng-select formControlName="classNiceAccount" [readonly]="true">
+								<ng-option *ngFor="let c of vipClassAccounts"
+										   [value]="c.id">{{c.value}}</ng-option>
+							</ng-select>
+
+						</div>
+
+						<!-- <label class="col-form-label col-md-2 pl-3">Số tiền phí</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control sb-readonly"
+								   inputCurrency formControlName="feeAmtReq"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">
+						</div> -->
+					</div>
+				</div>
+
+
+				<!--				PHONG TỎA TÀI KHOẢN-->
+
+				<div class="form-group row m-2">
+					<label class=" font-weight-bolder">
+						<input type="checkbox" class="regular-checkbox"
+							   [checked]="isLockDown"
+							   [(ngModel)]="isLockDown"
+							   [ngModelOptions]="{standalone: true}"
+							   [disabled]="dataCacheRouter && (authorisable$ | async)  || viewData"
+							   (change)="onLockdownAccount($event); changeCheckBox()"
+							   style="border-radius: 3px;"/>
+						Phong tỏa tài khoản
+					</label>
+				</div>
+
+				<div class="sb-content p-3 mt-3 mb-3" *ngIf="isLockDown">
+
+					<div class="form-group row">
+						<div class="kt-error_container" *ngIf="formError.hasErrorLockDown">
+							<p class="kt-error_subtitle error-message pl-3">
+								{{formError.message}}
+							</p>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 pl-3">Bút toán phong tỏa</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control sb-readonly" formControlName="accEntryLockdown"
+								   readonly>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.accEntryLockdown.touched || frm.accEntryLockdown.dirty || isSubmit) && frm.accEntryLockdown.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2  required ">Số tiền phong tỏa</label>
+						<div class="col-md-4">
+							<input type="text" maxlength="23" class="form-control" formControlName="lockDownMoney"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async)  || viewData || (approved$|async)}"
+								   inputCurrency
+								   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.lockDownMoney.touched || frm.lockDownMoney.dirty || isSubmit) && frm.lockDownMoney.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="frm.lockDownMoney.hasError('min')">Số tiền phong tỏa > 0
+								</span>
+							</div>
+						</div>
+
+
+					</div>
+
+					<div class="form-group row"
+						 [ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async)  || viewData || (approved$|async)}">
+						<label class="col-form-label col-md-2 pl-3 required">Từ ngày</label>
+						<div class="col-md-4">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   [readOnly]="(authorisable$|async) || (approved$|async)"
+									   style="border: none !important;"
+									   formControlName="fromDate"
+									   [matDatepicker]="picker"
+									   [min]="minDate"
+									   ktDateEnter
+									   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async)  || viewData || (approved$|async)}">
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="flaticon2-calendar-1" style="color: red" (click)="picker.open()"></i>
+										<mat-datepicker #picker color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.fromDate.touched || frm.fromDate.dirty || isSubmit) && frm.fromDate.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+						<label class="col-form-label col-md-2 pl-3">Đến ngày</label>
+						<div class="col-md-4">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   [readOnly]="(authorisable$|async) || (approved$|async)"
+									   style="border: none !important;"
+									   formControlName="toDate"
+									   [matDatepicker]="picker2"
+									   ktDateEnter
+									   [min]="minDate"
+									   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async)  || viewData || (approved$|async)}">
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="flaticon2-calendar-1" style="color: red" (click)="picker2.open()"></i>
+										<mat-datepicker #picker2 color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.toDate.touched || frm.toDate.dirty || isSubmit) && frm.toDate.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row"
+						 [ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async) || viewData || (approved$|async)}">
+						<label class="col-form-label col-md-2  pl-3 required">Lý do phong tỏa</label>
+						<div class="col-md-4">
+<!--							<ng-select formControlName="reasonLock"-->
+<!--									   [readonly]="(authorisable$|async) || (approved$|async)">-->
+<!--								<ng-option *ngFor="let reason of (reasonBlocks$|async)"-->
+<!--										   [value]="reason.id">{{reason.reason}}</ng-option>-->
+<!--							</ng-select>-->
+
+							<ng-select [items]="reasonBlocks$|async"
+									   [readonly]="(authorisable$|async) || (approved$|async)"
+									   bindLabel="reason"
+									   bindValue="id"
+									   formControlName="reasonLock">
+								<ng-template ng-label-tmp let-item="item" #lockDownReason>
+									<div class="form-row">
+										<span class="col-sm-11" style="top: 1px;">
+											{{item.reason}}
+										</span>
+									</div>
+								</ng-template>
+							</ng-select>
+
+
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.reasonLock.touched || frm.reasonLock.dirty || isSubmit) && frm.reasonLock.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+
+
+						<label class="col-form-label col-md-2  pl-3 required">Mô tả</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" maxlength="35" formControlName="description"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async) || viewData || (approved$|async)}">
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.description.touched || frm.description.dirty || isSubmit) && frm.description.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!--Giải toả-->
+				<div class="form-group row m-2">
+					<label class=" font-weight-bolder">
+						<input type="checkbox" class="regular-checkbox"
+							   [(ngModel)]="isRelieve"
+							   [checked]="isRelieve"
+							   [ngModelOptions]="{standalone: true}"
+							   [disabled]="dataCacheRouter && (authorisable$ | async) || viewData "
+							   (change)="onRelieve($event); changeCheckBox()"
+							   style="border-radius: 3px;"/>
+						Giải tỏa
+					</label>
+				</div>
+				<div *ngIf="(isLoadingLockEntryAccount$ | async)  && isRelieve"
+					 style="text-align: -webkit-center; text-align: -moz-center">
+					<table>
+						<tr>
+							<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (	isLoading$ | async)}"></td>
+							<td>{{'DASHBOARD.loading' | translate}}</td>
+						</tr>
+					</table>
+				</div>
+				<div class="sb-content p-3 mt-3 mb-3"
+					 *ngIf="lockEntryAccount && lockEntryAccount.length > 0 && isRelieve && !(isLoadingLockEntryAccount$ | async)">
+					<table class="table table-bordered  table-striped">
+						<thead class="text-center">
+						<tr style="background-color: #d61817; color: white">
+							<td></td>
+							<td>STT</td>
+							<td>Bút toán phong tỏa</td>
+							<td>Số tiền phong tỏa</td>
+							<td>Từ ngày</td>
+							<td>Đến ngày</td>
+							<td>Lý do phong toả</td>
+							<td>Mô tả</td>
+							<td>Chi nhánh phong tỏa</td>
+							<td>User phong tỏa</td>
+						</tr>
+						</thead>
+
+						<tbody>
+						<tr *ngFor="let account of lockEntryAccount; let i = index">
+							<td>
+								<div class="form-group sb-checkbox__login w-75">
+									<input (change)="onChangeLockdown($event,account)"
+										   class="check_box_login mr-2 mt-1 ml-3"
+										   [checked]="checkedData(account.butToanPT, listAclkId)"
+										   [disabled]="dataCacheRouter && (authorisable$ | async) || viewData"
+										   type="checkbox"/>
+								</div>
+							</td>
+							<td>{{i + 1}}</td>
+							<td>{{account.butToanPT}}</td>
+							<td>{{account.lockedAmount | number}} VND</td>
+							<td>{{account.fromDate}}</td>
+							<td>{{account.toDate}}</td>
+							<td>{{account.blockText}}</td>
+							<td>{{account.description}}</td>
+							<td>{{account.coCode}}</td>
+							<td>{{account.inputter}}</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<!--Chỉnh sửa phong toả-->
+				<div class="form-group row m-2">
+					<label class=" font-weight-bolder">
+						<input type="checkbox" class="regular-checkbox"
+							   [(ngModel)]="isUpdateLockDown"
+							   [checked]="isUpdateLockDown"
+							   [ngModelOptions]="{standalone: true}"
+							   [disabled]="dataCacheRouter && (authorisable$ | async) || viewData"
+							   (change)="onUpdateLockdown($event); changeCheckBox()"
+							   style="border-radius: 3px;"/>
+						Chỉnh sửa phong tỏa
+					</label>
+				</div>
+				<div *ngIf="(isLoadingLockEntryAccount$ | async)  && isUpdateLockDown"
+					 style="text-align: -webkit-center; text-align: -moz-center">
+					<table>
+						<tr>
+							<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (	isLoading$ | async)}"></td>
+							<td>{{'DASHBOARD.loading' | translate}}</td>
+						</tr>
+					</table>
+				</div>
+				<div class="sb-content p-3 mt-3 mb-3"
+					 *ngIf="isUpdateLockDown && lockEntryAccount && lockEntryAccount.length > 0 && !(isLoadingLockEntryAccount$ | async)">
+					<table class="table table-bordered  table-striped">
+						<thead class="text-center">
+						<tr style="background-color: #d61817; color: white">
+							<td></td>
+							<td>STT</td>
+							<td>Bút toán phong tỏa</td>
+							<td>Số tiền phong tỏa</td>
+							<td>Từ ngày</td>
+							<td>Đến ngày</td>
+							<td>Lý do phong toả</td>
+							<td>Mô tả</td>
+							<td>Chi nhánh phong tỏa</td>
+							<td>User phong tỏa</td>
+						</tr>
+						</thead>
+
+						<tbody>
+						<tr *ngFor="let account of lockEntryAccount; let i = index">
+							<td>
+								<div class="form-group sb-checkbox__login w-75">
+									<mat-radio-button
+										(change)="onChangeLockdownNumber($event,account); changeCheckBox()"
+										[checked]="checkedData(account.butToanPT, listAclkId)"
+										[disabled]="dataCacheRouter && (authorisable$ | async) || viewData"
+										name="editLockdownAccount"></mat-radio-button>
+								</div>
+							</td>
+							<td>{{i + 1}}</td>
+							<td>{{account.butToanPT}}</td>
+							<td>{{account.lockedAmount}} VND</td>
+							<td>{{account.fromDate}}</td>
+							<td>{{account.toDate}}</td>
+							<td>{{account.blockText}}</td>
+							<td>{{account.description}}</td>
+							<td>{{account.coCode}}</td>
+							<td>{{account.inputter}}</td>
+						</tr>
+						</tbody>
+					</table>
+
+					<div class="form-group row mt-3">
+						<label class="col-form-label col-md-2  pl-3">Bút toán phong tỏa</label>
+						<div class="col-md-4">
+							<input readonly type="text" class="form-control sb-readonly" formControlName="aclkId">
+						</div>
+
+						<label class="col-form-label col-md-2  pl-3">Số tiền phong tỏa</label>
+						<div class="col-md-4">
+							<input type="text" maxlength="23" class="form-control" formControlName="editLockdownAmount"
+								   inputCurrency
+								   [readOnly]="(approved$|async) || (authorisable$|async)"
+								   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async)  || viewData || (approved$|async)}"
+								   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 pl-3 required">Từ ngày</label>
+						<div class="col-md-4">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border sb-readonly"
+									   readonly
+									   style="border: none !important;"
+									   formControlName="editLockdownFromDate"
+									   [matDatepicker]="editLockdownFromDate"
+									   ktDateEnter
+									   [readOnly]="(approved$|async) || (authorisable$|async)"
+									   [min]="minDate">
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="flaticon2-calendar-1" style="color: red"></i>
+										<mat-datepicker #editLockdownFromDate color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 pl-3">Đến ngày</label>
+						<div class="col-md-4">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border"
+									   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async)  || viewData || (approved$|async)}"
+									   style="border: none !important;"
+									   formControlName="editLockdownToDate"
+									   [matDatepicker]="editLockdownToDate"
+									   ktDateEnter
+									   [readOnly]="(approved$|async) || (authorisable$|async)"
+									   [min]="minDate">
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="flaticon2-calendar-1" style="color: red"
+										   (click)="editLockdownToDate.open()"></i>
+										<mat-datepicker #editLockdownToDate color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+							<!--
+							<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.editLockdownToDate.touched || frm.editLockdownToDate.dirty || isSubmit) && frm.editLockdownToDate.hasError('required')">Trường bắt buộc nhập
+									</span>
+							</div>
+							-->
+						</div>
+					</div>
+
+					<div class="form-group row"
+						 [ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async) || viewData || (approved$|async)}">
+						<label class="col-form-label col-md-2  pl-3 required">Lý do phong tỏa</label>
+						<div class="col-md-4">
+							<ng-select formControlName="editLockdownReason"
+									   [readonly]="(approved$|async) || (authorisable$|async)">
+								<ng-option *ngFor="let reason of (reasonBlocks$|async)"
+										   [value]="reason.id">{{reason.reason}}</ng-option>
+							</ng-select>
+							<div class="invalid-feedback" style="display: block"
+								 *ngIf="frm.editLockdownReason.invalid && (frm.editLockdownReason.dirty || frm.editLockdownReason.touched)">
+								<span *ngIf="frm.editLockdownReason.hasError('required')">Trường bắt buộc nhập</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2  pl-3">Mô tả</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" maxlength="35" formControlName="editLockdownDescription"
+								   [readOnly]="(approved$|async) || (authorisable$|async)"
+								   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async)  || viewData || (approved$|async)}">
+						</div>
+					</div>
+				</div>
+
+				<!--Đóng tài khoản-->
+				<div class="form-group row m-2">
+					<label class=" font-weight-bolder">
+						<input type="checkbox" class="regular-checkbox"
+							   [(ngModel)]="isCloseAccount"
+							   [checked]="isCloseAccount"
+							   [ngModelOptions]="{standalone: true}"
+							   [disabled]="dataCacheRouter && (authorisable$ | async) || viewData"
+							   (change)="onCloseAccount($event); changeCheckBox()"
+							   style="border-radius: 3px;"/>
+						Đóng tài khoản
+					</label>
+				</div>
+
+				<div class="sb-content p-3 mt-3 mb-3 charge-code" *ngIf="isCloseAccount">
+					<div class="form-group row">
+						<label class="col-form-label col-md-2"></label>
+						<div class="col-md-8 pt-3" style="color: #0101DF;font-weight: bold;font-style: italic;">Lưu ý đóng/gỡ các dịch vụ liên kết đến tài khoản trước khi đóng</div>
+
+					</div>
+					<div class="form-group row">
+
+						<label class="col-form-label col-md-2 required">Hình thức nhận số dư</label>
+						<div class="col-md-4">
+
+							<ng-select style="min-width:100%" formControlName="typeOfGetBalance"
+									   [readonly]="(authorisable$|async) || (approved$|async)"
+									   (change)="checkHinhThucNhanSoDu($event)"
+									   [clearable]="false">
+								<ng-option [value]="'TIEN_MAT'">Tiền mặt</ng-option>
+								<ng-option [value]="'TKTT_SEABANK'">TKTT tại SeABank</ng-option>
+								<ng-option [value]="'TKTT_NOT_SEABANK'">TKTT ngoài SeABank</ng-option>
+							</ng-select>
+
+							<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.typeOfGetBalance.touched || frm.typeOfGetBalance.dirty)
+									&& frm.typeOfGetBalance.hasError('required')">Trường bắt buộc nhập
+									</span>
+							</div>
+						</div>
+
+
+
+						<label class="col-form-label col-md-2  pl-3 required pr-0">Tài khoản nhận số dư</label>
+						<div class="col-md-4 mr-circle"
+							 [ngClass]="{'kt-spinner kt-spinner--right kt-spinner--sb': (isLoadingCheckAcc$ | async)}">
+							<input type="text" class="form-control" formControlName="accNumberGetBal"
+								   (blur)="checkGetFeeAccount($event.target?.value, 'CLOSE_ACCOUNT')"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async) || viewData}">
+
+							<div class="invalid-feedback" style="display: block">
+								<span style="font-weight: bold;" *ngIf="!(isLoadingCheckAcc$ | async)">
+<!--									{{accountFeeNameCloseAccount$|async}}-->
+									{{frm.accountOwnerName.value}}
+								</span>
+							</div>
+
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.accNumberGetBal.touched || frm.accNumberGetBal.dirty || isSubmit) && frm.accNumberGetBal.hasError('required')">Trường bắt buộc nhập
+								</span>
+								<span
+									*ngIf="(frm.accNumberGetBal.touched || frm.accNumberGetBal.dirty) && frm.accNumberGetBal.hasError('notExist')">Tài khoản không tồn tại
+								</span>
+
+								<span
+									*ngIf="(frm.accNumberGetBal.touched || frm.accNumberGetBal.dirty) && frm.accNumberGetBal.hasError('fundAccountInvalid')">Tài khoản không hợp lệ
+								</span>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="form-group row">
+
+						<label class="col-form-label col-md-2">Mã
+							phí</label>
+						<div class="col-md-4">
+							<ng-select [items]="chargeCodes$|async" style="min-width:100%"
+									   (change)="calculateTotalAmount($event?.flatAmt, 'CLOSE_ACCOUNT', $event)"
+									   bindLabel="gbDescription"
+									   [readonly]="(authorisable$|async) || (approved$|async)"
+									   bindValue="id"
+									   formControlName="feeCode" [searchFn]="customSearchFee">
+								<ng-template ng-option-tmp let-item="item" ng-label-tmp let-search="searchTerm">
+									<div class="form-row">
+												<span class="col-sm-11" style="top: 1px;">{{item?.id}}
+													- {{item?.gbDescription}} - {{item?.currency}}</span>
+									</div>
+								</ng-template>
+							</ng-select>
+
+							<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.feeCode.touched || frm.feeCode.dirty)
+									&& frm.feeCode.hasError('required')">Trường bắt buộc nhập
+									</span>
+							</div>
+
+						</div>
+
+						<label class="col-form-label col-md-2">Số tiền
+							phí</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control" formControlName="feeAmtReq"
+								   inputCurrency
+								   [readOnly]="frm.feeCode.value == null || (authorisable$|async) || (approved$|async)"
+								   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}"
+								   [ngClass]="{'sb-readonly': frm.feeCode.value == null || (authorisable$|async) || (approved$|async)}"
+								   (blur)="calculateTotalAmount($event?.target?.value, 'CLOSE_ACCOUNT')">
+							<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.feeAmtReq.touched || frm.feeAmtReq.dirty) && frm.feeAmtReq.hasError('required')">Trường bắt buộc nhập
+											</span>
+							</div>
+						</div>
+
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2">Thuế</label>
+						<div class="col-md-4">
+							<input type="text" [readOnly]="true" class="form-control sb-readonly"
+								   formControlName="tax"
+								   inputCurrency
+								   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">
+						</div>
+
+						<label class="col-form-label col-md-2">Tổng tiền thu</label>
+						<div class="col-md-4">
+							<input type="text" [readOnly]="true" class="form-control sb-readonly"
+								   formControlName="feeAmountClose"
+								   inputCurrency
+								   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">
+						</div>
+					</div>
+
+					<div class="form-group row" *ngIf="this.frm.typeOfGetBalance.value == 'TKTT_NOT_SEABANK'">
+						<label class="col-form-label col-md-2 required">Chủ tài khoản</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control"
+								   [ngClass]="{'sb-readonly': (authorisable$|async) || (approved$|async)}"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   formControlName="accountOwner">
+							<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.accountOwner.touched || frm.accountOwner.dirty  || isSubmit)
+									&& frm.accountOwner.hasError('required')">Trường bắt buộc nhập
+									</span>
+							</div>
+						</div>
+
+						<label class="col-form-label col-md-2 required">Số tài khoản</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control"
+								   [ngClass]="{'sb-readonly': (authorisable$|async) || (approved$|async)}"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   formControlName="accountOwnerNumber">
+							<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.accountOwnerNumber.touched || frm.accountOwnerNumber.dirty  || isSubmit)
+									&& frm.accountOwnerNumber.hasError('required')">Trường bắt buộc nhập
+									</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row" *ngIf="this.frm.typeOfGetBalance.value == 'TKTT_NOT_SEABANK'">
+						<label class="col-form-label col-md-2 required">Ngân hàng nhận</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control"
+								   [ngClass]="{'sb-readonly': (authorisable$|async) || (approved$|async)}"
+								   [readOnly]="(authorisable$|async) || (approved$|async)"
+								   formControlName="bankReceive">
+							<div class="invalid-feedback" style="display: block">
+									<span
+										*ngIf="(frm.bankReceive.touched || frm.bankReceive.dirty || isSubmit)
+									&& frm.bankReceive.hasError('required')">Trường bắt buộc nhập
+									</span>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+				<!--Cài đặt lãi suất có ghi cho tài khoản-->
+				<div class="form-group row m-2">
+					<label class=" font-weight-bolder">
+						<input type="checkbox" class="regular-checkbox"
+							   [(ngModel)]="isSettingInterest"
+							   [checked]="isSettingInterest"
+							   [ngModelOptions]="{standalone: true}"
+							   [disabled]="dataCacheRouter && (authorisable$ | async) || viewData"
+							   (change)="onSettingInterest($event); changeCheckBox()"
+							   style="border-radius: 3px;"/>
+						Cài đặt lãi suất có ghi cho tài khoản
+					</label>
+				</div>
+
+				<div class="sb-content p-3 mt-3 mb-3" *ngIf="isSettingInterest"
+					 [ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async) || viewData}">
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 pl-3 required">Cơ sở tính lãi</label>
+						<div class="col-md-4">
+							<ng-select formControlName="rateBasis">
+								<ng-option value="E">E (366/365)</ng-option>
+								<ng-option value="B">B (366/360)</ng-option>
+							</ng-select>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.rateBasis.touched || frm.rateBasis.dirty) && frm.rateBasis.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+						<label class="col-form-label col-md-2 pl-3 required">Ngày áp dụng</label>
+						<div class="col-md-4">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border sb-readonly"
+									   style="border: none !important;"
+									   formControlName="applyDate"
+									   [matDatepicker]="picker5"
+									   readonly
+									   [min]="minDate"
+									   (click)="picker5.open()">
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="flaticon2-calendar-1" style="color: red" (click)="picker5.open()"></i>
+										<mat-datepicker #picker5 color="warn"></mat-datepicker>
+									</div>
+								</span>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.applyDate.touched || frm.applyDate.dirty) && frm.applyDate.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 pl-3 required">Loại số dư tính lãi</label>
+						<div class="col-md-4">
+							<ng-select formControlName="typeBalanceRate" readonly="true">
+								<ng-option value="DAILY">Daily</ng-option>
+							</ng-select>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.typeBalanceRate.touched || frm.typeBalanceRate.dirty) && frm.typeBalanceRate.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+						<label class="col-form-label col-md-2 pl-3 required">Phương thức tính lãi</label>
+						<div class="col-md-4">
+							<ng-select #rate formControlName="rateMethod" (change)="onChangeSettingRate($event)"
+									   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async) || viewData}">
+								<ng-option value="BAND">Band</ng-option>
+								<ng-option value="LEVEL">Level</ng-option>
+							</ng-select>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.rateMethod.touched || frm.rateMethod.dirty) && frm.rateMethod.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row" *ngIf="!isLevel">
+						<label class="col-form-label col-md-2 pl-3 required">Số dư đến</label>
+						<div class="col-md-4">
+							<input type="text" maxlength="18" class="form-control" formControlName="balance"
+								   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async) || viewData}"
+								   inputCurrency
+								   [options]="{numeral: true, numeralIntegerScale: 'thousand', numeralDecimalScale: 0}">
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.balance.touched || frm.balance.dirty) && frm.balance.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2  pl-3">Key lãi suất</label>
+						<div class="col-md-4">
+							<ng-select formControlName="keyRate"
+									   [loading]="isLoadingBasicRate$|async"
+									   [readonly]="(authorisable$|async) ||( approved$|async)">
+								<ng-option *ngFor="let rate of basicRates"
+										   [value]="rate.basicRateId">{{rate.description}}</ng-option>
+							</ng-select>
+						</div>
+						<label class="col-form-label col-md-2  pl-3">Lãi suất cố định</label>
+						<!--						<div class="col-md-4 input-group">-->
+						<!--							<input type="text" class="form-control py-2 border-right-0 border" formControlName="fixRate"-->
+						<!--								   style="border: none !important;"-->
+						<!--								   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async) || viewData}">-->
+						<!--							<span class="input-group-append">-->
+						<!--                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">-->
+						<!--										<i class="flaticon2-calendar-1" style="color: red" (click)="picker5.open()"></i>-->
+						<!--										<mat-datepicker #picker5 color="warn"></mat-datepicker>-->
+						<!--									</div>-->
+						<!--							</span>-->
+						<!--							<div class="invalid-feedback" style="display: block">-->
+						<!--								<span-->
+						<!--									*ngIf="(frm.fixRate.touched || frm.fixRate.dirty) && frm.fixRate.hasError('required')">Trường bắt buộc nhập-->
+						<!--								</span>-->
+						<!--							</div>-->
+						<!--						</div>-->
+						<div class="col-md-4">
+							<div class="input-group">
+								<input type="text" class="form-control py-2 border-right-0 border"
+								(blur)="checkString($event)"
+								appTwoDigitDecimaNumber
+									   style="border: none !important;"
+									   formControlName="fixRate"
+									   [ngClass]="{'sb-readonly': dataCacheRouter && (authorisable$ | async) || viewData}">
+								<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="color: #1580FC">%</div>
+								</span>
+							</div>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.applyDate.touched || frm.applyDate.dirty) && frm.applyDate.hasError('required')">Trường bắt buộc nhập
+								</span>
+								<span
+									*ngIf="(frm.applyDate.touched || frm.applyDate.dirty) && frm.applyDate.hasError('maxError')">Lãi suất phải nhỏ hơn 100%
+								</span>
+							</div>
+						</div>
+					</div>
+
+
+				</div>
+
+				<!--Cài đặt cảnh báo, hạn chế ghi nợ/ có tài khoản-->
+				<div class="form-group row m-2">
+					<label class=" font-weight-bolder">
+						<input type="checkbox" class="regular-checkbox"
+							   [(ngModel)]="isSettingWarning"
+							   [checked]="isSettingWarning"
+							   [ngModelOptions]="{standalone: true}"
+							   [disabled]="dataCacheRouter && (authorisable$ | async) || viewData"
+							   (change)="onSettingWarning($event); changeCheckBox()"
+							   style="border-radius: 3px;"/>
+						Cài đặt cảnh báo, hạn chế ghi nợ/ có tài khoản
+					</label>
+				</div>
+
+				<div class="sb-content p-3 mt-3 mb-3" *ngIf="isSettingWarning">
+					<div [ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async) || viewData}">
+						<div class="form-group row">
+							<label class="col-form-label col-md-2 pl-3 required">Ngày bắt đầu</label>
+							<div class="col-md-4">
+								<div class="input-group">
+									<input type="text" class="form-control py-2 border-right-0 border"
+										   style="border: none !important;"
+										   formControlName="startDate"
+										   [matDatepicker]="picker"
+										   ktDateEnter
+										   [readOnly]="(authorisable$|async) || (approved$|async) || viewData">
+									<span class="input-group-append">
+										<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+											<i class="flaticon2-calendar-1" style="color: red"
+											   (click)="picker.open()"></i>
+											<mat-datepicker #picker color="warn"></mat-datepicker>
+										</div>
+									</span>
+								</div>
+								<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.startDate.touched || frm.startDate.dirty) && frm.startDate.hasError('required')">Trường bắt buộc nhập
+								</span>
+								</div>
+							</div>
+							<label class="col-form-label col-md-2  pl-3">Có hạn chế?</label>
+							<div class="col-md-4">
+								<ng-select formControlName="restricted"
+										   [readonly]="(authorisable$|async) || (approved$|async) || viewData">
+									<ng-option [value]="true">Yes</ng-option>
+									<ng-option [value]="false">Null</ng-option>
+								</ng-select>
+								<!--								<div class="invalid-feedback" style="display: block">-->
+								<!--								<span-->
+								<!--									*ngIf="(frm.restricted.touched || frm.restricted.dirty) && frm.restricted.hasError('required')">Trường bắt buộc nhập-->
+								<!--								</span>-->
+								<!--								</div>-->
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-form-label col-md-2 pl-3">Ngày kết thúc</label>
+							<div class="col-md-4">
+								<div class="input-group">
+									<input type="text" class="form-control py-2 border-right-0 border"
+										   style="border: none !important;"
+										   formControlName="endDate"
+										   [matDatepicker]="picker2"
+										   ktDateEnter
+										   [readOnly]="(authorisable$|async) || (approved$|async) || viewData">
+									<span class="input-group-append">
+                    				<div class="input-group-text bg-transparent border-0" style="cursor: pointer">
+										<i class="flaticon2-calendar-1" style="color: red" (click)="picker2.open()"></i>
+										<mat-datepicker #picker2 color="warn"></mat-datepicker>
+									</div>
+								</span>
+								</div>
+
+								<!--								<div class="invalid-feedback" style="display: block">-->
+								<!--								<span-->
+								<!--									*ngIf="(frm.endDate.touched || frm.endDate.dirty) && frm.endDate.hasError('required')">Trường bắt buộc nhập-->
+								<!--								</span>-->
+								<!--								</div>-->
+							</div>
+							<label class="col-form-label col-md-2  pl-3">Loại giao dịch hạn chế</label>
+							<div class="col-md-4">
+								<ng-select formControlName="restrictType"
+										   [readonly]="(authorisable$|async) || (approved$|async) || viewData">
+									<ng-option [value]="'NULL'">NULL</ng-option>
+									<ng-option [value]="'CREDIT'">CREDIT</ng-option>
+									<ng-option [value]="'ALL'">ALL</ng-option>
+								</ng-select>
+								<!--								<div class="invalid-feedback" style="display: block">-->
+								<!--								<span-->
+								<!--									*ngIf="(frm.restrictType.touched || frm.restrictType.dirty) && frm.restrictType.hasError('required')">Trường bắt buộc nhập-->
+								<!--								</span>-->
+								<!--								</div>-->
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-form-label col-md-2 required ">Chi nhánh loại trừ</label>
+							<div class="col-md-4 ">
+								<div class="w-100 d-inline-flex">
+									<ng-select [items]="this.listCoCode" style="min-width:100%"
+											   bindLabel="group_id"
+											   bindValue="group_id"
+											   [multiple]="true"
+											   formControlName="branchEx">
+										<ng-template ng-option-tmp let-item="item">
+											<div class="form-row">
+												<span class="col-sm-11" style="top: 1px;">{{item.group_id}}</span>
+											</div>
+										</ng-template>
+									</ng-select>
+								</div>
+
+								<!--								<div class="under-input-value mt-2">-->
+								<!--									{{frm.branchEx.value}}-->
+								<!--								</div>-->
+								<!--								<div class="invalid-feedback" style="display: block">-->
+								<!--						<span-->
+								<!--							*ngIf="(frm.branchEx.touched || frm.branchEx.dirty) && frm.branchEx.hasError('required')">Trường bắt buộc nhập</span>-->
+								<!--								</div>-->
+							</div>
+
+							<label class="col-form-label col-md-2">User loại trừ</label>
+							<div class="col-md-4 ">
+								<div class="w-100 d-inline-flex">
+									<input type="text" formControlName="userEx" class="form-control text-uppercase"
+										   placeholder="Nhập các user ngăn cách nhau bằng dấu ;"
+										   [readOnly]="(authorisable$|async) || (approved$|async) || viewData"
+										   [ngClass]="{'sb-readonly': ((authorisable$|async) || (approved$|async) || viewData)}">
+									<!-- TODO - sau khi co api tra ve tu t24 thi mo comment
+									<ng-select [items]="fakeUserData" style="min-width:100%"
+											   bindLabel="value"
+											   bindValue="value"
+											   [multiple]="true"
+											   formControlName="userEx">
+										<ng-template ng-option-tmp let-item="item">
+											<div class="form-row">
+												<span class="col-sm-11" style="top: 1px;">{{item.value}}</span>
+											</div>
+										</ng-template>
+									</ng-select>
+									-->
+								</div>
+							</div>
+						</div>
+
+
+						<div formArrayName="informBranchs">
+							<div *ngFor="let informBranch of informBranchs.controls; let i = index;">
+								<div [formGroupName]="i">
+
+									<div class="form-group row">
+										<label class="col-form-label d-inline-flex col-md-2 required">Chi nhánh trong
+											thông báo
+											<span class="d-inline-flex mb-2" *ngIf="i == 0">
+												<span class="text-right ml-2" style="margin-left: 4px"
+													  (click)="addInformBranch()">
+													<i class="icon text-right plus"></i>
+												</span>
+											</span>
+
+											<span class="d-inline-flex mb-3" *ngIf="i > 0">
+												<span class="text-right ml-2" style="margin-left: 4px"
+													  (click)="removeInformBranch(i)">
+													<i class="icon text-right minus"></i>
+												</span>
+											</span>
+										</label>
+
+
+										<div class="col-md-4">
+											<div class="d-inline-flex w-100">
+												<ng-select formControlName="coCode" [items]="listCoCode"
+														   style="min-width: 100%"
+														   bindLabel="name"
+														   bindValue="name"
+														   [multiple]="false">
+												</ng-select>
+											</div>
+											<div class="invalid-feedback" style="display: block">
+												<span
+													*ngIf="(informBranch.get('coCode').touched || informBranch.get('coCode').dirty || isSubmit) && informBranch.get('coCode').hasError('required')">Trường bắt buộc nhập
+												</span>
+											</div>
+											<!--											<div class="invalid-feedback" style="display: block">-->
+											<!--																			<span-->
+											<!--																				*ngIf="(qAndA.get('question').touched || qAndA.get('question').dirty)-->
+											<!--																				&& qAndA.get('question').hasError('required')">Trường bắt buộc nhập</span>-->
+											<!--											</div>-->
+										</div>
+
+										<label class="col-form-label col-md-2  pl-3">Nội dung thông báo</label>
+										<div class="col-md-4">
+											<input trimFirstLast type="text" class="form-control"
+												   formControlName="content">
+										</div>
+									</div>
+								</div>
+							</div>
+
+						</div>
+
+
+						<!--							<label class="col-form-label col-md-2  pl-3">Nội dung thông báo</label>-->
+						<!--							<div class="col-md-4">-->
+						<!--								<input type="text" class="form-control" formControlName="content">-->
+						<!--								<div class="invalid-feedback" style="display: block">-->
+						<!--								<span-->
+						<!--									*ngIf="(frm.content.touched || frm.content.dirty) && frm.content.hasError('required')">Trường bắt buộc nhập-->
+						<!--								</span>-->
+						<!--								</div>-->
+						<!--							</div>-->
+					</div>
+
+
+					<div class="form-group row m-2">
+						<label class=" font-weight-bolder">
+							<input type="checkbox" class="regular-checkbox"
+								   [(ngModel)]="isOtherInformation"
+								   [ngModelOptions]="{standalone: true}"
+								   [disabled]="dataCacheRouter && (authorisable$ | async) || viewData"
+								   (change)="changeCheckBox()"
+								   style="border-radius: 3px;"/>
+							Thông tin khác
+						</label>
+					</div>
+
+					<ng-container *ngIf="isOtherInformation">
+						<div class="row">
+							<label class="col-form-label col-md-2 pl-3">Ngày loại trừ</label>
+							<div class="col-md-10">
+
+								<div class="mt-2 col-md-12" style="display: inline-flex">
+									<div style="width: 39% !important;">
+										<ng-select [items]="this.dateInWeek" style="min-width:100%"
+												   bindLabel="name"
+												   bindValue="value"
+												   [multiple]="true"
+												   formControlName="dateExcept">
+										</ng-select>
+
+									</div>
+
+								</div>
+							</div>
+						</div>
+
+
+						<div formArrayName="otherInfos">
+							<div
+								*ngFor="let otherInfo of otherInfos.controls; let i = index;"
+								[ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async) || viewData}">
+
+								<div [formGroupName]="i">
+
+									<div class="col-md-12" style="margin-left: 0px !important;"
+										 [ngClass]="{'sb-container-readonly': dataCacheRouter && (authorisable$ | async) || viewData}">
+										<div class="row mt-4 form-group">
+
+
+											<label class="col-form-label col-md-2 pl-3">Ngày cho phép
+												<span class="d-inline-flex mb-2" *ngIf="i == 0">
+												<span class="text-right ml-2" style="margin-left: 4px"
+													  (click)="addInfo()">
+													<i class="icon text-right plus"></i>
+												</span>
+											</span>
+
+												<span class="d-inline-flex mb-3" *ngIf="i > 0">
+												<span class="text-right ml-2" style="margin-left: 4px"
+													  (click)="removeInfo(i)">
+													<i class="icon text-right minus"></i>
+												</span>
+											</span>
+											</label>
+
+											<div class="col-md-4">
+
+												<ng-select [items]="this.dateInWeek" style="min-width:100%"
+														   bindLabel="name"
+														   bindValue="value"
+														   formControlName="allowDate">
+												</ng-select>
+											</div>
+
+										</div>
+
+										<div class="row mt-4 form-group">
+											<label class="col-form-label col-md-2 pl-3">Từ</label>
+
+											<div class="col-md-4">
+												<ngb-timepicker formControlName="fromTime" [seconds]="true"
+																[spinners]="false"></ngb-timepicker>
+												<div class="invalid-feedback" style="display: block!important;">
+
+												</div>
+											</div>
+
+											<label class="col-form-label col-md-2  pl-3">Đến</label>
+											<div class="col-md-4">
+												<ngb-timepicker formControlName="toTime" [seconds]="true"
+																[spinners]="false"></ngb-timepicker>
+												<div class="invalid-feedback" style="display: block!important;">
+
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</ng-container>
+				</div>
+
+			</ng-container>
+
+			<!--danh sách tài khoản đã đóng-->
+			<div class="sb-content mt-3">
+				<h4 class="font-weight-bold mt-2 mb-4 ml-2">Danh sách tài khoản đã đóng</h4>
+				<hr>
+				<table class="sb-content sb-custom-table table table-striped" style="overflow-x:auto;">
+					<thead class="text-left" style="background-color: #c3cadb">
+					<tr>
+						<td></td>
+						<td>STT</td>
+						<td>Số tài khoản</td>
+						<td>Loại tiền</td>
+						<td>Chi nhánh đóng tài khoản</td>
+					</tr>
+					</thead>
+
+					<tbody *ngIf="!(isLoadingCloseAccount$|async)">
+					<tr *ngFor="let account of closedAccount; let i = index">
+						<td>
+							<div class="form-group w-75 translateY">
+								<mat-radio-button
+									(change)="onChangeClosedAcc($event, account, i); changeCheckBox()"
+									[disabled]="dataCacheRouter && (authorisable$ | async) || viewData"
+									[checked]="(i == checkedCloseValue) || (account?.accountId == this.dataCacheRouter?.accountNumber)"
+									name="editLockdownAccount"></mat-radio-button>
+							</div>
+						</td>
+						<td>{{i + 1}}</td>
+						<td>{{account.accountId}}</td>
+						<td>{{account.currency}}</td>
+						<td>{{account.coCode}}</td>
+					</tr>
+					</tbody>
+				</table>
+
+				<div *ngIf="(isLoadingAccountInfo$ | async) || (isLoadingClosedAccount$|async)"
+					 style="text-align: -webkit-center; text-align: -moz-center">
+					<table>
+						<tr>
+							<td [ngClass]="{'kt-spinner kt-spinner--sm kt-spinner--danger kt-spinner--right kt-spinner--input': (isLoadingAccountInfo$ | async)}"></td>
+							<td>{{'DASHBOARD.loading' | translate}}</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<!--Khôi phục tài khoản đã đóng-->
+			<ng-container *ngIf="checkedCloseValue != null">
+				<div class="form-group row m-2">
+					<label class=" font-weight-bolder">
+						<input type="checkbox" class="regular-checkbox"
+							   [(ngModel)]="isRecoveryAccount"
+							   [checked]="isRecoveryAccount"
+							   [ngModelOptions]="{standalone: true}"
+							   [disabled]="dataCacheRouter && (authorisable$ | async) || viewData"
+							   (change)="onRecoveryAccount($event); changeCheckBox()"
+							   style="border-radius: 3px;"/>
+						Khôi phục tài khoản đã đóng
+					</label>
+				</div>
+				<div class="sb-content p-3 mt-3 mb-3" *ngIf="isRecoveryAccount && !(isLoadingClosedAccount$|async)">
+
+					<div class="form-group row">
+						<label class="col-form-label col-md-2 pl-3 required">Tài khoản khôi phục</label>
+						<div class="col-md-4">
+							<input type="text" class="form-control sb-readonly" formControlName="accNumberClosed"
+								   readonly>
+							<div class="invalid-feedback" style="display: block">
+								<span
+									*ngIf="(frm.accNumberClosed.touched || frm.accNumberClosed.dirty) && frm.accNumberClosed.hasError('required')">Trường bắt buộc nhập
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+
+			<kt-audit-info [parentForm]="parentForm"
+						   [dataFrmDash]="dataCacheRouter"
+						   [dataCacheRouter]="dataCacheRouter"
+						   [inputter]="inputtable$ | async"
+						   [authoriser]="authorisable$ | async"
+						   [ngClass]="{'sb-container-readonly':  STATUS_APPROVED || viewData}"
+			>
+			</kt-audit-info>
+
+			<kt-table-approve-error [headers]="headerError" [data]="dataError"
+									*ngIf="headerError.length"></kt-table-approve-error>
+
+
+			<div class="sb-content p-2 mt-3 mb-3" [hidden]="STATUS_APPROVED || viewData">
+				<div class="form-group row">
+					<div class=" col-12 text-right" *ngIf="inputtable$ | async">
+						<button type="button" (click)="getReportId()"
+								class="btn btn-sm  sb-btn-display mt-2 mr-2"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isSubmittingReport$ | async)}"
+								[ngbTooltip]="isLoadingTooltipReportButton ? 'Đang xử lý...' : null"
+								[disabled]="isSubmittingReport$| async"
+								tooltipClass="tooltip-custom">
+							Hiển thị biểu mẫu
+						</button>
+
+						<!--Nếu là tạo mới-->
+						<button type="button" (click)="resetForm()" *ngIf="!dataCacheRouter"
+								class="btn btn-sm  sb-btn-remove mt-2 mr-2">
+							Xóa
+						</button>
+
+						<!--Nếu là importer chỉnh sửa dữ liệu sau khi tạo-->
+						<button type="button" (click)="removeRecord()" *ngIf="dataCacheRouter && !STATUS_APPROVED"
+								class="btn btn-sm  sb-btn-remove mt-2 mr-2">
+							Xóa
+						</button>
+
+						<button type="button" *ngIf="!STATUS_APPROVED"
+								(click)="onSubmit()"
+								class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+							{{dataCacheRouter ? (this.dataCacheRouter.status == 'APPROVED_ERROR' ?'Gửi duyệt lại' : 'Cập nhật') : 'Gửi duyệt'}}
+						</button>
+					</div>
+
+					<div class="col-12 text-right" *ngIf="(authorisable$ | async) && STATUS_PENDING">
+						<button type="button"
+								(click)="askUserToRejectRecord()"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isRejecting$ | async)}"
+								class="btn btn-sm  sb-btn-display mt-2 mr-2">
+							Từ chối
+						</button>
+						<button type="button"
+								(click)="approveAccount()"
+								class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+								[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isApproving$ | async)}">
+							Duyệt
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>
+

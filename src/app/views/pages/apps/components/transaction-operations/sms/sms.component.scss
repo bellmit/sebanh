@@ -1,0 +1,43 @@
+.input-table {
+	height: 40px;
+	border: 1px solid #ced4da;
+	border-radius: 2px;
+	text-align: center;
+	outline: none;
+}
+
+.no-border-ng-select{
+	.ng-select-container{
+		border: none !important;
+
+		height: 42px !important;
+		border-radius: 5px !important;
+		outline: 0 !important;
+		background: transparent!important;
+	}
+}
+
+.back-ground-color-E2E5EC{
+	.ng-select-container{
+		background-color: #E2E5EC !important;
+
+		//border: none !important;
+		//
+		//height: 42px !important;
+		//border-radius: 5px !important;
+		//outline: 0 !important;
+	}
+}
+
+.back-ground-color-F5F8FA{
+	.ng-select-container{
+		background-color: #F5F8FA !important;
+
+		//border: none !important;
+		//
+		//height: 42px !important;
+		//border-radius: 5px !important;
+		//outline: 0 !important;
+	}
+}
+

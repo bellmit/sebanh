@@ -1,0 +1,31 @@
+<div class="card modal-content modalClass" id="modal-notification">
+	<!-- <div class="modal-header">
+		<div class="modal-title">Chuyển chi nhánh</div>
+		<button type="button" class="close" (click)="close()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div> -->
+	<div class="modal-body">
+		<div class="body-title">
+            {{textNotify}}
+        </div>
+
+
+    </div>
+    <div class="modal-footer">
+        <div class="row form-group justify-content-center">
+			<button *ngIf="commonService.isNotifyHasCancel$.getValue()" (keydown.enter)="close()"
+					type="button"
+					(click)="closeX()"
+					class="btn  btn-cancel-X">
+				Hủy
+			</button>
+			<button (keydown.enter)="close()"
+				type="button"
+				(click)="close()"
+				class="btn  btn-cancel">
+				Đồng ý
+			</button>
+		</div>
+    </div>
+</div>

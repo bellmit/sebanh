@@ -1,0 +1,63 @@
+<div class="col-12 sb-content">
+	<div class="mt-3 mb-3">
+		<form [formGroup]="comboInfoForm">
+			<table width="100%">
+				<tr>
+					<td width="50%">
+						<span class="pr-3">Mã giao dịch</span>
+						<input type="text" class="w-75 sb-inp-combo-info sb-inp-readonly" formControlName="transID" style="height: 40px">
+					</td>
+
+					<td width="25%">
+						<span class="pr-3">Độ ưu tiên</span>
+						<select formControlName="priority" class="w-50 sb-select-combo-info" style="height: 40px">
+							<option value="PRIMARY">Thuờng</option>
+							<option value="HIGH">Cao</option>
+						</select>
+					</td>
+
+					<td width="25%">
+						<label class="font-weight-bolder">
+							<input type="checkbox" class="regular-checkbox" formControlName="customerChecked"
+								   style="border-radius: 3px;"/>
+						</label>
+						<span class="pl-3">Khách hàng xác nhận</span>
+					</td>
+				</tr>
+
+			</table>
+			<hr>
+			<div class="form-group row">
+				<div class="col-md-12 mt-3">
+					<button class="btn btn-sm "
+							[ngClass]="{'sb-button-selected': commonService.activeTab$.getValue() == 0,
+										'sb-button-normal': commonService.activeTab$.getValue() != 0}"
+							(click)="commonService.activeTab$.next(0)">Thông tin cá
+						nhân
+					</button>
+					<!-- <button class="btn btn-sm  ml-2 "
+							[ngClass]="{'sb-button-selected': commonService.activeTab$.getValue() == 1,
+										'sb-button-normal': commonService.activeTab$.getValue() != 1}"
+							(click)="commonService.activeTab$.next(1)">FATCA
+					</button> -->
+					<!-- <button class="btn btn-sm ml-2"
+							[ngClass]="{'sb-button-selected': commonService.activeTab$.getValue() == 2,
+										'sb-button-normal': commonService.activeTab$.getValue() != 2}"
+							(click)="commonService.activeTab$.next(2)">AML tăng
+						cường
+					</button> -->
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<div class="col-md-12 mt-3">
+					<label class="font-weight-bolder">
+						<input type="checkbox" disabled class="regular-checkbox" [checked]="true"
+							   style="border-radius: 3px;"/>
+					</label>
+					<span class="pl-3">Mở mã khách hàng</span>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

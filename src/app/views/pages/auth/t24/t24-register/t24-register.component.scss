@@ -1,0 +1,33 @@
+.modalClass-register {
+	.modal-title {
+		font-size: 18px;
+		font-weight: bold;
+    }
+    .modal-sub-title {
+        color: #7B7B7B;
+        font-size: 14px;
+        line-height: 21px;
+        font-family: 'Manrope', sans-serif;
+    }
+    
+}
+#userT24 {
+    text-transform: uppercase;
+}
+#userT24::-webkit-input-placeholder {
+    font-family: "Arial", sans-serif;
+    color: #7B7B7B;
+    text-transform: initial;
+}
+
+#userT24:-moz-placeholder {
+    font-family: "Arial", sans-serif;
+    color: #7B7B7B;
+    text-transform: initial;
+}
+
+#userT24:-ms-input-placeholder {
+    font-family: "Arial", sans-serif;
+    color: #7B7B7B;
+    text-transform: initial;
+}

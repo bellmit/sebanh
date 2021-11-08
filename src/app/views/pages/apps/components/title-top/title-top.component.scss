@@ -1,0 +1,19 @@
+.parent-title {
+	color: #000000;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.child-title {
+	color: #7B7B7B;
+	font-weight: normal;
+}
+
+.dot {
+	height: 4px;
+	width: 4px;
+	background-color: #000000;
+	border-radius: 50%;
+	display: inline-block;
+	transform: translateY(-50%);
+}

@@ -1,0 +1,112 @@
+<div class="kt-content-customer">
+	<kt-title-top [parentTitle]="'Trang chủ'" [childOne]="'Quản lý thông tin khách hàng'"
+				  *ngIf="!viewData"></kt-title-top>
+	<form [formGroup]="parentForm">
+		<kt-transaction-info [parentForm]="parentForm" [dataFrmDash]="dataFrmDash"
+							 [customerId$]="customerId$ | async"
+							 [isLoading]="(isLoadingCustomerInfo$ | async)"
+							 (onSearch)="fetchAPICustomer(transactionComponent.transactionForm.controls.customerId.value)"
+		>
+		</kt-transaction-info>
+
+		<kt-update-customer-info [parentForm]="parentForm"
+								 [showCheckboxCustomerManage]="showCheckboxCustomerManage"
+								 [disableField$]="disableField$"
+								 [cusDataFrmDash]="dataFrmDash"
+								 [inputtable]="inputtable$ | async"
+								 [authoriserble]="authorisable$ | async"
+								 [ngClass]="{'sb-container-readonly': (dataFrmDash && (authorisable$ | async) || viewData)}"
+								 [isUpdateSignature]="isUpdateSignature"
+		>
+
+		</kt-update-customer-info>
+
+		<kt-update-signature [user_id]="dataFrmDash?.customerId"
+							 [parentForm]="parentForm"
+							 [dataUpdate]="dataFrmDash || viewData"
+							 [disabledField]="authorisable$|async"
+							 [ngClass]="{'sb-container-readonly': (dataFrmDash && (authorisable$ | async) || viewData)}">
+		</kt-update-signature>
+
+		<!--		TODO cập nhật thông tin KH vãng lai-->
+		<kt-update-prospect-id-info [parentForm]="parentForm"
+									[isShowUpdateProspectId]="showCheckboxCustomerManage"
+									[cusDataFrmDash]="dataFrmDash"
+									[inputtable]="inputtable$ | async"
+									[authoriserble]="authorisable$ | async"
+									[customerId$]="customerId$ | async"
+									[disableField$]="disableField$"
+									[ngClass]="{'sb-container-readonly': (dataFrmDash && (authorisable$ | async) || viewData)}"
+									[isUpdateSignature]="isUpdateSignature">
+
+		</kt-update-prospect-id-info>
+
+		<!--		<kt-external-customer-->
+		<!--			[ngClass]="{'sb-container-readonly': (dataFrmDash && (authorisable$ | async) || viewData)}">-->
+
+		<!--		</kt-external-customer>-->
+
+		<kt-audit-info [parentForm]="parentForm"
+					   [dataFrmDash]="dataFrmDash"
+					   [inputter]="inputtable$ | async"
+					   [authoriser]="authorisable$ | async"
+					   [ngClass]="{'sb-container-readonly': ((APPROVED | async) || viewData)}"
+		>
+		</kt-audit-info>
+
+		<kt-table-approve-error [headers]="headerError" [data]="dataError"
+								*ngIf="headerError.length"></kt-table-approve-error>
+
+		<div class="form-group row sb-content p-3 m-0" [hidden]="STATUS_APPROVED  || viewData">
+			<div class=" col-12 text-right">
+				<button type="button" *ngIf="(inputtable$ | async)" (click)="getReportId()"
+						[disabled]="isLoading$|async"
+						class="btn  btn-sm sb-btn-display mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+					Hiển thị biểu mẫu
+				</button>
+
+				<!-- <button type="button" *ngIf="!dataFrmDash"
+							class="btn btn-sm sb-btn-remove mt-2 mr-2" (click)="removeForm()">
+						Xóa
+					</button> -->
+
+				<button *ngIf="(inputtable$ | async) && !STATUS_APPROVED" (click)="deleteCus()" type="button"
+						[disabled]="!(commonService.isUpdateCus$ | async)"
+						class="btn btn-sm  sb-btn-remove mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingCustomerInfo$ | async)}">
+					Xóa
+				</button>
+
+				<button *ngIf="(inputtable$ | async) && !STATUS_APPROVED"
+						(click)="onSubmit()"
+						class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingSendCustomerInfo$ | async)}">
+					{{this.dataFrmDash ? (this.dataFrmDash.status == 'APPROVED_ERROR' ? 'Gửi duyệt lại' : 'Cập nhật') : 'Gửi duyệt'}}
+				</button>
+				<button *ngIf="(authorisable$ | async) && STATUS_PENDING"
+						(click)="rejectCus()"
+						class="btn btn-sm  sb-btn-remove mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingCustomerInfo$ | async)}">
+					Từ chối
+				</button>
+				<button *ngIf="(authorisable$ | async) && STATUS_PENDING"
+						(click)="approveCus()"
+						class="btn btn-sm  sb-btn-submit mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoadingAuthCustomerInfo$ | async)}">
+					Duyệt
+				</button>
+			</div>
+		</div>
+		<div class="form-group row sb-content p-3 m-0" *ngIf="dataFrmDash?.status == 'APPROVED'">
+			<div class=" col-12 text-right">
+				<button type="button" (click)="refreshError()"
+						class="btn  btn-sm sb-btn-display mt-2 mr-2"
+						[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+					Refresh
+				</button>
+			</div>
+		</div>
+	</form>
+</div>
+

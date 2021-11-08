@@ -1,0 +1,28 @@
+.account-info-container {
+	border: 1px solid;
+	border-radius: 10px;
+}
+
+
+.table-custom thead {
+	background: #C3CADB 0% 0% no-repeat padding-box;
+	opacity: 1;
+	border: none;
+}
+
+.pointer-disabled {
+	pointer-events: none !important;
+}
+
+.fatca {
+	table, th, td {
+		font-size: 16px;
+		border: 1px solid gray;
+		font-family: 'Times New Roman', Times, serif;
+
+	  }
+
+	thead {
+		font-weight: bolder;
+	}
+}

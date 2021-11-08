@@ -1,0 +1,124 @@
+<div class="kt-content">
+	<kt-title-top [parentTitle]="parentName" [childOne]="childOne" [childTwo]="childTwo"></kt-title-top>
+
+	<kt-combo-info [ngClass]="{'sb-container-readonly': (dataFrmDashboard && (authorisable$ | async) || APPROVED)}"
+				   [parentForm]="parentForm"
+				   [dataFrmDash]="dataFrmDashboard"
+	></kt-combo-info>
+
+	<div *ngIf="commonService.activeTab$.getValue() === 0">
+		<kt-customer-info [parentForm]="parentForm"
+						  [cusDataFrmDash]="dataFrmDashboard"
+						  [inputtable]="inputtable$ | async"
+						  [authoriserble]="authorisable$ | async"
+						  [ngClass]="{'sb-container-readonly': (dataFrmDashboard && (authorisable$ | async) || APPROVED)}">
+		</kt-customer-info>
+		<!--		<kt-other-info [parentForm]="parentForm"></kt-other-info>-->
+		<!--		<button class="btn btn-sm sb-button-danger m-3">Kiểm tra AML</button>-->
+		<kt-open-account-info [parentForm]="parentForm"
+							  [accFrmDash]="dataFrmDashboard"
+							  [inputterble]="inputtable$ | async"
+							  [authoraiserble]="authorisable$ | async"
+							  [ngClass]="{'sb-container-readonly': (dataFrmDashboard && (authorisable$ | async) || APPROVED)}">
+		</kt-open-account-info>
+		<!--		<kt-sms-register [parentForm]="parentForm"-->
+		<!--						 [smsDataFromDash]="dataFrmDashboard"-->
+		<!--						 [inputtable]="inputtable$ | async"-->
+		<!--						 [authoriserble]="authorisable$ | async"-->
+		<!--						 [ngClass]="{'sb-container-readonly': (dataFrmDashboard && (authorisable$ | async) || APPROVED)}"-->
+		<!--		></kt-sms-register>-->
+		<!--		<kt-sms-service-register-ex-cus [parentForm]="parentForm"-->
+		<!--										[dataFrmDash]="dataFrmDashboard"-->
+		<!--										[inputtable]="inputtable$ | async"-->
+		<!--										[authoriserble]="authorisable$ | async"-->
+		<!--										[ngClass]="{'sb-container-readonly': (dataFrmDashboard && (authorisable$ | async) || APPROVED)}"-->
+		<!--		></kt-sms-service-register-ex-cus>-->
+		<kt-sms-register [parentForm]="parentForm"
+						 [dataFrmDash]="dataFrmDashboard"
+						 [inputtable]="inputtable$ | async"
+						 [authoriserble]="authorisable$ | async"
+						 [ngClass]="{'sb-container-readonly': (dataFrmDashboard && (authorisable$ | async) || APPROVED)}"
+		></kt-sms-register>
+		<kt-ebank-register [parentForm]="parentForm"
+						   [ebankDataFrmDash]="dataFrmDashboard"
+						   [accountInfo]="accountInfo$"
+						   [isLoadingAccount$]="isLoadingAccountInfo$"
+						   [inputtable]="inputtable$ | async"
+						   [authoriserble]="authorisable$ | async"
+						   [ngClass]="{'sb-container-readonly': (dataFrmDashboard && (authorisable$ | async) || APPROVED)}">
+		</kt-ebank-register>
+		<kt-general-info [parentForm]="parentForm"
+						 [dataFromDash]="dataFrmDashboard"
+						 [inputtable]="inputtable$ | async"
+						 [authoraiserble]="authorisable$ | async"
+						 [ngClass]="{'sb-container-readonly': (dataFrmDashboard && (authorisable$ | async) || APPROVED)}"
+		>
+		</kt-general-info>
+
+		<kt-audit-info [parentForm]="parentForm"
+					   [dataFrmDash]="dataFrmDashboard"
+					   [inputter]="inputtable$ | async"
+					   [authoriser]="authorisable$ | async"
+					   [ngClass]="{'sb-container-readonly': (dataFrmDashboard && (authorisable$ | async) || APPROVED)}"
+		>
+		</kt-audit-info>
+
+		<div class="sb-content p-3 mt-3 mb-3" [hidden]="APPROVED">
+			<div class="form-group row " *ngIf="inputtable$ | async">
+				<div class="col-12 text-right">
+					<button type="button" (click)="getReportId()"
+							class="btn  btn-sm sb-btn-display mt-2 mr-2">
+						Hiển thị biểu mẫu
+					</button>
+
+					<!--Nếu là tạo mới-->
+					<button type="button" *ngIf="!dataFrmDashboard"
+							class="btn btn-sm sb-btn-remove mt-2 mr-2" (click)="removeForm()">
+						Xóa
+					</button>
+
+					<!--Nếu là importer chỉnh sửa dữ liệu sau khi tạo-->
+					<button type="button" (click)="removeRecord()" *ngIf="dataFrmDashboard"
+							class="btn btn-sm  sb-btn-remove mt-2 mr-2">
+						Xóa
+					</button>
+
+					<!-- <button type="button"
+							class="btn btn-sm  sb-btn-save mt-2 mr-2">
+						Lưu
+					</button> -->
+					<button type="submit" [disabled]="(isLoading$ | async)"
+							class="btn  btn-sm sb-btn-submit mt-2 mr-2" (click)="onImporterCreate()"
+							[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+						{{dataFrmDashboard ? 'Cập nhật' : 'Gửi duyệt'}}
+					</button>
+				</div>
+			</div>
+
+			<div class="form-group row " *ngIf="authorisable$ | async">
+				<div class="col-12 text-right">
+					<button type="button"
+							class="btn btn-sm  sb-btn-save mt-2 mr-2">
+						Từ chối
+					</button>
+					<button type="submit" [disabled]="(isLoading$ | async)"
+							class="btn  btn-sm sb-btn-submit mt-2 mr-2" (click)="onApproved()"
+							[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async)}">
+						Duyệt
+					</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<div *ngIf="commonService.activeTab$.getValue() === 1">
+		FATCA
+	</div>
+
+	<div *ngIf="commonService.activeTab$.getValue() === 2">
+		AML tăng cường
+	</div>
+</div>
+
+

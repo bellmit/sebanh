@@ -1,0 +1,73 @@
+export class ProspectModel {
+	customerName?: string;
+	sex?: string;
+	birthday?: string;
+	legalId: string;
+	legalDocName?: string;
+	issuedBy?: string;
+	idenTimeExpired?: string;
+	idenTimeRelease?: string;
+	customerAddress?: string;
+
+}
+
+export interface CustomerInfoModel {
+	shortName: string;
+	legalDocName: string;
+	legalID: string;
+	email: string;
+	sms: string;
+	currentAddress: string;
+	accOfficer?: string;
+	addCurrentAddress?:string;
+	addPermanentAddress?: string;
+	addShortName?: string;
+	addrLocation?: string;
+	address?: string;
+	answer?: string;
+	country?: string;
+	customerClass?: string;
+	customerID?: string;
+	customerStatus?: string;
+	customerType?: string;
+	dateOfBirth?: string;
+	employersAdd?: string;
+	employersName?: string;
+	employmentStatus?: string;
+	fax1?: string;
+	gender?: string;
+	industry?: string;
+	industryClass?: string;
+	industryGroup?: string;
+	legalExpDate?: string;
+	legalHolderName?: string;
+	legalIssAuth?: string;
+	legalIssDate?: string;
+	loyalty?:string;
+	maritalStatus?: string;
+	nationality?: string;
+	noOfDependents?: string;
+	occupation?: string;
+	passExpDate?: string;
+	passIssDate?: string;
+	passPlaceIss?: string;
+	permanentAddress?: string;
+	phone?: string;
+	province?: string;
+	question?: string;
+	relCustomer?: string;
+	relationCode?: string;
+	resident?:string;
+	responseCode?: string;
+	salary?: string;
+	seabDistrict1?: string;
+	seabOwnCust?: string;
+	seabOwnerBen?: string;
+	seabPob?: string;
+	seabPurpose?: string;
+	seabRegStatus?: string;
+	sms2?: string;
+	subIndustry?: string;
+	taxID?: string;
+	title?: string;
+}

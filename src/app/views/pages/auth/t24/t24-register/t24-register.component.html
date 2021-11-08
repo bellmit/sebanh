@@ -1,0 +1,61 @@
+<div class="card modal-content">
+
+	<div *ngIf="userT24" class="modal-header modalClass-register" style="display: flex;">
+		<h4>Cập nhật tài khoản T24</h4>
+		<button type="button" class="close" (click)="close()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+
+	<div *ngIf="!userT24" class="modal-header modalClass-register" style="display: block;">
+		<div>
+			<span class="modal-title">Đăng ký tài khoản T24</span>
+		<button type="button" class="close" (click)="close()">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		<div class="modal-sub-title">Nhập tên đăng nhập và mật khẩu đăng nhập vào hệ thống T24</div>
+
+		</div>
+	</div>
+
+	<div class="modal-body">
+		<form class="kt-form" [formGroup]="accessForm" (ngSubmit)="onSubmit(accessForm.value)">
+			<div class="form-group row">
+				<label class="col-form-label col-md-12">Tên đăng nhập</label>
+				<div class="col-md-12">
+					<input (keydown.enter)="onSubmit(accessForm.value)" placeholder="Nhập tên đăng nhập" [attr.disabled]="userT24" type="text" formControlName="userT24" id="userT24" (ngModelChange)="clearRequire()"
+						   class="form-control"
+						   autocomplete="new-password">
+					<div class="invalid-feedback" style="display: block!important;"
+						 *ngIf="accessForm.controls.userT24.invalid && (accessForm.controls.userT24.touched || accessForm.controls.userT24.dirty)">
+						<span *ngIf="accessForm.controls.userT24.errors.required">Trường bắt buộc nhập</span>
+					</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="password" class="col-form-label col-md-12">Mật khẩu</label>
+				<div class="col-md-12">
+					<input (keydown.enter)="onSubmit(accessForm.value)" type="password" placeholder="Nhập mật khẩu" name="new-password" formControlName="password" id="password"
+						   class="form-control" autocomplete="new-password">
+					<div class="invalid-feedback" style="display: block!important;"
+						 *ngIf="accessForm.controls.password.invalid && (accessForm.controls.password.touched || accessForm.controls.password.dirty)">
+						<span *ngIf="accessForm.controls.password.errors.required">Trường bắt buộc nhập</span>
+						<span *ngIf="accessForm.controls.password.errors.notExact">Tên đăng nhập hoặc mật khẩu chưa chính xác. Vui lòng thử lại</span>
+						<span *ngIf="accessForm.controls.password.errors.passNotExact">Mật khẩu chưa chính xác. Vui lòng thử lại</span>
+					</div>
+				</div>
+			</div>
+		</form>
+
+
+
+	</div>
+	<div class="modal-footer">
+		<div class="row form-group justify-content-center" style="margin-top: 2rem!important;">
+			<button type="button" (click)="onSubmit(accessForm.value)" class="btn mr-2"
+					[ngClass]="{'kt-spinner kt-spinner--right kt-spinner--md kt-spinner--dark ml-2': (isLoading$ | async), 'btn-outline-success' : userT24, 'btn-register' : !userT24} "
+					[disabled]="(isLoading$ | async)"> {{userT24 ? 'Cập nhật' : ' Đăng ký'}}
+			</button>
+		</div>
+	</div>
+</div>

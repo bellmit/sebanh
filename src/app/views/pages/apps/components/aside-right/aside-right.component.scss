@@ -1,0 +1,172 @@
+.image-container {
+	background-color: #F2F3F5;
+	width: 120px;
+	height: 105px;
+	//border-radius: 30px;
+}
+
+.image-preview {
+	width: 100px;
+	height: 100px;
+	background-color: #F2F3F5;
+	border: 2px solid #F2F3F5;
+}
+
+// css for modal show template for show template
+/* The Modal (background) */
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	padding-top: 100px; /* Location of the box */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0, 0, 0); /* Fallback color */
+	background-color: rgba(0, 0, 0, 0.9); /* Black w/ opacity */
+}
+
+/* Modal Content (image) */
+.modal-content {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: auto;
+	margin-bottom: auto;
+	display: block;
+	width: 80%;
+	max-width: 700px;
+	//transform: rotate(-90deg);
+}
+
+/* Caption of Modal Image */
+#caption {
+	margin: auto;
+	display: block;
+	width: 80%;
+	max-width: 700px;
+	text-align: center;
+	color: #ccc;
+	padding: 10px 0;
+	height: 150px;
+}
+
+/* Add Animation */
+.modal-content, #caption {
+	-webkit-animation-name: zoom;
+	-webkit-animation-duration: 0.6s;
+	animation-name: zoom;
+	animation-duration: 0.6s;
+}
+
+@-webkit-keyframes zoom {
+	from {
+		-webkit-transform: scale(0)
+	}
+	to {
+		-webkit-transform: scale(1)
+	}
+}
+
+@keyframes zoom {
+	from {
+		transform: scale(0)
+	}
+	to {
+		transform: scale(1)
+	}
+}
+
+/* The Close Button */
+.close-btn {
+	color: #f1f1f1;
+	font-size: 2rem;
+	font-weight: bold;
+	transition: 0.3s;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+	color: #bbb;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px) {
+	.modal-content {
+		width: 100%;
+	}
+}
+
+#img01 {
+	transform-origin: top left;
+	/* IE 10+, Firefox, etc. */
+	-webkit-transform-origin: top left;
+	/* Chrome */
+	-ms-transform-origin: top left;
+	/* IE 9 */
+}
+
+#myModal.rotate90 #img01 {
+	transform: rotate(90deg) translateY(-100%);
+	-webkit-transform: rotate(90deg) translateY(-100%);
+	-ms-transform: rotate(90deg) translateY(-100%);
+}
+
+#myModal.rotate180 #img01 {
+	transform: rotate(180deg) translate(-100%, -100%);
+	-webkit-transform: rotate(180deg) translate(-100%, -100%);
+	-ms-transform: rotate(180deg) translateX(-100%, -100%);
+}
+
+#myModal.rotate270 #img01 {
+	transform: rotate(270deg) translateX(-100%);
+	-webkit-transform: rotate(270deg) translateX(-100%);
+	-ms-transform: rotate(270deg) translateX(-100%);
+}
+
+
+#img02 {
+	transform-origin: top left;
+	/* IE 10+, Firefox, etc. */
+	-webkit-transform-origin: top left;
+	/* Chrome */
+	-ms-transform-origin: top left;
+	/* IE 9 */
+}
+
+#myModal.rotate90 #img02 {
+	transform: rotate(90deg) translateY(-100%);
+	-webkit-transform: rotate(90deg) translateY(-100%);
+	-ms-transform: rotate(90deg) translateY(-100%);
+}
+
+#myModal.rotate180 #img02 {
+	transform: rotate(180deg) translate(-100%, -100%);
+	-webkit-transform: rotate(180deg) translate(-100%, -100%);
+	-ms-transform: rotate(180deg) translateX(-100%, -100%);
+}
+
+#myModal.rotate270 #img02 {
+	transform: rotate(270deg) translateX(-100%);
+	-webkit-transform: rotate(270deg) translateX(-100%);
+	-ms-transform: rotate(270deg) translateX(-100%);
+}
+
+.grid-finger-image{
+	margin-left: 0px;
+	grid-gap: 10px;
+	display: grid;
+	height: 100px;
+	grid-template-columns: 50% 50%;
+}
+
+.frame-finger-image{
+	height: 100%;  border: 1px solid #e1e1ef; position: relative
+}
+
+.clear-button-finger-image{
+	position: absolute; right: 8px; top: 0px; color: #e1e1ef
+}
